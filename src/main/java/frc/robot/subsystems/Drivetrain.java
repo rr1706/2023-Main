@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
@@ -20,8 +21,8 @@ import edu.wpi.first.wpilibj.Timer;
 import com.kauailabs.navx.frc.AHRS;
 
 import frc.robot.Constants.*;
-import frc.robot.Utilities.FieldRelativeAccel;
-import frc.robot.Utilities.FieldRelativeSpeed;
+import frc.robot.utilities.FieldRelativeAccel;
+import frc.robot.utilities.FieldRelativeSpeed;
 
 /**
  * Implements a swerve Drivetrain Subsystem for the Robot
@@ -68,15 +69,23 @@ public class Drivetrain extends SubsystemBase {
       DriveConstants.kBackRightTurningMotorPort, DriveConstants.kBackRightTurningEncoderPort,
       DriveConstants.kBackRightOffset, DriveConstants.kBackRightTuningVals);
 
+  // Creates an array of SwerveModulePosition objects for use in SwerveDriveOdometry objects
+  private final SwerveModulePosition[] m_modulePositions = {
+    new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(-1 * DriveConstants.kWheelBaseWidth, 1 * DriveConstants.kWheelBaseLength)),  // Front Left
+    new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(1 * DriveConstants.kWheelBaseWidth, 1 * DriveConstants.kWheelBaseLength)),  // Front Right
+    new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(-1 * DriveConstants.kWheelBaseWidth, -1 * DriveConstants.kWheelBaseLength)),  // Back Left
+    new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(1 * DriveConstants.kWheelBaseWidth, -1 * DriveConstants.kWheelBaseLength))  // Back Right
+  };  
+
   // Creates an ahrs gyro (NavX) on the MXP port of the RoboRIO
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
   // Creates Odometry object to store the pose of the robot
   private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
-      ahrs.getRotation2d());
+      ahrs.getRotation2d(), m_modulePositions);
 
   private final SwerveDriveOdometry m_autoOdometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
-      ahrs.getRotation2d());
+      ahrs.getRotation2d(), m_modulePositions);
 
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
@@ -86,7 +95,7 @@ public class Drivetrain extends SubsystemBase {
     keepAngleTimer.start();
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
     ahrs.reset();
-    m_odometry.resetPosition(new Pose2d(), ahrs.getRotation2d().times(-1.0));
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, new Pose2d());
   }
 
   /**
