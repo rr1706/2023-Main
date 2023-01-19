@@ -4,8 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -116,10 +118,18 @@ public final class Constants {
     // Because the swerve modules poisition does not change, define a constant
     // SwerveDriveKinematics for use throughout the code
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-        new Translation2d(kWheelBaseLength / 2, kWheelBaseWidth / 2),
-        new Translation2d(kWheelBaseLength / 2, -kWheelBaseWidth / 2),
-        new Translation2d(-kWheelBaseLength / 2, kWheelBaseWidth / 2),
-        new Translation2d(-kWheelBaseLength / 2, -kWheelBaseWidth / 2));
+      new Translation2d(kWheelBaseLength, kWheelBaseWidth),
+      new Translation2d(kWheelBaseLength, -kWheelBaseWidth),
+      new Translation2d(-kWheelBaseLength, kWheelBaseWidth),
+      new Translation2d(-kWheelBaseLength, -kWheelBaseWidth));
+
+    // Creates an array of SwerveModulePosition objects for use in SwerveDriveOdometry objects
+    public static final SwerveModulePosition[] m_modulePositions = {
+      new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(-1 * DriveConstants.kWheelBaseWidth, 1 * DriveConstants.kWheelBaseLength)),  // Front Left
+      new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(1 * DriveConstants.kWheelBaseWidth, 1 * DriveConstants.kWheelBaseLength)),  // Front Right
+      new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(-1 * DriveConstants.kWheelBaseWidth, -1 * DriveConstants.kWheelBaseLength)),  // Back Left
+      new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(1 * DriveConstants.kWheelBaseWidth, -1 * DriveConstants.kWheelBaseLength))  // Back Right
+    };
 
     public static final double kMaxAcceleration = 3.0;
     public static final double kMaxSpeedMetersPerSecond = 3.25; // Maximum Sustainable Drivetrain Speed under Normal
