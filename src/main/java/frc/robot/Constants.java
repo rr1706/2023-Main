@@ -118,18 +118,10 @@ public final class Constants {
     // Because the swerve modules poisition does not change, define a constant
     // SwerveDriveKinematics for use throughout the code
     public static final SwerveDriveKinematics kDriveKinematics = new SwerveDriveKinematics(
-      new Translation2d(kWheelBaseLength, kWheelBaseWidth),
-      new Translation2d(kWheelBaseLength, -kWheelBaseWidth),
-      new Translation2d(-kWheelBaseLength, kWheelBaseWidth),
-      new Translation2d(-kWheelBaseLength, -kWheelBaseWidth));
-
-    // Creates an array of SwerveModulePosition objects for use in SwerveDriveOdometry objects
-    public static final SwerveModulePosition[] m_modulePositions = {
-      new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(-1 * DriveConstants.kWheelBaseWidth, 1 * DriveConstants.kWheelBaseLength)),  // Front Left
-      new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(1 * DriveConstants.kWheelBaseWidth, 1 * DriveConstants.kWheelBaseLength)),  // Front Right
-      new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(-1 * DriveConstants.kWheelBaseWidth, -1 * DriveConstants.kWheelBaseLength)),  // Back Left
-      new SwerveModulePosition(DriveConstants.kWheelBaseDistance, new Rotation2d(1 * DriveConstants.kWheelBaseWidth, -1 * DriveConstants.kWheelBaseLength))  // Back Right
-    };
+      new Translation2d(kWheelBaseLength, kWheelBaseWidth),  // Front Right
+      new Translation2d(kWheelBaseLength, -kWheelBaseWidth),  // Front Left
+      new Translation2d(-kWheelBaseLength, kWheelBaseWidth),  // Back Right
+      new Translation2d(-kWheelBaseLength, -kWheelBaseWidth));  // Back Left
 
     public static final double kMaxAcceleration = 3.0;
     public static final double kMaxSpeedMetersPerSecond = 3.25; // Maximum Sustainable Drivetrain Speed under Normal

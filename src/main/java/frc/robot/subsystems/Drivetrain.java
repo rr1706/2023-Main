@@ -72,12 +72,20 @@ public class Drivetrain extends SubsystemBase {
   // Creates an ahrs gyro (NavX) on the MXP port of the RoboRIO
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
+  // Creates an array of SwerveModulePositions for use in odometrynew
+  private final SwerveModulePosition[] m_modulePositions = {
+    m_frontRight.getPosition(),
+    m_frontLeft.getPosition(),
+    m_backRight.getPosition(),
+    m_backLeft.getPosition()
+  };
+
   // Creates Odometry object to store the pose of the robot
   private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
-      ahrs.getRotation2d(), DriveConstants.m_modulePositions);
+      ahrs.getRotation2d(), m_modulePositions);
 
   private final SwerveDriveOdometry m_autoOdometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
-      ahrs.getRotation2d(), DriveConstants.m_modulePositions);
+      ahrs.getRotation2d(), m_modulePositions);
 
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
@@ -87,7 +95,7 @@ public class Drivetrain extends SubsystemBase {
     keepAngleTimer.start();
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
     ahrs.reset();
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), DriveConstants.m_modulePositions, new Pose2d());
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, new Pose2d());
   }
 
   /**
@@ -173,11 +181,11 @@ public class Drivetrain extends SubsystemBase {
    * once per loop to minimize error.
    */
   public void updateOdometry() {
-    m_odometry.update(ahrs.getRotation2d(), DriveConstants.m_modulePositions);
+    m_odometry.update(ahrs.getRotation2d(), m_modulePositions);
   }
 
   public void updateAutoOdometry() {
-    m_autoOdometry.update(ahrs.getRotation2d(), DriveConstants.m_modulePositions);
+    m_autoOdometry.update(ahrs.getRotation2d(), m_modulePositions);
   }
 
   /**
@@ -235,12 +243,12 @@ public class Drivetrain extends SubsystemBase {
     ahrs.reset();
     ahrs.setAngleAdjustment(pose.getRotation().getDegrees());
     keepAngle = getGyro().getRadians();
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), DriveConstants.m_modulePositions, pose);
-    m_autoOdometry.resetPosition(ahrs.getRotation2d().times(-1.0), DriveConstants.m_modulePositions, pose);
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, pose);
+    m_autoOdometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, pose);
   }
 
   public void setPose(Pose2d pose) {
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), DriveConstants.m_modulePositions, pose);
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, pose);
     keepAngle = getGyro().getRadians();
   }
 
@@ -254,8 +262,8 @@ public class Drivetrain extends SubsystemBase {
     ahrs.reset();
     ahrs.setAngleAdjustment(angle.getDegrees());
     keepAngle = getGyro().getRadians();
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), DriveConstants.m_modulePositions, pose);
-    m_autoOdometry.resetPosition(ahrs.getRotation2d().times(-1.0), DriveConstants.m_modulePositions, pose);
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, pose);
+    m_autoOdometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, pose);
   }
 
   /**
