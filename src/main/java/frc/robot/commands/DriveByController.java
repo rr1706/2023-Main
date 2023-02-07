@@ -9,22 +9,22 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.utilities.MathUtils;
 
 public class DriveByController extends CommandBase {
-    private final Drivetrain m_drive;
-    private final XboxController m_controller;
+  private final Drivetrain m_drive;
+  private final XboxController m_controller;
 
-    private final SlewRateLimiter m_slewX = new SlewRateLimiter(DriveConstants.kTranslationSlew);
-    private final SlewRateLimiter m_slewY = new SlewRateLimiter(DriveConstants.kTranslationSlew);
-    private final SlewRateLimiter m_slewRot = new SlewRateLimiter(DriveConstants.kRotationSlew);
+  private final SlewRateLimiter m_slewX = new SlewRateLimiter(DriveConstants.kTranslationSlew);
+  private final SlewRateLimiter m_slewY = new SlewRateLimiter(DriveConstants.kTranslationSlew);
+  private final SlewRateLimiter m_slewRot = new SlewRateLimiter(DriveConstants.kRotationSlew);
 
-    private boolean fieldOrient = true;
+  private boolean fieldOrient = true;
 
-    public DriveByController(Drivetrain drive, XboxController controller) {
-        m_drive = drive;
-        m_controller = controller;
-        addRequirements(m_drive);
-    }
+  public DriveByController(Drivetrain drive, XboxController controller) {
+    m_drive = drive;
+    m_controller = controller;
+    addRequirements(m_drive);
+  }
 
-    @Override
+  @Override
   public void execute() {
     m_drive.drive(m_slewX.calculate(
       -inputTransform(m_controller.getLeftY()))

@@ -56,7 +56,7 @@ public final class Constants {
     // brushless motors
     // due to the extremely high stall current avaialble
 
-    public static final double[] kTurnPID = { 0.600, 0, 0 }; // Defines the PID values for rotation of the serve
+    public static final double[] kTurnPID = { 0.600, 0, 0 }; // Defines the PID values for the rotation of the swerve
                                                              // modules, should show some minor oscillation when no
                                                              // weight is loaded on the modules
   }
@@ -124,9 +124,12 @@ public final class Constants {
       new Translation2d(-kWheelBaseLength, -kWheelBaseWidth));  // Back Left
 
     public static final double kMaxAcceleration = 3.0;
-    public static final double kMaxSpeedMetersPerSecond = 3.25; // Maximum Sustainable Drivetrain Speed under Normal
+    public static final double kTestMaxAcceleration = 1.0;
+    public static final double kMaxSpeedMetersPerSecond = 3.3; // Maximum Sustainable Drivetrain Speed under Normal
                                                                 // Conditions & Battery, Robot will not exceed this
                                                                 // speed in closed loop control
+    public static final double kTestMaxSpeedMetersPerSecond = 1.1;
+
     public static final double kMaxAngularSpeed = Math.PI; // Maximum Angular Speed desired. NOTE: Robot can exceed this
                                                            // but spinning fast is not particularly useful or driver
                                                            // friendly
@@ -154,6 +157,10 @@ public final class Constants {
         * Math.pow(DriveConstants.kInnerDeadband, 2);
 
     public static final double[] kKeepAnglePID = { 0.500, 0, 0 }; // Defines the PID values for the keep angle PID
+  }
+
+  public static final class VisionConstants {
+
   }
 
   public static final class GlobalConstants {

@@ -4,12 +4,32 @@
 
 package frc.robot;
 
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DriveByController;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Odometry;
+
+import java.io.File;
+import java.util.HashMap;
+
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -19,20 +39,29 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final XboxController m_controller1 = new XboxController(0);
-  private final XboxController m_controller2 = new XboxController(1);
+  private final XboxController m_controller = new XboxController(0);
 
   // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drive = new Drivetrain();
+  private final Limelight m_vision = new Limelight("limelight");
+  private final Odometry m_odometry = new Odometry(m_drive, m_vision);
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final DriveByController m_driveByController = new DriveByController(m_drive, m_controller);
+
+  private SendableChooser<Command> m_chooser = new SendableChooser<>();
+  private File[] m_autoPathFiles = new File(Filesystem.getDeployDirectory(), "pathplanner/").listFiles();
+
+  private final HashMap<String, Command> events = new HashMap<>();
+  private final Command doNothin = new WaitCommand(20.0);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_odometry::getPose, m_odometry::resetOdometry, new PIDConstants(0.25, 0, 0), new PIDConstants(ModuleConstants.kTurnPID[0], ModuleConstants.kTurnPID[1], ModuleConstants.kTurnPID[2]), m_drive::setModuleStates, events, m_drive);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
+    configureAutoEvents();
+    configureAutoChooser();
     configureBindings();
+
+    m_drive.setDefaultCommand(m_driveByController);
   }
 
   /**
@@ -45,7 +74,29 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    new POVButton(m_controller, 0)
+      .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
+  }
+
+  private void configureAutoEvents() {}
+
+  private void configureAutoChooser() {
+    m_chooser.setDefaultOption("Do Nothin", doNothin);
     
+
+    for (File auto : m_autoPathFiles) {
+      m_chooser.addOption(
+        auto.getName(), 
+        autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration))
+      );
+    }
+
+    for (File auto : m_autoPathFiles) {
+      m_chooser.addOption(
+        "Slow " + auto.getName(), 
+        autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration))
+      );
+    }
   }
 
   /**
@@ -55,6 +106,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Commands.print("No autonomous command configured");
+    return m_chooser.getSelected();
   }
 }
