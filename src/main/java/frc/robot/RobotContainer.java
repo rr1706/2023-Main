@@ -21,9 +21,7 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.simulation.XboxControllerSim;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -40,12 +38,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   private final XboxController m_driverController = new XboxController(OperatorConstants.kDriverControllerPort);
-  private final XboxController m_operatorController = new XboxController(OperatorConstants.kOperatorControllerPort);
 
-  // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drive = new Drivetrain();
   private final Limelight m_vision = new Limelight("limelight");
-  private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision);
+  private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
@@ -54,7 +50,7 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(0.25, 0, 0), new PIDConstants(ModuleConstants.kTurnPID[0], ModuleConstants.kTurnPID[1], ModuleConstants.kTurnPID[2]), m_drive::setModuleStates, events, m_drive);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(0.25, 0, 0), new PIDConstants(ModuleConstants.kTurnPID[0], ModuleConstants.kTurnPID[1], ModuleConstants.kTurnPID[2]), m_drive::setModuleStates, events, true, m_drive);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {

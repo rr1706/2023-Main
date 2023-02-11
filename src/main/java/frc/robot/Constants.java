@@ -4,10 +4,9 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -23,10 +22,6 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
-    /**
-     * True = Red --- False = Blue
-     */
-    public static final boolean kAlliance = DriverStation.getAlliance() == Alliance.Red;
   }
 
   public static class CurrentLimit {
@@ -165,8 +160,22 @@ public final class Constants {
     public static final double[] kKeepAnglePID = { 0.500, 0, 0 }; // Defines the PID values for the keep angle PID
   }
 
-  public static final class VisionConstants {
+  public static final class FieldConstants {
+    public static final double kFieldWidth = 8.02;
+    public static final double kFieldLength = 16.54;
+    public static final double[] kScoringZone = {0.00, 3.33, 0.00, 5.50};
+    public static final double[] kForeField = {3.34, 6.00, 0.00, 8.02};
+    public static final double[] kMidField = {6.01, kFieldLength / 2, 0.00, 8.02};
+    public static final double[] kLoadingZone = {0.00, 3.33, 5.51, 8.02};
+    /**
+     * True = Blue --- False = Red
+     */
+    public static final boolean kAlliance = DriverStation.getAlliance() == Alliance.Blue;
+  }
 
+  public static final class VisionConstants {
+    public static final double kPoseErrorAcceptance = 1.0; // How much error there can be between currentEstimated pose and vision pose in meters
+    public static final Pose3d kLimelightToRobot = new Pose3d();
   }
 
   public static final class GlobalConstants {
