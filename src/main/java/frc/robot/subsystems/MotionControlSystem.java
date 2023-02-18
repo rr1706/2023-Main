@@ -49,16 +49,20 @@ public final class MotionControlSystem extends SubsystemBase {
        if((armMoveNeedsHeight) && (currentState.m_elevator < ElevatorConstants.kClearHeightMin || mDesiredState.m_elevator < ElevatorConstants.kClearHeightMin) && !elevatorClearForArm){
            if(mDesiredState.m_elevator > ElevatorConstants.kClearHeight){
                mSetState.setElevator(mDesiredState.m_elevator);
+               mElevator.setPose(mDesiredState.m_elevator);
                elevatorClearForArm = true;
            }
            else{
                mSetState.setElevator(ElevatorConstants.kClearHeight);
+               mElevator.setPose(ElevatorConstants.kClearHeight);
                elevatorClearForArm = true;
            }
 
         }
-        else if(armMoveNeedsHeight && currentState.m_elevator >= ElevatorConstants.kClearHeightMin){
-           mSetState.m_arm = mDesiredState.m_arm;
+        else if(armMoveNeedsHeight && currentState.m_elevator >= ElevatorConstants.kClearHeightMin || !armMoveNeedsHeight){
+           mSetState.setArm(mDesiredState.m_arm);
+           mArm.setPose(mDesiredState.m_arm);
+           mWrist.setPose(mDesiredState.m_wrist);
         }        
         //Wrist Movement Safety Logic
         boolean wristNeedsHeight = (mDesiredState.m_wrist > WristConstants.kWristForwardMin);

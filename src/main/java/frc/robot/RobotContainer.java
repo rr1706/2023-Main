@@ -80,6 +80,8 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
 
     new JoystickButton(m_driverController, Button.kA.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
+    new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
+    new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
   }
 
   private void configureAutoEvents() {}
@@ -94,13 +96,14 @@ public class RobotContainer {
         autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration))
       );
     }
-
+/*
     for (File auto : m_autoPathFiles) {
       m_chooser.addOption(
         "Slow " + auto.getName(), 
         autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration))
       );
     }
+*/
   }
 
   /**
