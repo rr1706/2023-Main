@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -27,6 +28,13 @@ public final class Constants {
   public static class CurrentLimit {
     public static final int kRotation = 25;
     public static final int kTranslation = 30;
+    public static final int kElevator = 0;
+    public static final int kArm = 0;
+    public static final int kWrist = 0;
+    public static final int kCone = 0;
+    public static final int kConeExt = 0;
+    public static final int kCube = 0;
+    public static final int kCubeExt = 0;
   }
 
   public static class ModuleConstants {
@@ -173,8 +181,35 @@ public final class Constants {
     public static final boolean kAlliance = DriverStation.getAlliance() == Alliance.Blue;
   }
 
+  public static final class ArmConstants {
+    public static final double kDefaultElevator = 0.0;
+    public static final TrapezoidProfile.Constraints kElevatorConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
+    public static final double kMinElevator = 0.0;
+    public static final double kMaxElevator = 0.0;
+    public static final double kDefaultArm = 0.0;
+    public static final TrapezoidProfile.Constraints kArmConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
+    public static final double kMinArm = 0.0;
+    public static final double kMaxArm = 0.0;
+    public static final double kDefaultWrist = 0.0;
+    public static final TrapezoidProfile.Constraints kWristConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
+    public static final double kMinWrist = 0.0;
+    public static final double kMaxWrist = 0.0;
+
+    public static final double kArmLength = 0.0;
+    public static final double kWristLength = 0.0;
+  }
+
+  public static final class IntakeConstants {
+    public static final TrapezoidProfile.Constraints kConeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
+    public static final double kExtendedCone = 0.0;
+    public static final double kRetractedCone = 0.0;
+    public static final TrapezoidProfile.Constraints kCubeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
+    public static final double kExtendedCube = 0.0;
+    public static final double kRetractedCube = 0.0;
+  }
+
   public static final class VisionConstants {
-    public static final double kPoseErrorAcceptance = 1.0; // How much error there can be between currentEstimated pose and vision pose in meters
+    public static final double kPoseErrorAcceptance = 1.0; // How much error there can be between current stimated pose and vision pose in meters
     public static final Pose3d kLimelightToRobot = new Pose3d();
   }
 
