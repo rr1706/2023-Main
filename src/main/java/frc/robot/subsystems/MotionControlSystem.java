@@ -18,10 +18,10 @@ import frc.robot.subsystems.Arm.Elevator;
 import frc.robot.subsystems.Arm.Wrist;
 
 public final class MotionControlSystem extends SubsystemBase {
-    private final Arm mArm = new Arm(0, 0);
-    private final Cube mCube = new Cube(0, 0);
-    private final Elevator mElevator = new Elevator(0, 0);
-    private final Wrist mWrist = new Wrist(0);
+    private final Arm mArm = new Arm(16, 17);
+    private final Cube mCube = new Cube(10, 11);
+    private final Elevator mElevator = new Elevator(12, 13);
+    private final Wrist mWrist = new Wrist(15);
 
     private MotionControlState mDesiredState = StateConstants.kHome;
     private MotionControlState mSetState = StateConstants.kHome;
