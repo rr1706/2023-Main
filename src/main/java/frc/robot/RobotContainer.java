@@ -7,9 +7,11 @@ package frc.robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.StateConstants;
 import frc.robot.commands.DriveByController;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.MotionControlSystem;
 import frc.robot.subsystems.PoseEstimator;
 
 import java.io.File;
@@ -22,11 +24,13 @@ import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -42,6 +46,7 @@ public class RobotContainer {
   private final Drivetrain m_drive = new Drivetrain();
   private final Limelight m_vision = new Limelight("limelight");
   private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
+  private final MotionControlSystem m_motionControl = new MotionControlSystem();
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
@@ -73,6 +78,8 @@ public class RobotContainer {
   private void configureBindings() {
     new POVButton(m_driverController, 0)
       .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
+
+    new JoystickButton(m_driverController, Button.kA.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
   }
 
   private void configureAutoEvents() {}

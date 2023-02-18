@@ -11,6 +11,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ArmsConstants;
 import frc.robot.Constants.CurrentLimit;
 
 public class Arm extends SubsystemBase {
@@ -18,7 +19,7 @@ public class Arm extends SubsystemBase {
     private final CANSparkMax m_motor2;
     private final SparkMaxPIDController m_PID;
 
-    private TrapezoidProfile.State state = new TrapezoidProfile.State(ArmConstants.kDefaultArm, 0.0);
+    private TrapezoidProfile.State state = new TrapezoidProfile.State(ArmsConstants.kDefaultArm, 0.0);
     private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
 
     public Arm(int motorID1, int motorID2) {
@@ -28,12 +29,12 @@ public class Arm extends SubsystemBase {
 
         m_motor2.follow(m_motor1, true);
 
-        m_PID.setP(0.01);
+        m_PID.setP(0.001);
         m_PID.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
         m_PID.setFeedbackDevice(m_motor1.getEncoder());
 
-        m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmConstants.kMinArm);
-        m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmConstants.kMaxArm);
+        m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMinArm);
+        m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMaxArm);
         m_motor1.setSmartCurrentLimit(CurrentLimit.kArm);
         m_motor1.enableVoltageCompensation(12.0);
         m_motor2.enableVoltageCompensation(12.0);
@@ -44,7 +45,7 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         state = new TrapezoidProfile.State(getPose(), getVelocity());
-        TrapezoidProfile profile = new TrapezoidProfile(ArmConstants.kArmConstraints, setpoint, state);
+        TrapezoidProfile profile = new TrapezoidProfile(ArmsConstants.kArmConstraints, setpoint, state);
         state = profile.calculate(0.020);
         m_PID.setReference(setpoint.position,ControlType.kPosition,0,0.0);
     }

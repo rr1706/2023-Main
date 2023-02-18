@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.utilities.MotionControlState;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -25,16 +26,35 @@ public final class Constants {
     public static final int kOperatorControllerPort = 1;
   }
 
-  public static class CurrentLimit {
-    public static final int kRotation = 25;
-    public static final int kTranslation = 30;
-    public static final int kElevator = 0;
-    public static final int kArm = 0;
-    public static final int kWrist = 0;
-    public static final int kCone = 0;
-    public static final int kConeExt = 0;
-    public static final int kCube = 0;
-    public static final int kCubeExt = 0;
+  public static final class CurrentLimit {
+    public static final int kTranslation = 50;
+    public static final int kRotation = 30;
+    public static final int kCubeExt = 25;
+    public static final int kConeExt = 25;
+    public static final int kCube = 25;
+    public static final int kCone = 25;
+    public static final int kClaw = 30;
+    public static final int kElevator = 25;
+    public static final int kWrist = 25;
+    public static final int kArm = 25;
+  }
+
+  public static final class ElevatorConstants{
+    public static final double kClearHeight = -10.0;
+    public static final double kClearHeightMin = -12.0;
+  }
+
+  public static final class ArmConstants{
+    public static final double kArmFwd = 18.0;
+    public static final double kArmRev = -18.0;
+  }
+
+  public static final class WristConstants{
+    public static final double kWristForwardMin = 10.0;
+  }
+
+  public static final class StateConstants{
+    public static final MotionControlState kHome = new MotionControlState(-20.0, 0, -10.0, 12.0);
   }
 
   public static class ModuleConstants {
@@ -181,7 +201,7 @@ public final class Constants {
     public static final boolean kAlliance = DriverStation.getAlliance() == Alliance.Blue;
   }
 
-  public static final class ArmConstants {
+  public static final class ArmsConstants {
     public static final double kDefaultElevator = 0.0;
     public static final TrapezoidProfile.Constraints kElevatorConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
     public static final double kMinElevator = 0.0;
@@ -197,6 +217,10 @@ public final class Constants {
 
     public static final double kArmLength = 0.0;
     public static final double kWristLength = 0.0;
+
+    public static final int[] kArmMotors = {0, 0};
+    public static final int[] kElevatorMotors = {0, 0};
+    public static final int kWristMotor = 0;
   }
 
   public static final class IntakeConstants {
@@ -206,6 +230,9 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kCubeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
     public static final double kExtendedCube = 0.0;
     public static final double kRetractedCube = 0.0;
+
+    public static final int[] kConeMotors = {0, 0};
+    public static final int[] kCubeMotors = {0, 0};
   }
 
   public static final class VisionConstants {
