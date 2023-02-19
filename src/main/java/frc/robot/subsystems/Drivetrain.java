@@ -33,8 +33,8 @@ public class Drivetrain extends SubsystemBase {
 
   private final Timer keepAngleTimer = new Timer(); // Creates timer used in the perform keep angle function
 
-  private final SlewRateLimiter m_slewX = new SlewRateLimiter(10.0);
-  private final SlewRateLimiter m_slewY = new SlewRateLimiter(10.0);
+  private final SlewRateLimiter m_slewX = new SlewRateLimiter(8.0);
+  private final SlewRateLimiter m_slewY = new SlewRateLimiter(8.0);
   private final SlewRateLimiter m_slewRot = new SlewRateLimiter(12.5);
 
   // Creates a swerveModule object for the front left swerve module feeding in

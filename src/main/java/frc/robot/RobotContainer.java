@@ -9,10 +9,13 @@ import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.commands.DriveByController;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
 import frc.robot.subsystems.PoseEstimator;
+import frc.robot.utilities.JoystickLeftTrigger;
+import frc.robot.utilities.JoystickRightTrigger;
 
 import java.io.File;
 import java.util.HashMap;
@@ -47,6 +50,7 @@ public class RobotContainer {
   private final Limelight m_vision = new Limelight("limelight");
   private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
+  private final Claw mClaw = new Claw();
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
@@ -82,6 +86,9 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kA.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
     new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
+
+    new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->mClaw.setSpeed(-0.15))).onFalse(new InstantCommand(()->mClaw.stop()));
+    new JoystickRightTrigger(m_driverController).onTrue(new InstantCommand(()->mClaw.setSpeed(0.9))).onFalse(new InstantCommand(()->mClaw.stop()));
   }
 
   private void configureAutoEvents() {}

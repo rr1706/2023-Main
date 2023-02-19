@@ -3,13 +3,11 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ArmsConstants;
-import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.StateConstants;
-import frc.robot.Constants.WristConstants;
 import frc.robot.utilities.MotionControlState;
 
 import frc.robot.subsystems.Arm.Arm;
@@ -35,9 +33,23 @@ public final class MotionControlSystem extends SubsystemBase {
 
     @Override
     public void periodic(){
-        MotionControlState currentState = new MotionControlState(mArm.getPose(),mCube.getPose(),mElevator.getPose(),mWrist.getPose());
+        //MotionControlState currentState = new MotionControlState(mArm.getPose(),mCube.getPose(),mElevator.getPose(),mWrist.getPose());
          
-        //Arm Movement Safety Logic
+        SmartDashboard.putNumber("Elevator Desired", mDesiredState.m_elevator);
+        SmartDashboard.putNumber("Arm Desired", mDesiredState.m_arm);
+        SmartDashboard.putNumber("Wrist Desired", mDesiredState.m_wrist);
+
+        SmartDashboard.putNumber("Current Elevator", mElevator.getPose());
+        SmartDashboard.putNumber("Current Arm", mArm.getPose());
+        SmartDashboard.putNumber("Current Wrist", mWrist.getPose());
+
+
+        mArm.setPose(mDesiredState.m_arm);
+        mElevator.setPose(mDesiredState.m_elevator);
+        mWrist.setPose(mDesiredState.m_wrist);
+        
+
+        /* //Arm Movement Safety Logic
         boolean armMoveNeedsHeight //Does the arm movement require the elevator to move up or not move down yet?
             = ((currentState.m_arm < ArmConstants.kArmRev) && (mDesiredState.m_arm > ArmConstants.kArmRev)) ||
             ((currentState.m_arm > ArmConstants.kArmFwd) && (mDesiredState.m_arm < ArmConstants.kArmFwd));
@@ -65,6 +77,6 @@ public final class MotionControlSystem extends SubsystemBase {
            mWrist.setPose(mDesiredState.m_wrist);
         }        
         //Wrist Movement Safety Logic
-        boolean wristNeedsHeight = (mDesiredState.m_wrist > WristConstants.kWristForwardMin);
+        boolean wristNeedsHeight = (mDesiredState.m_wrist > WristConstants.kWristForwardMin); */
     }
 }

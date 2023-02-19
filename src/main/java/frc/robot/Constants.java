@@ -33,64 +33,31 @@ public final class Constants {
     public static final int kConeExt = 25;
     public static final int kCube = 25;
     public static final int kCone = 25;
-    public static final int kClaw = 30;
+    public static final int kClaw = 60;
     public static final int kElevator = 25;
     public static final int kWrist = 25;
     public static final int kArm = 25;
   }
 
-  public static final class ElevatorConstants{
-    public static final double kClearHeight = -10.0;
-    public static final double kClearHeightMin = -12.0;
-  }
-
-  public static final class ArmConstants{
-    public static final double kArmFwd = 18.0;
-    public static final double kArmRev = -18.0;
-  }
-
-  public static final class WristConstants{
-    public static final double kWristForwardMin = 10.0;
-  }
-
   public static final class StateConstants{
-    public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -18.0, 12.0);
-    public static final MotionControlState kGrab = new MotionControlState(21.5, 0.0, -27.25, 32.25);
-    public static final MotionControlState kShoot = new MotionControlState(53, 0, -2.75, 41.25);
+    public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -13, 12.0);
+    public static final MotionControlState kGrab = new MotionControlState(66.86, 0.0, -11.5, 54.88);
+    public static final MotionControlState kShoot = new MotionControlState(63, 0, -1.5, 45);
   }
 
-  public static class ModuleConstants {
-    public static final double kTranslationRampRate = 3.0; // Units of %power/s, ie 4.0 means it takes 0.25s to reach
-                                                           // 100% power from 0%
-    private static final double kTranslationGearRatio = 8.33333333; // Overall gear ratio of the swerve module
-    private static final double kWheelDiameter = 0.0986 * 0.960; // Wheel Diameter in meters, may need to be
+  public static final class ModuleConstants {
+    private static final double kTranslationGearRatio = 8.33333333*0.750*0.830769231; // Overall gear ratio of the swerve module
+    private static final double kWheelDiameter = 0.095; // Wheel Diameter in meters, may need to be
                                                                          // experimentally determined due to compliance
                                                                          // of floor/tread material
 
-    public static final double kVelocityFactor = (1.0 / kTranslationGearRatio / 60.0) * kWheelDiameter * Math.PI; // Calculates
-                                                                                                                  // the
-                                                                                                                  // conversion
-                                                                                                                  // factor
-                                                                                                                  // of
-                                                                                                                  // RPM
-                                                                                                                  // of
-                                                                                                                  // the
-                                                                                                                  // translation
-                                                                                                                  // motor
-                                                                                                                  // to
-                                                                                                                  // m/s
-                                                                                                                  // at
-                                                                                                                  // the
-                                                                                                                  // floor
+    public static final double kVelocityFactor = (1.0 / kTranslationGearRatio / 60.0) * kWheelDiameter * Math.PI; 
 
-    // NOTE: You shoulds ALWAYS define a reasonable current limit when using
-    // brushless motors
-    // due to the extremely high stall current avaialble
-
-    public static final double[] kTurnPID = { 0.600, 0, 0 }; // Defines the PID values for the rotation of the swerve
+    public static final double[] kTurnPID = { 0.800, 0, 0 }; // Defines the PID values for rotation of the serve
                                                              // modules, should show some minor oscillation when no
                                                              // weight is loaded on the modules
   }
+
   public static final class DriveConstants {
   public static final int kFrontLeftDriveMotorPort = 1; // CANID of the Translation SparkMAX
     public static final int kFrontRightDriveMotorPort = 3; // CANID of the Translation SparkMAX
@@ -109,7 +76,7 @@ public final class Constants {
 
     public static final double kFrontLeftOffset = -0.634+Math.PI; // Encoder Offset in Radians
     public static final double kFrontRightOffset = -2.437; // Encoder Offset in Radians
-    public static final double kBackLeftOffset = +0.071+Math.PI; // Encoder Offset in Radians
+    public static final double kBackLeftOffset = +0.071-1.560; // Encoder Offset in Radians
     public static final double kBackRightOffset = -3.360; // Encoder Offset in Radians
 
     public static final double[] kFrontLeftTuningVals = { 0.0150*0.5, 0.2850*0.97, 0.15, 0 }; // {Static Gain, FeedForward,
@@ -175,18 +142,18 @@ public final class Constants {
   }
 
   public static final class ArmsConstants {
-    public static final double kDefaultElevator = 0.0;
-    public static final TrapezoidProfile.Constraints kElevatorConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kMinElevator = 0.0;
-    public static final double kMaxElevator = 0.0;
+    public static final double kDefaultElevator = -1.0;
+    public static final TrapezoidProfile.Constraints kElevatorConstraints = new TrapezoidProfile.Constraints(250, 50);
+    public static final double kMinElevator = -16;
+    public static final double kMaxElevator = -1;
     public static final double kDefaultArm = 0.0;
-    public static final TrapezoidProfile.Constraints kArmConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kMinArm = 0.0;
-    public static final double kMaxArm = 0.0;
+    public static final TrapezoidProfile.Constraints kArmConstraints = new TrapezoidProfile.Constraints(250, 50);
+    public static final double kMinArm = -25;
+    public static final double kMaxArm = 70;
     public static final double kDefaultWrist = 0.0;
-    public static final TrapezoidProfile.Constraints kWristConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kMinWrist = 0.0;
-    public static final double kMaxWrist = 0.0;
+    public static final TrapezoidProfile.Constraints kWristConstraints = new TrapezoidProfile.Constraints(250, 50);
+    public static final double kMinWrist = -30;
+    public static final double kMaxWrist = 56;
 
     public static final double kArmLength = 0.0;
     public static final double kWristLength = 0.0;

@@ -8,9 +8,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmsConstants;
 import frc.robot.Constants.CurrentLimit;
 
@@ -29,12 +29,14 @@ public class Arm extends SubsystemBase {
 
         m_motor2.follow(m_motor1, true);
 
-        m_PID.setP(0.001);
-        m_PID.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        m_PID.setFeedbackDevice(m_motor1.getEncoder());
+        m_PID.setP(0.00001);
+        m_PID.setFF(0.00009);
 
-        m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMinArm);
-        m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMaxArm);
+        m_PID.setSmartMotionMaxAccel(12000, 0);
+        m_PID.setSmartMotionMaxVelocity(6000, 0);
+
+        m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
+        m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinArm);
         m_motor1.setSmartCurrentLimit(CurrentLimit.kArm);
         m_motor1.enableVoltageCompensation(12.0);
         m_motor2.enableVoltageCompensation(12.0);
@@ -44,10 +46,11 @@ public class Arm extends SubsystemBase {
 
     @Override
     public void periodic() {
-        state = new TrapezoidProfile.State(getPose(), getVelocity());
-        TrapezoidProfile profile = new TrapezoidProfile(ArmsConstants.kArmConstraints, setpoint, state);
-        state = profile.calculate(0.020);
-        m_PID.setReference(setpoint.position,ControlType.kPosition,0,0.0);
+        //state = new TrapezoidProfile.State(getPose(), getVelocity());
+        //TrapezoidProfile profile = new TrapezoidProfile(ArmsConstants.kArmConstraints, setpoint, state);
+        //state = profile.calculate(0.020);
+        SmartDashboard.putNumber("Arm Setpoint", setpoint.position);
+        m_PID.setReference(setpoint.position,ControlType.kSmartMotion,0,0.0);
     }
 
     public void resetEncoder() {

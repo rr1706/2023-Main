@@ -8,9 +8,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmsConstants;
 import frc.robot.Constants.CurrentLimit;
 
@@ -25,12 +25,14 @@ public class Wrist extends SubsystemBase {
         m_motor = new CANSparkMax(motorID, MotorType.kBrushless);
         m_PID = m_motor.getPIDController();
 
-        m_PID.setP(0.001);
-        m_PID.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        m_PID.setFeedbackDevice(m_motor.getEncoder());
+        m_PID.setP(0.00001);
+        m_PID.setFF(0.00009);
 
-        m_motor.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMinWrist);
-        m_motor.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMaxWrist);
+        m_PID.setSmartMotionMaxAccel(10000, 0);
+        m_PID.setSmartMotionMaxVelocity(3000, 0);
+
+        m_motor.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxWrist);
+        m_motor.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinWrist);
         m_motor.setSmartCurrentLimit(CurrentLimit.kWrist);
         m_motor.enableVoltageCompensation(12.0);
         m_motor.burnFlash();
@@ -38,10 +40,11 @@ public class Wrist extends SubsystemBase {
 
     @Override
     public void periodic() {
-        state = new TrapezoidProfile.State(getPose(), getVelocity());
-        TrapezoidProfile profile = new TrapezoidProfile(ArmsConstants.kWristConstraints, setpoint, state);
-        state = profile.calculate(0.020);
-        m_PID.setReference(setpoint.position,ControlType.kPosition,0,0.0);
+        //state = new TrapezoidProfile.State(getPose(), getVelocity());
+        //TrapezoidProfile profile = new TrapezoidProfile(ArmsConstants.kWristConstraints, setpoint, state);
+        //state = profile.calculate(0.020);
+        SmartDashboard.putNumber("Wrist Setpoint", setpoint.position);
+        m_PID.setReference(setpoint.position,ControlType.kSmartMotion,0,0.0);
     }
 
     public void resetEncoder() {
