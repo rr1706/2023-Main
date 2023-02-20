@@ -87,9 +87,10 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kA.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
     new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
+    new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
 
-    new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-0.15))).onFalse(new InstantCommand(()->m_claw.stop()));
-    new JoystickRightTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(0.9))).onFalse(new InstantCommand(()->m_claw.stop()));
+    new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-500))).onFalse(new InstantCommand(()->m_claw.stop()));
+    new JoystickRightTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(4000))).onFalse(new InstantCommand(()->m_claw.stop()));
   }
 
   private void configureAutoEvents() {}

@@ -37,7 +37,6 @@ public final class MotionControlSystem extends SubsystemBase {
     @Override
     public void periodic(){
         MotionControlState currentState = new MotionControlState(m_arm.getPose(),m_cube.getPose(),m_elevator.getPose(),m_wrist.getPose(),m_cone.getPose());
-        boolean atSetpoint = m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
 
         if(!m_elevatorClear){
             m_elevator.setPose(-9.0);
@@ -49,6 +48,9 @@ public final class MotionControlSystem extends SubsystemBase {
             m_wrist.setPose(m_desiredState.m_wrist);
             m_cone.setPose(m_desiredState.m_cone);
         }
+
+        boolean atSetpoint = m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
+
         if(m_elevatorClear && atSetpoint){
             m_elevator.setPose(m_desiredState.m_elevator);
         }

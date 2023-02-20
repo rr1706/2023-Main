@@ -33,16 +33,18 @@ public final class Constants {
     public static final int kConeExt = 25;
     public static final int kCube = 25;
     public static final int kCone = 25;
-    public static final int kClaw = 60;
+    public static final int kClaw = 30;
     public static final int kElevator = 25;
     public static final int kWrist = 25;
     public static final int kArm = 25;
   }
 
   public static final class StateConstants{
-    public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -13, 12.0, 0.0);
+    public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -18.0, 12.0, 0.0);
     public static final MotionControlState kGrab = new MotionControlState(66.86, 0.0, -11.5, 54.88, 0.0);
     public static final MotionControlState kShoot = new MotionControlState(63, 0, -1.5, 45, 0.0);
+    public static final MotionControlState kFloor = new MotionControlState(26.0, 0, -28.0, 33.5, 0.0);
+
   }
 
   public static final class ModuleConstants {
@@ -144,7 +146,7 @@ public final class Constants {
   public static final class ArmsConstants {
     public static final double kDefaultElevator = -1.0;
     public static final TrapezoidProfile.Constraints kElevatorConstraints = new TrapezoidProfile.Constraints(250, 50);
-    public static final double kMinElevator = -27;
+    public static final double kMinElevator = -29;
     public static final double kMaxElevator = -1;
 
     public static final double kDefaultArm = 0.0;

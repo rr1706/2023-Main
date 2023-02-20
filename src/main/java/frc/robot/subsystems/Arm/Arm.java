@@ -38,6 +38,8 @@ public class Arm extends SubsystemBase {
 
         m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
         m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinArm);
+        m_motor2.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
+        m_motor2.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinArm);
         m_motor1.setSmartCurrentLimit(CurrentLimit.kArm);
         m_motor1.enableVoltageCompensation(12.0);
         m_motor2.enableVoltageCompensation(12.0);

@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.CurrentLimit;
 import frc.robot.Constants.GlobalConstants;
 
 public class Claw extends SubsystemBase{
@@ -17,17 +18,20 @@ public class Claw extends SubsystemBase{
     SparkMaxPIDController mPID = mMotor1.getPIDController();
 
     public Claw(){
-        mMotor1.setSmartCurrentLimit(60);
-        mMotor2.setSmartCurrentLimit(60);
+        mMotor1.setSmartCurrentLimit(CurrentLimit.kClaw);
+        mMotor2.setSmartCurrentLimit(CurrentLimit.kClaw);
         mMotor1.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         mMotor2.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
 
-        mMotor1.setInverted(true);
+        mMotor1.setInverted(false);
 
-        mMotor2.follow(mMotor1, true);
+        mMotor2.follow(mMotor1,true);
 
-        mPID.setP(0.0002);
+        mPID.setP(0.0001);
         mPID.setFF(0.00018);
+
+        mPID.setSmartMotionMaxAccel(25000, 0);
+        mPID.setSmartMotionMaxVelocity(5500, 0);
 
         mMotor1.burnFlash();
         mMotor2.burnFlash();
@@ -35,7 +39,7 @@ public class Claw extends SubsystemBase{
     }
 
     public void setSpeed(double speed){
-        mMotor1.set(speed);
+        mPID.setReference(speed, ControlType.kSmartVelocity);
     }
 
     public void stop(){
