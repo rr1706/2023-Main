@@ -27,7 +27,7 @@ public final class Constants {
   }
 
   public static final class CurrentLimit {
-    public static final int kTranslation = 50;
+    public static final int kTranslation = 80;
     public static final int kRotation = 30;
     public static final int kCubeExt = 25;
     public static final int kConeExt = 25;
@@ -40,9 +40,9 @@ public final class Constants {
   }
 
   public static final class StateConstants{
-    public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -13, 12.0);
-    public static final MotionControlState kGrab = new MotionControlState(66.86, 0.0, -11.5, 54.88);
-    public static final MotionControlState kShoot = new MotionControlState(63, 0, -1.5, 45);
+    public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -13, 12.0, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(66.86, 0.0, -11.5, 54.88, 0.0);
+    public static final MotionControlState kShoot = new MotionControlState(63, 0, -1.5, 45, 0.0);
   }
 
   public static final class ModuleConstants {
@@ -144,12 +144,14 @@ public final class Constants {
   public static final class ArmsConstants {
     public static final double kDefaultElevator = -1.0;
     public static final TrapezoidProfile.Constraints kElevatorConstraints = new TrapezoidProfile.Constraints(250, 50);
-    public static final double kMinElevator = -16;
+    public static final double kMinElevator = -27;
     public static final double kMaxElevator = -1;
+
     public static final double kDefaultArm = 0.0;
     public static final TrapezoidProfile.Constraints kArmConstraints = new TrapezoidProfile.Constraints(250, 50);
     public static final double kMinArm = -25;
     public static final double kMaxArm = 70;
+
     public static final double kDefaultWrist = 0.0;
     public static final TrapezoidProfile.Constraints kWristConstraints = new TrapezoidProfile.Constraints(250, 50);
     public static final double kMinWrist = -30;
@@ -158,21 +160,30 @@ public final class Constants {
     public static final double kArmLength = 0.0;
     public static final double kWristLength = 0.0;
 
-    public static final int[] kArmMotors = {0, 0};
-    public static final int[] kElevatorMotors = {0, 0};
-    public static final int kWristMotor = 0;
+    public static final int[] kArmMotors = {16, 17};
+    public static final int[] kElevatorMotors = {12, 13};
+    public static final int kWristMotor = 15;
   }
 
   public static final class IntakeConstants {
+    public static final double kDefaultCone = 0.0;
     public static final TrapezoidProfile.Constraints kConeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kExtendedCone = 0.0;
+    public static final double kExtendedCone = 30.0;
     public static final double kRetractedCone = 0.0;
+    
+    public static final double kDefaultCube = 0.0;
     public static final TrapezoidProfile.Constraints kCubeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kExtendedCube = 0.0;
+    public static final double kExtendedCube = 22.0;
     public static final double kRetractedCube = 0.0;
 
-    public static final int[] kConeMotors = {0, 0};
-    public static final int[] kCubeMotors = {0, 0};
+    public static final int[] kConeMotors = {9, 14};
+    public static final int[] kCubeMotors = {10, 11};
+
+    public static final double kCubeP = 0.0001;
+    public static final double kCubeFF = 0.000009;
+    
+    public static final double kConeP = 0.0001;
+    public static final double kConeFF = 0.000009;
   }
 
   public static final class VisionConstants {

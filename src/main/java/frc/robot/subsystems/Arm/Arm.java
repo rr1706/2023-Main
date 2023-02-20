@@ -1,11 +1,11 @@
 package frc.robot.subsystems.Arm;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController.AccelStrategy;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,14 +18,15 @@ public class Arm extends SubsystemBase {
     private final CANSparkMax m_motor1;
     private final CANSparkMax m_motor2;
     private final SparkMaxPIDController m_PID;
+    private final RelativeEncoder m_encoder;
 
-    private TrapezoidProfile.State state = new TrapezoidProfile.State(ArmsConstants.kDefaultArm, 0.0);
-    private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
+    private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
 
-    public Arm(int motorID1, int motorID2) {
-        m_motor1 = new CANSparkMax(motorID1, MotorType.kBrushless);
-        m_motor2 = new CANSparkMax(motorID2, MotorType.kBrushless);
+    public Arm() {
+        m_motor1 = new CANSparkMax(ArmsConstants.kArmMotors[0], MotorType.kBrushless);
+        m_motor2 = new CANSparkMax(ArmsConstants.kArmMotors[1], MotorType.kBrushless);
         m_PID = m_motor1.getPIDController();
+        m_encoder = m_motor1.getEncoder();
 
         m_motor2.follow(m_motor1, true);
 
@@ -46,31 +47,32 @@ public class Arm extends SubsystemBase {
 
     @Override
     public void periodic() {
-        //state = new TrapezoidProfile.State(getPose(), getVelocity());
-        //TrapezoidProfile profile = new TrapezoidProfile(ArmsConstants.kArmConstraints, setpoint, state);
-        //state = profile.calculate(0.020);
-        SmartDashboard.putNumber("Arm Setpoint", setpoint.position);
-        m_PID.setReference(setpoint.position,ControlType.kSmartMotion,0,0.0);
+        SmartDashboard.putNumber("Arm Setpoint", m_setpoint.position);
+        m_PID.setReference(m_setpoint.position,ControlType.kSmartMotion,0,0.0);
     }
 
     public void resetEncoder() {
-        m_motor1.getEncoder().setPosition(0.0);
+        m_encoder.setPosition(0.0);
     }
 
     public void resetEncoder(double pose) {
-        m_motor1.getEncoder().setPosition(pose);
+        m_encoder.setPosition(pose);
     }
 
     public double getPose() {
-        return m_motor1.getEncoder().getPosition();
+        return m_encoder.getPosition();
     }
 
     public void setPose(double pose) {
-        setpoint = new TrapezoidProfile.State(pose, 0.0);
+        m_setpoint = new TrapezoidProfile.State(pose, 0.0);
     }
 
     public double getVelocity() {
-        return m_motor1.getEncoder().getVelocity();
+        return m_encoder.getVelocity();
+    }
+
+    public boolean atSetpoint() {
+        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 1.0;
     }
     
 }

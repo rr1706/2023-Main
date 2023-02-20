@@ -11,72 +11,60 @@ import frc.robot.Constants.StateConstants;
 import frc.robot.utilities.MotionControlState;
 
 import frc.robot.subsystems.Arm.Arm;
+import frc.robot.subsystems.Intake.Cone;
 import frc.robot.subsystems.Intake.Cube;
 import frc.robot.subsystems.Arm.Elevator;
 import frc.robot.subsystems.Arm.Wrist;
 
 public final class MotionControlSystem extends SubsystemBase {
-    private final Arm mArm = new Arm(16, 17);
-    private final Cube mCube = new Cube(10, 11);
-    private final Elevator mElevator = new Elevator(12, 13);
-    private final Wrist mWrist = new Wrist(15);
+    private final Arm m_arm = new Arm();
+    private final Cube m_cube = new Cube();
+    private final Cone m_cone = new Cone();
+    private final Elevator m_elevator = new Elevator();
+    private final Wrist m_wrist = new Wrist();
 
-    private MotionControlState mDesiredState = StateConstants.kHome;
-    private MotionControlState mSetState = StateConstants.kHome;
-    private boolean elevatorClearForArm = false;
+    private MotionControlState m_desiredState = StateConstants.kHome;
+    private MotionControlState m_tempState = StateConstants.kHome;
+    private boolean m_elevatorClear = false;
 
     public MotionControlSystem(){}
 
     public void setState(MotionControlState desiredState){
-        mDesiredState = desiredState;
+        m_desiredState = desiredState;
+        m_elevatorClear = false;
     }
 
     @Override
     public void periodic(){
-        //MotionControlState currentState = new MotionControlState(mArm.getPose(),mCube.getPose(),mElevator.getPose(),mWrist.getPose());
-         
-        SmartDashboard.putNumber("Elevator Desired", mDesiredState.m_elevator);
-        SmartDashboard.putNumber("Arm Desired", mDesiredState.m_arm);
-        SmartDashboard.putNumber("Wrist Desired", mDesiredState.m_wrist);
+        MotionControlState currentState = new MotionControlState(m_arm.getPose(),m_cube.getPose(),m_elevator.getPose(),m_wrist.getPose(),m_cone.getPose());
+        boolean atSetpoint = m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
 
-        SmartDashboard.putNumber("Current Elevator", mElevator.getPose());
-        SmartDashboard.putNumber("Current Arm", mArm.getPose());
-        SmartDashboard.putNumber("Current Wrist", mWrist.getPose());
-
-
-        mArm.setPose(mDesiredState.m_arm);
-        mElevator.setPose(mDesiredState.m_elevator);
-        mWrist.setPose(mDesiredState.m_wrist);
-        
-
-        /* //Arm Movement Safety Logic
-        boolean armMoveNeedsHeight //Does the arm movement require the elevator to move up or not move down yet?
-            = ((currentState.m_arm < ArmConstants.kArmRev) && (mDesiredState.m_arm > ArmConstants.kArmRev)) ||
-            ((currentState.m_arm > ArmConstants.kArmFwd) && (mDesiredState.m_arm < ArmConstants.kArmFwd));
-
-        boolean armHeightMoveComplete
-            = ((currentState.m_arm < ArmConstants.kArmRev) && (mDesiredState.m_arm < ArmConstants.kArmRev)) ||
-            ((currentState.m_arm > ArmConstants.kArmFwd) && (mDesiredState.m_arm > ArmConstants.kArmFwd));
-
-       if((armMoveNeedsHeight) && (currentState.m_elevator < ElevatorConstants.kClearHeightMin || mDesiredState.m_elevator < ElevatorConstants.kClearHeightMin) && !elevatorClearForArm){
-           if(mDesiredState.m_elevator > ElevatorConstants.kClearHeight){
-               mSetState.setElevator(mDesiredState.m_elevator);
-               mElevator.setPose(mDesiredState.m_elevator);
-               elevatorClearForArm = true;
-           }
-           else{
-               mSetState.setElevator(ElevatorConstants.kClearHeight);
-               mElevator.setPose(ElevatorConstants.kClearHeight);
-               elevatorClearForArm = true;
-           }
-
+        if(!m_elevatorClear){
+            m_elevator.setPose(-9.0);
         }
-        else if(armMoveNeedsHeight && currentState.m_elevator >= ElevatorConstants.kClearHeightMin || !armMoveNeedsHeight){
-           mSetState.setArm(mDesiredState.m_arm);
-           mArm.setPose(mDesiredState.m_arm);
-           mWrist.setPose(mDesiredState.m_wrist);
-        }        
-        //Wrist Movement Safety Logic
-        boolean wristNeedsHeight = (mDesiredState.m_wrist > WristConstants.kWristForwardMin); */
+        if(currentState.m_elevator >= -10.0 && !m_elevatorClear){
+            m_elevatorClear = true;
+            m_cube.setPose(m_desiredState.m_cube);
+            m_arm.setPose(m_desiredState.m_arm);
+            m_wrist.setPose(m_desiredState.m_wrist);
+            m_cone.setPose(m_desiredState.m_cone);
+        }
+        if(m_elevatorClear && atSetpoint){
+            m_elevator.setPose(m_desiredState.m_elevator);
+        }
+
+        SmartDashboard.putNumber("Elevator Desired", m_desiredState.m_elevator);
+        SmartDashboard.putNumber("Arm Desired", m_desiredState.m_arm);
+        SmartDashboard.putNumber("Wrist Desired", m_desiredState.m_wrist);
+        SmartDashboard.putNumber("Cone Desired", m_desiredState.m_cone);
+        SmartDashboard.putNumber("Cube Desired", m_desiredState.m_cube);
+
+
+        SmartDashboard.putNumber("Current Elevator", m_elevator.getPose());
+        SmartDashboard.putNumber("Current Arm", m_arm.getPose());
+        SmartDashboard.putNumber("Current Wrist", m_wrist.getPose());
+        SmartDashboard.putNumber("Current Cone", m_cone.getPose());
+        SmartDashboard.putNumber("Current Cube", m_cube.getPose());
+
     }
 }

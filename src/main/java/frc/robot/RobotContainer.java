@@ -45,12 +45,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   private final XboxController m_driverController = new XboxController(OperatorConstants.kDriverControllerPort);
+  private final XboxController m_operatorController = new XboxController(OperatorConstants.kOperatorControllerPort);
 
   private final Drivetrain m_drive = new Drivetrain();
   private final Limelight m_vision = new Limelight("limelight");
   private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
-  private final Claw mClaw = new Claw();
+  private final Claw m_claw = new Claw();
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
@@ -87,8 +88,8 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
 
-    new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->mClaw.setSpeed(-0.15))).onFalse(new InstantCommand(()->mClaw.stop()));
-    new JoystickRightTrigger(m_driverController).onTrue(new InstantCommand(()->mClaw.setSpeed(0.9))).onFalse(new InstantCommand(()->mClaw.stop()));
+    new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-0.15))).onFalse(new InstantCommand(()->m_claw.stop()));
+    new JoystickRightTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(0.9))).onFalse(new InstantCommand(()->m_claw.stop()));
   }
 
   private void configureAutoEvents() {}
