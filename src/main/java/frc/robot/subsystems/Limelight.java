@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,12 +13,14 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FieldConstants;
 
 public class Limelight extends SubsystemBase {
     private final NetworkTable m_lime;
     private final HashMap<String, Double> lightStatus = new HashMap<>();
+    private final File m_limelightJson;
     private final String m_name;
     
     private boolean m_poleScoring = false;
@@ -28,10 +33,34 @@ public class Limelight extends SubsystemBase {
         m_lime = NetworkTableInstance.getDefault().getTable(name);
         m_lime.getEntry("ledMode").setDouble(lightStatus.get("Off"));
         m_name =  name;
+        m_limelightJson = new File(Filesystem.getDeployDirectory() + "/" + m_name + ".json");
+        try {
+            if (m_limelightJson.createNewFile()) {
+                System.out.println("Limelight json file created at " + m_limelightJson.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            System.out.println("Error creating limelight json file.");
+            e.printStackTrace();
+        }
     }
 
     public String getName() {
         return m_name;
+    }
+
+    public String getJson() {
+        return m_lime.getEntry("json").getString("nothing");
+    }
+
+    public void writeToJson() throws IOException {
+        try {
+            FileWriter jsonWriter = new FileWriter(m_limelightJson);
+            jsonWriter.write(getJson());
+            jsonWriter.close();
+          } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+          }
     }
 
     /**
