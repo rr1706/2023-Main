@@ -13,6 +13,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FieldConstants;
@@ -22,16 +24,13 @@ public class Limelight extends SubsystemBase {
     private final HashMap<String, Double> lightStatus = new HashMap<>();
     private final File m_limelightJson;
     private final String m_name;
-    
+
+    private Alliance m_alliance = Alliance.Invalid;
     private boolean m_poleScoring = false;
 
     public Limelight(String name) {
-        lightStatus.put("Pipeline Controlled", 0.0);
-        lightStatus.put("Off", 1.0);
-        lightStatus.put("Blinking", 2.0);
-        lightStatus.put("On", 3.0);
         m_lime = NetworkTableInstance.getDefault().getTable(name);
-        m_lime.getEntry("ledMode").setDouble(lightStatus.get("Off"));
+        m_lime.getEntry("ledMode").setDouble(1.0);
         m_name =  name;
         m_limelightJson = new File(Filesystem.getDeployDirectory() + "/" + m_name + ".json");
         try {
@@ -41,6 +40,13 @@ public class Limelight extends SubsystemBase {
         } catch (IOException e) {
             System.out.println("Error creating limelight json file.");
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void periodic() {
+        if (m_alliance == Alliance.Invalid) {
+            m_alliance = DriverStation.getAlliance();
         }
     }
 
@@ -68,11 +74,24 @@ public class Limelight extends SubsystemBase {
      * @return The robot's 2D pose according to the limelight
      */
     public Pose2d getPose2d() {
-        double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[0]);
-        return new Pose2d(
-            new Translation2d(poseArray[0], poseArray[1]),
-            new Rotation2d(poseArray[3], poseArray[4])
-        );
+        if (m_alliance == Alliance.Blue) {
+            double[] poseArray = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[0]);
+            return new Pose2d(
+                new Translation2d(poseArray[0], poseArray[1]),
+                new Rotation2d(poseArray[3], poseArray[4])
+            );
+        } else if (m_alliance == Alliance.Red) {
+            double[] poseArray = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[0]);
+            return new Pose2d(
+                new Translation2d(poseArray[0], poseArray[1]),
+                new Rotation2d(poseArray[3], poseArray[4])
+            );
+        }
+            double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[0]);
+            return new Pose2d(
+                new Translation2d(poseArray[0], poseArray[1]),
+                new Rotation2d(poseArray[3], poseArray[4])
+            );
     }
     
     /**
@@ -80,11 +99,25 @@ public class Limelight extends SubsystemBase {
      * @return The robot's 3D pose according to the limelight
      */
     public Pose3d getPose3d() {
-        double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[0]);
-        return new Pose3d(
-            new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
-            new Rotation3d(poseArray[3], poseArray[4], poseArray[5])
-        );
+        if (m_alliance == Alliance.Blue) {
+            double[] poseArray = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[0]);
+            return new Pose3d(
+                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
+                new Rotation3d(poseArray[3], poseArray[4], poseArray[5])
+            );
+        } else if (m_alliance == Alliance.Red) {
+            double[] poseArray = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[0]);
+            return new Pose3d(
+                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
+                new Rotation3d(poseArray[3], poseArray[4], poseArray[5])
+            );
+        } else {
+            double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[0]);
+            return new Pose3d(
+                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
+                new Rotation3d(poseArray[3], poseArray[4], poseArray[5])
+            );
+        }
     }
 
     /**
@@ -115,7 +148,7 @@ public class Limelight extends SubsystemBase {
      * Set the limelight pipeline based on robot pose and/or intended action
      * @param poleScoring True if you intend to score on the poles
      */
-    public void updateLimelightPipeline(boolean poleScoring, Pose2d pose) {
+    public void updateLimelightPipeline(Pose2d pose, boolean poleScoring) {
         m_poleScoring = poleScoring;
         /*
          * Limelight Pipeline Indexes
@@ -184,10 +217,10 @@ public class Limelight extends SubsystemBase {
 
     /**
      * 
-     * @param status Pipeline Controller, Off, Blinking, On
+     * @param status 0 = Pipeline Controlled, 1 = Off, 2 = On, 3 = Blinking
      */
-    public void setLights(String status) {
-        m_lime.getEntry("ledMode").setDouble(lightStatus.get(status));
+    public void setLights(int status) {
+        m_lime.getEntry("ledMode").setDouble((double) status);
     }
 
 }

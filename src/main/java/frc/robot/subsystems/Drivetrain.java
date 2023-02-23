@@ -15,12 +15,24 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj.Timer;
 
+import java.util.ArrayList;
+
+import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPoint;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+
 import frc.robot.Constants.*;
+import frc.robot.utilities.FieldRelativeAccel;
+import frc.robot.utilities.FieldRelativeSpeed;
+import frc.robot.utilities.MathUtils;
 
 /**
  * Implements a swerve Drivetrain Subsystem for the Robot
@@ -171,6 +183,10 @@ public class Drivetrain extends SubsystemBase {
     m_backRight.stop();
   }
 
+  public double getTilt() {
+    return MathUtils.pythagorean(ahrs.getRoll(), ahrs.getPitch());
+  }
+
   /**
    * Updates odometry for the swerve drivetrain. This should be called
    * once per loop to minimize error.
@@ -218,6 +234,21 @@ public class Drivetrain extends SubsystemBase {
   }
 
   
+  public void toPose(Pose2d current, Pose2d destination) {
+    ArrayList<PathPoint> points = new ArrayList<>();
+    points.add(new PathPoint(current.getTranslation(), current.getRotation()));
+    points.add(new PathPoint(destination.getTranslation(), destination.getRotation()));
+
+    new PPSwerveControllerCommand(
+      PathPlanner.generatePath(new PathConstraints(DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration), points),
+      this::getPose,
+      new PIDController(0.25, 0.0, 0.0),
+      new PIDController(0.25, 0.0, 0.0),
+      new PIDController(ModuleConstants.kTurnPID[0], ModuleConstants.kTurnPID[1], ModuleConstants.kTurnPID[2]),
+      this::setModuleStates, 
+      this).schedule();
+  }
+
   /**
    * Resets the odometry and gyro to the specified pose.
    *
