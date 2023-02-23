@@ -7,6 +7,8 @@ import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CurrentLimit;
 import frc.robot.Constants.GlobalConstants;
@@ -16,6 +18,8 @@ public class Claw extends SubsystemBase{
     CANSparkMax mMotor2 = new CANSparkMax(19, MotorType.kBrushless);
     RelativeEncoder mEncoder = mMotor1.getEncoder();
     SparkMaxPIDController mPID = mMotor1.getPIDController();
+
+    SimpleMotorFeedforward mFF = new SimpleMotorFeedforward(0.015, 0.00016667);
 
     public Claw(){
         mMotor1.setSmartCurrentLimit(CurrentLimit.kClaw);
@@ -27,10 +31,13 @@ public class Claw extends SubsystemBase{
 
         mMotor2.follow(mMotor1,true);
 
-        mPID.setP(0.0001);
-        mPID.setFF(0.00018);
+        mEncoder.setAverageDepth(4);
+        mEncoder.setMeasurementPeriod(16);
 
-        mPID.setSmartMotionMaxAccel(25000, 0);
+        mPID.setP(0.0001);
+        mPID.setFF(0.0000);
+
+        mPID.setSmartMotionMaxAccel(17500, 0);
         mPID.setSmartMotionMaxVelocity(5500, 0);
 
         mMotor1.burnFlash();
@@ -39,7 +46,8 @@ public class Claw extends SubsystemBase{
     }
 
     public void setSpeed(double speed){
-        mPID.setReference(speed, ControlType.kSmartVelocity);
+        double ff = mFF.calculate(speed);
+        mPID.setReference(speed, ControlType.kSmartVelocity,0,ff*GlobalConstants.kVoltCompensation);
     }
 
     public void stop(){
@@ -50,6 +58,7 @@ public class Claw extends SubsystemBase{
     @Override
     public void periodic(){
 
+        SmartDashboard.putNumber("Claw Speed", mEncoder.getVelocity());
     }
 
 

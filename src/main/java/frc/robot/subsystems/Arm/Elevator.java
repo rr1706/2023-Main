@@ -33,8 +33,8 @@ public class Elevator extends SubsystemBase {
         m_PID.setP(0.00001);
         m_PID.setFF(0.000175);
 
-        m_PID.setSmartMotionMaxAccel(10000, 0);
-        m_PID.setSmartMotionMaxVelocity(2500, 0);
+        m_PID.setSmartMotionMaxAccel(15000, 0);
+        m_PID.setSmartMotionMaxVelocity(3500, 0);
 
         m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxElevator);
         m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinElevator);

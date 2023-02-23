@@ -22,6 +22,8 @@ public class Cube extends SubsystemBase {
     private final RelativeEncoder m_extEncoder;
     private final RelativeEncoder m_encoder;
 
+    private double m_speed = 0.0;
+
     private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State m_state = new TrapezoidProfile.State();
  
@@ -39,6 +41,7 @@ public class Cube extends SubsystemBase {
         m_motorExt.setSmartCurrentLimit(CurrentLimit.kCubeExt);
         m_motor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_motorExt.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
+
         m_motor.burnFlash();
         m_motorExt.burnFlash();
 
@@ -47,7 +50,7 @@ public class Cube extends SubsystemBase {
     }
 
     public void set(double speed) {
-        m_motor.set(speed);
+        m_speed = speed;
     }
 
     public void resetEncoder() {
@@ -74,6 +77,7 @@ public class Cube extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Cube Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion, 0, 0.0);
+
     }
 
     public double getPose() {

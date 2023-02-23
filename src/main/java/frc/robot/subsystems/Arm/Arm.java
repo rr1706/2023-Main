@@ -33,8 +33,8 @@ public class Arm extends SubsystemBase {
         m_PID.setP(0.00001);
         m_PID.setFF(0.00009);
 
-        m_PID.setSmartMotionMaxAccel(12000, 0);
-        m_PID.setSmartMotionMaxVelocity(6000, 0);
+        m_PID.setSmartMotionMaxAccel(20000, 0);
+        m_PID.setSmartMotionMaxVelocity(10000, 0);
 
         m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
         m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinArm);

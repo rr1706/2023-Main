@@ -40,10 +40,12 @@ public final class Constants {
   }
 
   public static final class StateConstants{
-    public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -18.0, 12.0, 0.0);
-    public static final MotionControlState kGrab = new MotionControlState(66.86, 0.0, -11.5, 54.88, 0.0);
-    public static final MotionControlState kShoot = new MotionControlState(63, 0, -1.5, 45, 0.0);
-    public static final MotionControlState kFloor = new MotionControlState(26.0, 0, -28.0, 33.5, 0.0);
+    public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -18.25, 12.0, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(66.86, 0.0, -12.0, 54.88, 0.0);
+    public static final MotionControlState kShoot = new MotionControlState(65, 0, -1.5, 45, 0.0);
+    public static final MotionControlState kMidShoot = new MotionControlState(47, 0, -5.0, 35, 0.0);
+    public static final MotionControlState kFloor = new MotionControlState(26.0, 0, -28.5, 33.5, 0.0);
+    public static final MotionControlState kConeIntake = new MotionControlState(-24.0, 0, -14.5, -30.0, 32.0);
 
   }
 
@@ -113,7 +115,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 4.5; // Maximum Sustainable Drivetrain Speed under Normal
                                                                 // Conditions & Battery, Robot will not exceed this
                                                                 // speed in closed loop control
-    public static final double kMaxAngularSpeed = 1.5*Math.PI; // Maximum Angular Speed desired. NOTE: Robot can exceed this
+     
+    public static final double kMaxAngularSpeed = Math.PI; // Maximum Angular Speed desired. NOTE: Robot can exceed this
                                                            // but spinning fast is not particularly useful or driver
                                                            // friendly
     public static final double kMaxAngularAccel = 1.5*Math.PI; // Maximum Angular Speed desired. NOTE: Robot can exceed this
@@ -146,7 +149,7 @@ public final class Constants {
   public static final class ArmsConstants {
     public static final double kDefaultElevator = -1.0;
     public static final TrapezoidProfile.Constraints kElevatorConstraints = new TrapezoidProfile.Constraints(250, 50);
-    public static final double kMinElevator = -29;
+    public static final double kMinElevator = -30;
     public static final double kMaxElevator = -1;
 
     public static final double kDefaultArm = 0.0;
@@ -156,7 +159,7 @@ public final class Constants {
 
     public static final double kDefaultWrist = 0.0;
     public static final TrapezoidProfile.Constraints kWristConstraints = new TrapezoidProfile.Constraints(250, 50);
-    public static final double kMinWrist = -30;
+    public static final double kMinWrist = -35;
     public static final double kMaxWrist = 56;
 
     public static final double kArmLength = 0.0;
@@ -170,7 +173,7 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final double kDefaultCone = 0.0;
     public static final TrapezoidProfile.Constraints kConeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kExtendedCone = 30.0;
+    public static final double kExtendedCone = 33.0;
     public static final double kRetractedCone = 0.0;
     
     public static final double kDefaultCube = 0.0;
