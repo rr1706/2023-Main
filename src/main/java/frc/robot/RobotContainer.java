@@ -29,6 +29,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -48,7 +49,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   private final XboxController m_driverController = new XboxController(OperatorConstants.kDriverControllerPort);
-  private final XboxController m_operatorController = new XboxController(OperatorConstants.kOperatorControllerPort);
+  /**
+   * @see Button Values are 1-12, going from left -> right, bottom -> top
+   */
+  private final GenericHID m_operatorBoard = new GenericHID(OperatorConstants.kOperatorControllerPort);
 
   private final Drivetrain m_drive = new Drivetrain();
   private final LimelightBackup m_vision = new LimelightBackup("limelight");
