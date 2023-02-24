@@ -80,6 +80,10 @@ public final class MotionControlSystem extends SubsystemBase {
 
     }
 
+    public boolean atSetpoint(){
+        return m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
+    }
+
     public void coneIn(){
         m_cone.setPose(0.0);
         m_cone.set(0.0);

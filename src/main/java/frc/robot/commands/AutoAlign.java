@@ -2,30 +2,49 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.StateConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.MotionControlSystem;
 import frc.robot.utilities.MathUtils;
+import frc.robot.utilities.MotionControlState;
 
 public class AutoAlign extends CommandBase {
     private final Drivetrain m_drive;
 
     private final XboxController m_controller;
+    private final GenericHID m_operatorBoard;
+    private final MotionControlSystem m_controlSystem;
 
     private boolean fieldOrient = true;
-
+    private boolean scoringCone = false;
+    private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
+    private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
     private final PIDController m_rotPID 
-    = new PIDController(0.05, 0.0, 0.00);
+    = new PIDController(0.075, 0.001, 0.00);
 
-    public AutoAlign(Drivetrain drive, XboxController controller){
+    public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard){
         m_drive = drive;
         m_controller = controller;
-        m_rotPID.disableContinuousInput();
+        m_operatorBoard = operatorBoard;
+        m_controlSystem = motionSystem;
+        m_rotPID.enableContinuousInput(0, 360);
 
+        m_rotPID.setIntegratorRange(-0.01, 0.01);
         addRequirements(m_drive);
+    }
+
+    
+    @Override
+    public void initialize(){
+      m_state = StateConstants.kHome;
+      m_lastState = StateConstants.kHome;
+      scoringCone = false;
     }
 
     @Override
@@ -36,10 +55,53 @@ public class AutoAlign extends CommandBase {
       double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
       Translation2d desiredTranslation = new Translation2d(desiredX, desiredY);
       double desiredMag = desiredTranslation.getDistance(new Translation2d());
-  
-      //double desiredRot = -inputTransform(m_controller.getRightX())* DriveConstants.kMaxAngularSpeed;
-  
-      double desiredRot = m_rotPID.calculate(Limelight.rawTx(),0.0);
+
+      boolean low = m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
+      boolean coneMid = m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
+      boolean coneHigh = m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
+      boolean cubeMid = m_operatorBoard.getRawButton(8);
+      boolean cubeHigh = m_operatorBoard.getRawButton(11); 
+
+      if(low){
+        m_state = StateConstants.kLow;
+        scoringCone = false;
+      }
+      else if(coneMid){
+        m_state = StateConstants.kConeMid;
+        scoringCone = true;
+      }
+      else if(coneHigh){
+        m_state = StateConstants.kConeHigh;
+        scoringCone = true;
+      }
+      else if(cubeMid){
+        scoringCone = false;
+        m_state = StateConstants.kCubeMid;
+      }
+      else if(cubeHigh){
+        scoringCone = false;
+        m_state = StateConstants.kCubeHigh;
+      }
+      else{
+        scoringCone = false;
+        m_state = StateConstants.kHome;
+      }
+
+      if(!m_state.equals(m_lastState)){
+        m_controlSystem.setState(m_state);
+        m_lastState = m_state;
+        SmartDashboard.putBoolean("State Change", true);
+      }
+      SmartDashboard.putBoolean("State Change", false);
+
+      double desiredRot = 0.0;// m_rotPID.calculate(m_drive.getGyro().getDegrees(),0.0);
+
+      if(m_controlSystem.atSetpoint() && scoringCone){
+        desiredRot = m_rotPID.calculate(Limelight.rawTx(),0.0);
+      }
+      else{
+        desiredRot = -inputTransform(m_controller.getRightX())* DriveConstants.kMaxAngularSpeed;
+      }
 
       if(desiredMag >= maxLinear){
         desiredTranslation = desiredTranslation.times(maxLinear/desiredMag);
@@ -67,6 +129,7 @@ public class AutoAlign extends CommandBase {
     @Override
     public void end(boolean interrupted){
       SmartDashboard.putBoolean("DrivingByController", false);
+      m_controlSystem.setState(StateConstants.kHome);
   
     }
   

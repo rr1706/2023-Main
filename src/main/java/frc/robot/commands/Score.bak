@@ -23,11 +23,11 @@ public class Score extends CommandBase {
         m_poseEstimator = poseEstimator;
         m_vision = vision;
         m_motionControl = motionControl;
-        m_PID = new PIDCommand(new PIDController(0, 0, 0),
-        m_drivetrain::getTilt,
-        0.0,
-        this::moveToScore,
-        m_drivetrain, m_vision);
+        //m_PID = new PIDCommand(new PIDController(0, 0, 0),
+        //m_drivetrain::getTilt,
+        //0.0,
+        //this::moveToScore,
+        //m_drivetrain, m_vision);
     }
 
     @Override

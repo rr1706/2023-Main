@@ -24,7 +24,7 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
-  }
+    public static final int kOperatorBoardPort = 2;  }
 
   public static final class CurrentLimit {
     public static final int kTranslation = 80;
@@ -41,11 +41,17 @@ public final class Constants {
 
   public static final class StateConstants{
     public static final MotionControlState kHome = new MotionControlState(-17.75, 0.0, -18.25, 12.0, 0.0);
-    public static final MotionControlState kGrab = new MotionControlState(66.86, 0.0, -12.0, 54.88, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(66.86, 0.0, -13.0, 54.88, 0.0);
     public static final MotionControlState kShoot = new MotionControlState(65, 0, -1.5, 45, 0.0);
     public static final MotionControlState kMidShoot = new MotionControlState(47, 0, -5.0, 35, 0.0);
-    public static final MotionControlState kFloor = new MotionControlState(26.0, 0, -28.5, 33.5, 0.0);
+    public static final MotionControlState kFloor = new MotionControlState(26.0, 0, -29.0, 33.5, 0.0);
     public static final MotionControlState kConeIntake = new MotionControlState(-24.0, 0, -14.5, -30.0, 32.0);
+    public static final MotionControlState kLow = new MotionControlState(26.0, 0, -25.0, 30.0, 0.0);
+    public static final MotionControlState kConeMid = new MotionControlState(47, 0, -5.0, 35, 0.0);
+    public static final MotionControlState kConeHigh =  new MotionControlState(65, 0, -1.5, 45, 0.0);
+    public static final MotionControlState kCubeMid = new MotionControlState(10, 0, -10, 10, 0.0);
+    public static final MotionControlState kCubeHigh =  new MotionControlState(42, 0, -5.0, 28, 0.0);
+
 
   }
 
@@ -123,7 +129,7 @@ public final class Constants {
                                                            // but spinning fast is not particularly useful or driver
                                                            // friendly
 
-    public static final double kInnerDeadband = 0.08; // This value should exceed the maximum value the analog stick may
+    public static final double kInnerDeadband = 0.10; // This value should exceed the maximum value the analog stick may
                                                       // read when not in use (Eliminates "Stick Drift")
     public static final double kOuterDeadband = 0.98; // This value should be lower than the analog stick X or Y reading
                                                       // when aimed at a 45deg angle (Such that X and Y are are
