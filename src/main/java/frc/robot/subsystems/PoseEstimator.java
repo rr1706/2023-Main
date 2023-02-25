@@ -77,7 +77,7 @@ public class PoseEstimator extends SubsystemBase {
     }
 
     private Pose2d getVisionPose() {
-        return getPose();
+        return m_vision.getPose3d().toPose2d();
     }
 
     public void resetOdometry(Pose2d pose) {
