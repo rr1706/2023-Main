@@ -15,7 +15,7 @@ import frc.robot.Constants.CurrentLimit;
 import frc.robot.Constants.GlobalConstants;
 import frc.robot.Constants.IntakeConstants;
 
-public class Cube extends SubsystemBase {
+public class Cone extends SubsystemBase {
     private final CANSparkMax m_motorExt;
     private final CANSparkMax m_motor;
     private final SparkMaxPIDController m_PID;
@@ -23,34 +23,35 @@ public class Cube extends SubsystemBase {
     private final RelativeEncoder m_encoder;
 
     private double m_speed = 0.0;
+    private boolean m_force = false;
 
     private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State m_state = new TrapezoidProfile.State();
  
-    public Cube() {
-        m_motor = new CANSparkMax(IntakeConstants.kCubeMotors[1], MotorType.kBrushless);
-        m_motorExt = new CANSparkMax(IntakeConstants.kCubeMotors[0], MotorType.kBrushless);
-
+    public Cone() {
+        m_motor = new CANSparkMax(IntakeConstants.kConeMotors[0], MotorType.kBrushless);
+        m_motorExt = new CANSparkMax(IntakeConstants.kConeMotors[1], MotorType.kBrushless);
         m_PID = m_motorExt.getPIDController();
-        m_extEncoder = m_motorExt.getEncoder();
-        m_encoder = m_motor.getEncoder();
 
-        m_motorExt.setSoftLimit(SoftLimitDirection.kForward, (float) IntakeConstants.kExtendedCube);
-        m_motorExt.setSoftLimit(SoftLimitDirection.kReverse, (float) IntakeConstants.kRetractedCube);
-        m_PID.setP(IntakeConstants.kCubeP);
-        m_PID.setFF(IntakeConstants.kCubeFF);
-        m_motor.setSmartCurrentLimit(CurrentLimit.kCube);
-        m_motorExt.setSmartCurrentLimit(CurrentLimit.kCubeExt);
+        m_encoder = m_motor.getEncoder();
+        m_extEncoder = m_motorExt.getEncoder();
+
+        m_motorExt.setSoftLimit(SoftLimitDirection.kForward, (float) IntakeConstants.kExtendedCone);
+        m_motorExt.setSoftLimit(SoftLimitDirection.kReverse, (float) IntakeConstants.kRetractedCone);
+        m_PID.setP(IntakeConstants.kConeP);
+        m_PID.setFF(IntakeConstants.kConeFF);
+        m_motor.setSmartCurrentLimit(CurrentLimit.kCone);
+        m_motorExt.setSmartCurrentLimit(CurrentLimit.kConeExt);
         m_motor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_motorExt.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         
         m_PID.setSmartMotionMaxAccel(20000, 0);
         m_PID.setSmartMotionMaxVelocity(11000, 0);
-        
+
         m_motor.burnFlash();
         m_motorExt.burnFlash();
 
-        m_state = new TrapezoidProfile.State(IntakeConstants.kRetractedCube, 0.0);
+        m_state = new TrapezoidProfile.State(IntakeConstants.kRetractedCone, 0.0);
         m_setpoint = m_state;
     }
 
@@ -59,7 +60,7 @@ public class Cube extends SubsystemBase {
     }
 
     public void resetEncoder() {
-        m_motorExt.getEncoder().setPosition(0.0);
+        m_extEncoder.setPosition(0.0);
     }
 
     public void stop() {
@@ -71,20 +72,25 @@ public class Cube extends SubsystemBase {
     }
 
     public void extend() {
-        m_setpoint = new TrapezoidProfile.State(IntakeConstants.kExtendedCube, 0.0);
+        m_setpoint = new TrapezoidProfile.State(IntakeConstants.kExtendedCone, 0.0);
     }
 
     public void retract() {
-        m_setpoint = new TrapezoidProfile.State(IntakeConstants.kRetractedCube, 0.0);
+        m_setpoint = new TrapezoidProfile.State(IntakeConstants.kRetractedCone, 0.0);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Cube Setpoint", m_setpoint.position);
+        SmartDashboard.putNumber("Cone Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion, 0, 0.0);
 
-        m_motor.set(m_speed);
-
+        
+        if(getPose()>25.0 || m_force){
+            m_motor.set(m_speed);
+        }
+        else{
+            m_motor.stopMotor();
+        }
     }
 
     public double getPose() {
@@ -97,6 +103,10 @@ public class Cube extends SubsystemBase {
 
     public boolean atSetpoint() {
         return Math.abs(m_setpoint.position-m_extEncoder.getPosition()) <= 1.0;
+    }
+
+    public void setForce(boolean force) {
+        m_force = force;
     }
 
 }

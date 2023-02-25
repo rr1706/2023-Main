@@ -27,10 +27,11 @@ public final class MotionControlSystem extends SubsystemBase {
     private MotionControlState m_desiredState = new MotionControlState(StateConstants.kHome) ;
     private boolean m_elevatorClear = false;
 
-
     public MotionControlSystem(){
         SmartDashboard.putBoolean("+0.5 to ARM", false);
         SmartDashboard.putBoolean("-0.5 to ARM", false);
+
+    public MotionControlSystem(){
     }
 
     public void setState(MotionControlState desiredState){
@@ -73,6 +74,7 @@ public final class MotionControlSystem extends SubsystemBase {
                 m_elevator.setPose(m_desiredState.m_elevator);
             }
         }
+
         if(currentState.m_elevator >= clearHeight-1.0 && !m_elevatorClear){
             m_elevatorClear = true;
             m_arm.setPose(m_desiredState.m_arm+m_offset);
@@ -80,8 +82,6 @@ public final class MotionControlSystem extends SubsystemBase {
             m_cone.setPose(m_desiredState.m_cone);
             m_cube.setPose(m_desiredState.m_cube);
         }
-        
-
 
         boolean atSetpoint = m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
 
@@ -90,7 +90,9 @@ public final class MotionControlSystem extends SubsystemBase {
         }
 
         SmartDashboard.putNumber("Elevator Desired", m_desiredState.m_elevator);
+
         SmartDashboard.putNumber("Arm Desired", m_desiredState.m_arm+m_offset);
+
         SmartDashboard.putNumber("Wrist Desired", m_desiredState.m_wrist);
         SmartDashboard.putNumber("Cone Desired", m_desiredState.m_cone);
         SmartDashboard.putNumber("Cube Desired", m_desiredState.m_cube);

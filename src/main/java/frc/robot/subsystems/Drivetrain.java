@@ -13,16 +13,22 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj.Timer;
 
-import com.kauailabs.navx.frc.AHRS;
+import java.util.ArrayList;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPoint;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import frc.robot.Constants.*;
-import frc.robot.utilities.FieldRelativeAccel;
-import frc.robot.utilities.FieldRelativeSpeed;
+import frc.robot.utilities.MathUtils;
 
 /**
  * Implements a swerve Drivetrain Subsystem for the Robot
@@ -33,17 +39,11 @@ public class Drivetrain extends SubsystemBase {
   private final PIDController m_keepAnglePID = new PIDController(DriveConstants.kKeepAnglePID[0],
       DriveConstants.kKeepAnglePID[1], DriveConstants.kKeepAnglePID[2]);
 
-  private double keepAngle = 0.0; // Double to store the current target keepAngle in radians
-  private double timeSinceRot = 0.0; // Double to store the time since last rotation command
-  private double lastRotTime = 0.0; // Double to store the time of the last rotation command
-  private double timeSinceDrive = 0.0; // Double to store the time since last translation command
-  private double lastDriveTime = 0.0; // Double to store the time of the last translation command
-
-  private FieldRelativeSpeed m_fieldRelVel = new FieldRelativeSpeed();
-  private FieldRelativeSpeed m_lastFieldRelVel = new FieldRelativeSpeed();
-  private FieldRelativeAccel m_fieldRelAccel = new FieldRelativeAccel();;
-
   private final Timer keepAngleTimer = new Timer(); // Creates timer used in the perform keep angle function
+
+  private final SlewRateLimiter m_slewX = new SlewRateLimiter(8.0);
+  private final SlewRateLimiter m_slewY = new SlewRateLimiter(8.0);
+  private final SlewRateLimiter m_slewRot = new SlewRateLimiter(12.5);
 
   // Creates a swerveModule object for the front left swerve module feeding in
   // parameters from the constants file
@@ -67,26 +67,18 @@ public class Drivetrain extends SubsystemBase {
   // parameters from the constants file
   private final SwerveModule m_backRight = new SwerveModule(DriveConstants.kBackRightDriveMotorPort,
       DriveConstants.kBackRightTurningMotorPort, DriveConstants.kBackRightTurningEncoderPort,
-      DriveConstants.kBackRightOffset, DriveConstants.kBackRightTuningVals);  
+      DriveConstants.kBackRightOffset, DriveConstants.kBackRightTuningVals);
 
   // Creates an ahrs gyro (NavX) on the MXP port of the RoboRIO
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
-  // Creates an array of SwerveModulePositions for use in odometry
-  private final SwerveModulePosition[] m_modulePositions = {
-    m_frontRight.getPosition(),
-    m_frontLeft.getPosition(),
-    m_backRight.getPosition(),
-    m_backLeft.getPosition()
-  };
-
-  public SwerveModulePosition[] getModulePosititons() {
-    return m_modulePositions;
-  }
-
   // Creates Odometry object to store the pose of the robot
-  private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DriveConstants.kDriveKinematics,
-      ahrs.getRotation2d(), m_modulePositions);
+  private final SwerveDriveOdometry m_odometry 
+    = new SwerveDriveOdometry(DriveConstants.kDriveKinematics, ahrs.getRotation2d(), getModulePositions());
+
+  private final SwerveDriveOdometry m_autoOdometry 
+    = new SwerveDriveOdometry(DriveConstants.kDriveKinematics, ahrs.getRotation2d(), getModulePositions());
+
 
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
@@ -96,7 +88,7 @@ public class Drivetrain extends SubsystemBase {
     keepAngleTimer.start();
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
     ahrs.reset();
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, new Pose2d());
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), new Pose2d());
   }
 
   /**
@@ -109,9 +101,11 @@ public class Drivetrain extends SubsystemBase {
    *                      field.
    */
   @SuppressWarnings("ParameterName")
-  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-    rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
-                                                 // depending on driver input
+  public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean keepAngle) {
+    
+    xSpeed = m_slewX.calculate(xSpeed);
+    ySpeed = m_slewY.calculate(ySpeed);
+    rot = m_slewRot.calculate(rot);
 
     // SmartDashboard.putNumber("xSpeed Commanded", xSpeed);
     // SmartDashboard.putNumber("ySpeed Commanded", ySpeed);
@@ -131,23 +125,22 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_fieldRelVel = new FieldRelativeSpeed(getChassisSpeed(), getGyro());
-    m_fieldRelAccel = new FieldRelativeAccel(m_fieldRelVel, m_lastFieldRelVel, GlobalConstants.kLoopTime);
-    m_lastFieldRelVel = m_fieldRelVel;
 
-    SmartDashboard.putNumber("Gyro X", ahrs.getRawGyroX());
-    SmartDashboard.putNumber("Gyro Y", ahrs.getRawGyroY());
-    SmartDashboard.putNumber("Gyro Z", ahrs.getRawGyroZ());
+    double xSpeed = getChassisSpeed().vxMetersPerSecond;
+    double ySpeed = getChassisSpeed().vyMetersPerSecond;
+
+    double speed = Math.sqrt(xSpeed*xSpeed+ySpeed*ySpeed);
+
+    SmartDashboard.putNumber("Speed", speed);
 
     // SmartDashboard.putNumber("Accel X", m_fieldRelAccel.ax);
     // SmartDashboard.putNumber("Accel Y", m_fieldRelAccel.ay);
     // SmartDashboard.putNumber("Alpha", m_fieldRelAccel.alpha);
 
-    // SmartDashboard.putNumber("Front Left Encoder", m_frontLeft.getTurnEncoder());
-    // SmartDashboard.putNumber("Front Right Encoder",
-    // m_frontRight.getTurnEncoder());
-    // SmartDashboard.putNumber("Back Left Encoder", m_backLeft.getTurnEncoder());
-    // SmartDashboard.putNumber("Back Right Encoder", m_backRight.getTurnEncoder());
+     SmartDashboard.putNumber("Front Left Encoder", m_frontLeft.getTurnEncoder());
+     SmartDashboard.putNumber("Front Right Encoder",m_frontRight.getTurnEncoder());
+     SmartDashboard.putNumber("Back Left Encoder", m_backLeft.getTurnEncoder());
+     SmartDashboard.putNumber("Back Right Encoder", m_backRight.getTurnEncoder());
 
     // Update swerve drive odometry periodically so robot pose can be tracked
     updateOdometry();
@@ -186,12 +179,20 @@ public class Drivetrain extends SubsystemBase {
     m_backRight.stop();
   }
 
+  public double getTilt() {
+    return MathUtils.pythagorean(ahrs.getRoll(), ahrs.getPitch());
+  }
+
   /**
    * Updates odometry for the swerve drivetrain. This should be called
    * once per loop to minimize error.
-   */
+   */  
   public void updateOdometry() {
-    m_odometry.update(ahrs.getRotation2d(), m_modulePositions);
+    m_odometry.update(ahrs.getRotation2d(), getModulePositions());
+  }
+
+  public void updateAutoOdometry() {
+    m_autoOdometry.update(ahrs.getRotation2d(), getModulePositions());
   }
 
   /**
@@ -201,18 +202,6 @@ public class Drivetrain extends SubsystemBase {
    */
   public Rotation2d getGyro() {
     return ahrs.getRotation2d();
-  }
-
-  public double getGyroXVel() {
-    return ahrs.getRawGyroX();
-  }
-
-  public FieldRelativeSpeed getFieldRelativeSpeed() {
-    return m_fieldRelVel;
-  }
-
-  public FieldRelativeAccel getFieldRelativeAccel() {
-    return m_fieldRelAccel;
   }
 
   /**
@@ -231,6 +220,31 @@ public class Drivetrain extends SubsystemBase {
     return m_odometry.getPoseMeters();
   }
 
+  public Pose2d getAutoPose() {
+    updateAutoOdometry();
+    Pose2d pose = m_autoOdometry.getPoseMeters();
+    Translation2d position = pose.getTranslation();
+    SmartDashboard.putNumber("Auto X", position.getX());
+    SmartDashboard.putNumber("Auto Y", position.getY());
+    return m_autoOdometry.getPoseMeters();
+  }
+
+  
+  public void toPose(Pose2d current, Pose2d destination) {
+    ArrayList<PathPoint> points = new ArrayList<>();
+    points.add(new PathPoint(current.getTranslation(), current.getRotation()));
+    points.add(new PathPoint(destination.getTranslation(), destination.getRotation()));
+
+    new PPSwerveControllerCommand(
+      PathPlanner.generatePath(new PathConstraints(DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration), points),
+      this::getPose,
+      new PIDController(0.25, 0.0, 0.0),
+      new PIDController(0.25, 0.0, 0.0),
+      new PIDController(ModuleConstants.kTurnPID[0], ModuleConstants.kTurnPID[1], ModuleConstants.kTurnPID[2]),
+      this::setModuleStates, 
+      this).schedule();
+  }
+
   /**
    * Resets the odometry and gyro to the specified pose.
    *
@@ -239,16 +253,17 @@ public class Drivetrain extends SubsystemBase {
   public void resetOdometry(Pose2d pose) {
     ahrs.reset();
     ahrs.setAngleAdjustment(pose.getRotation().getDegrees());
-    keepAngle = getGyro().getRadians();
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, pose);
+
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
+    m_autoOdometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
-  public void setPose(Pose2d pose) {
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, pose);
-    keepAngle = getGyro().getRadians();
+  public void setPose(Pose2d pose){
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
-  /**
+
+    /**
    * Resets the gyro to the given angle
    * 
    * @param angle the angle of the robot to reset to
@@ -257,9 +272,7 @@ public class Drivetrain extends SubsystemBase {
     Pose2d pose = new Pose2d(getPose().getTranslation(), angle);
     ahrs.reset();
     ahrs.setAngleAdjustment(angle.getDegrees());
-    keepAngle = getGyro().getRadians();
-    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), m_modulePositions, pose);
-  }
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);  }
 
   /**
    * Converts the 4 swerve module states into a chassisSpeed by making use of the
@@ -273,47 +286,9 @@ public class Drivetrain extends SubsystemBase {
         m_backRight.getState());
   }
 
-  /**
-   * Keep angle function is performed to combat drivetrain drift without the need
-   * of constant "micro-adjustments" from the driver.
-   * A PIDController is used to attempt to maintain the robot heading to the
-   * keepAngle value. This value is updated when the robot
-   * is rotated manually by the driver input
-   * 
-   * @return rotation command in radians/s
-   * @param xSpeed is the input drive X speed command
-   * @param ySpeed is the input drive Y speed command
-   * @param rot    is the input drive rotation speed command
-   */
-  private double performKeepAngle(double xSpeed, double ySpeed, double rot) {
-    double output = rot; // Output shouold be set to the input rot command unless the Keep Angle PID is
-                         // called
-    if (Math.abs(rot) >= DriveConstants.kMinRotationCommand) { // If the driver commands the robot to rotate set the
-                                                               // last rotate time to the current time
-      lastRotTime = keepAngleTimer.get();
-    }
-    if (Math.abs(xSpeed) >= DriveConstants.kMinTranslationCommand
-        || Math.abs(ySpeed) >= DriveConstants.kMinTranslationCommand) { // if driver commands robot to translate set the
-                                                                        // last drive time to the current time
-      lastDriveTime = keepAngleTimer.get();
-    }
-    timeSinceRot = keepAngleTimer.get() - lastRotTime; // update variable to the current time - the last rotate time
-    timeSinceDrive = keepAngleTimer.get() - lastDriveTime; // update variable to the current time - the last drive time
-    if (timeSinceRot < 0.5) { // Update keepAngle up until 0.5s after rotate command stops to allow rotation
-                              // move to finish
-      keepAngle = getGyro().getRadians();
-    } else if (Math.abs(rot) < DriveConstants.kMinRotationCommand && timeSinceDrive < 0.25) { // Run Keep angle pid
-                                                                                              // until 0.75s after drive
-                                                                                              // command stops to combat
-                                                                                              // decel drift
-      output = m_keepAnglePID.calculate(getGyro().getRadians(), keepAngle); // Set output command to the result of the
-                                                                            // Keep Angle PID
-    }
-    return output;
-  }
-
-  public void updateKeepAngle() {
-    keepAngle = getGyro().getRadians();
+  public SwerveModulePosition[] getModulePositions(){
+    return new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(), m_backLeft.getPosition(),
+      m_backRight.getPosition()};
   }
 
 }

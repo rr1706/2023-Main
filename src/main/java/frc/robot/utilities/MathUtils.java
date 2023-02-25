@@ -13,6 +13,10 @@ public class MathUtils {
       return Math.signum(input) * Math.pow(input, 2);
     }
 
+    public static double cubicLinear(double input, double a, double b){
+      return (a*Math.pow(input, 3)+b*input);
+    }
+
     public static double applyDeadband(double input) {
       if (Math.abs(input) < DriveConstants.kInnerDeadband) {
         return 0.0;
@@ -21,6 +25,10 @@ public class MathUtils {
       } else {
         return input;
       }
+    }
+
+    public static double pythagorean(double a, double b) {
+      return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     }
 
 }

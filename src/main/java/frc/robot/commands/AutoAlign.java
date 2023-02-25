@@ -22,6 +22,7 @@ public class AutoAlign extends CommandBase {
     private final MotionControlSystem m_controlSystem;
 
     private boolean fieldOrient = true;
+
     private boolean visionLock = false;
     private boolean gyroLock = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
@@ -105,7 +106,7 @@ public class AutoAlign extends CommandBase {
       SmartDashboard.putBoolean("State Change", false);
 
       double desiredRot = 0.0;// m_rotPID.calculate(m_drive.getGyro().getDegrees(),0.0);
-
+      
       if(m_controlSystem.atSetpoint() && visionLock){
         desiredRot = m_rotPID.calculate(Limelight.rawTx()+2.0,0.0);
       }
