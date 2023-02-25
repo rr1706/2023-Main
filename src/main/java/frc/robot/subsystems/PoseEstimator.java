@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,7 +27,6 @@ public class PoseEstimator extends SubsystemBase {
     public void periodic() {
         updatePoseEstimator();
         updateShuffleboard();
-        m_vision.updateLimelightPipeline(getPose());
     }
 
     private void updatePoseEstimator() {
@@ -47,7 +46,7 @@ public class PoseEstimator extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        Pose2d est = m_poseEstimator.updateWithTime(Timer.getFPGATimestamp() - (m_vision.getTotalLatency() / 1000.0), m_drive.getGyro(), m_drive.getModulePositions());
+        Pose2d est = m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
         if (!FieldConstants.kAlliance) {
             return est;
         } else {
@@ -56,7 +55,7 @@ public class PoseEstimator extends SubsystemBase {
     }
 
     public Pose2d getPose(boolean allianceOrient) {
-        Pose2d est = m_poseEstimator.updateWithTime(Timer.getFPGATimestamp() - (m_vision.getTotalLatency() / 1000.0), m_drive.getGyro(), m_drive.getModulePositions());
+        Pose2d est = m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
         if (!allianceOrient || !FieldConstants.kAlliance) {
             return est;
         } else {
@@ -64,8 +63,21 @@ public class PoseEstimator extends SubsystemBase {
         }
     }
 
+    public boolean inside(Translation2d[] bounds, boolean onEdge) {
+        Pose2d currentPose = getPose();
+        double xMin = Math.min(bounds[0].getX(), bounds[1].getX());
+        double xMax = Math.max(bounds[0].getX(), bounds[1].getX());
+        double yMin = Math.min(bounds[0].getY(), bounds[1].getY());
+        double yMax = Math.max(bounds[0].getY(), bounds[1].getY());
+        return (
+            (currentPose.getX() > xMin && currentPose.getX() < xMax) || (onEdge && (currentPose.getX() >= xMin && currentPose.getX() <= xMax)) 
+            && 
+            (currentPose.getY() > yMin && currentPose.getY() < yMax) || (onEdge && (currentPose.getY() >= yMin && currentPose.getY() <= yMax))
+        );
+    }
+
     private Pose2d getVisionPose() {
-        return getPose().plus(new Transform2d(VisionConstants.kLimelightToRobot.toPose2d().getTranslation(), VisionConstants.kLimelightToRobot.toPose2d().getRotation()));
+        return getPose();
     }
 
     public void resetOdometry(Pose2d pose) {

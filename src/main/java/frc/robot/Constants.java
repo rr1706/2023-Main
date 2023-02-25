@@ -133,10 +133,19 @@ public final class Constants {
   public static final class FieldConstants {
     public static final double kFieldWidth = 8.02;
     public static final double kFieldLength = 16.54;
-    public static final double[] kScoringZone = {0.00, 3.33, 0.00, 5.50};
-    public static final double[] kForeField = {3.34, 6.00, 0.00, 8.02};
-    public static final double[] kMidField = {6.01, kFieldLength / 2, 0.00, 8.02};
-    public static final double[] kLoadingZone = {0.00, 3.33, 5.51, 8.02};
+
+    /**
+     * Valid y-positions for scoring
+     */
+    public static final double[] kScoringPositions = {4.94, 4.38, 3.82, 3.26, 2.70, 2.13, 1.58, 1.01, 0.46};
+    public static final double kScoringTolerance = 0.04;
+
+    public static final Translation2d[] kScoringZone = {new Translation2d(1.83, 0.00), new Translation2d(1.87, 5.00)};
+    public static final Translation2d[] kScoringPrepZone = {new Translation2d(1.87, 0.00), new Translation2d(2.45, 5.00)};
+    public static final Translation2d[] kLoadingZone = {new Translation2d(13.00, 6.07), new Translation2d(15.77, 8.02)};
+    public static final Translation2d[] kMidClose = {new Translation2d(2.45, 0.00), new Translation2d(kFieldLength / 2, 8.02)};
+    public static final Translation2d[] kMidFar = {new Translation2d(kFieldLength / 2, 0.00), new Translation2d(13.00, 8.02)};
+
     /**
      * True = Blue --- False = Red
      */

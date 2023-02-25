@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj.Timer;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -230,19 +231,19 @@ public class Drivetrain extends SubsystemBase {
   }
 
   
-  public void toPose(Pose2d current, Pose2d destination) {
+  public Command toPose(Pose2d initial, Pose2d destination, Supplier current) {
     ArrayList<PathPoint> points = new ArrayList<>();
-    points.add(new PathPoint(current.getTranslation(), current.getRotation()));
+    points.add(new PathPoint(initial.getTranslation(), initial.getRotation()));
     points.add(new PathPoint(destination.getTranslation(), destination.getRotation()));
 
-    new PPSwerveControllerCommand(
+    return new PPSwerveControllerCommand(
       PathPlanner.generatePath(new PathConstraints(DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration), points),
-      this::getPose,
+      current,
       new PIDController(0.25, 0.0, 0.0),
       new PIDController(0.25, 0.0, 0.0),
       new PIDController(ModuleConstants.kTurnPID[0], ModuleConstants.kTurnPID[1], ModuleConstants.kTurnPID[2]),
       this::setModuleStates, 
-      this).schedule();
+      this);
   }
 
   /**

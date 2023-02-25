@@ -26,6 +26,7 @@ public final class MotionControlSystem extends SubsystemBase {
     private MotionControlState m_desiredState = StateConstants.kHome;
     private MotionControlState m_tempState = StateConstants.kHome;
     private boolean m_elevatorClear = false;
+    private boolean atSetpoint = false;
 
     public MotionControlSystem(){}
 
@@ -49,7 +50,7 @@ public final class MotionControlSystem extends SubsystemBase {
             m_cone.setPose(m_desiredState.m_cone);
         }
 
-        boolean atSetpoint = m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
+        atSetpoint = m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
 
         if(m_elevatorClear && atSetpoint){
             m_elevator.setPose(m_desiredState.m_elevator);
@@ -68,5 +69,9 @@ public final class MotionControlSystem extends SubsystemBase {
         SmartDashboard.putNumber("Current Cone", m_cone.getPose());
         SmartDashboard.putNumber("Current Cube", m_cube.getPose());
 
+    }
+
+    public boolean isFinished() {
+        return atSetpoint;
     }
 }
