@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.StateConstants;
 import frc.robot.commands.DriveByController;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
@@ -20,13 +21,17 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -38,6 +43,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   private final XboxController m_driverController = new XboxController(OperatorConstants.kDriverControllerPort);
+  private final XboxController m_operatorController = new XboxController(OperatorConstants.kOperatorControllerPort);
 
   private final Drivetrain m_drive = new Drivetrain();
   private final Limelight m_vision = new Limelight("limelight");
@@ -73,8 +79,6 @@ public class RobotContainer {
   private void configureBindings() {
     new POVButton(m_driverController, 0)
       .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
-<<<<<<< Updated upstream
-=======
     new POVButton(m_driverController, 180)
       .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)))));
 
@@ -94,7 +98,6 @@ public class RobotContainer {
 
     new JoystickRightTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(2850))).onFalse(new InstantCommand(()->m_claw.stop()));
     new JoystickButton(m_driverController, Button.kRightBumper.value).onTrue(new InstantCommand(()->m_claw.setSpeed(1000))).onFalse(new InstantCommand(()->m_claw.stop()));
->>>>>>> Stashed changes
   }
 
   private void configureAutoEvents() {}

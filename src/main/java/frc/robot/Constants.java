@@ -21,14 +21,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
-<<<<<<< Updated upstream
-    public static final int kOperatorControllerPort = 1;
-  }
-
-  public static class CurrentLimit {
-    public static final int kRotation = 25;
-    public static final int kTranslation = 30;
-=======
     public static final int kOperatorControllerPort = 2;
     public static final int kOperatorBoardPort = 1;  }
 
@@ -60,7 +52,6 @@ public final class Constants {
     public static final MotionControlState kCubeHigh =  new MotionControlState(41.8, 0, -5.0, 31.2, 0.0);
 
 
->>>>>>> Stashed changes
   }
 
   public static class ModuleConstants {
