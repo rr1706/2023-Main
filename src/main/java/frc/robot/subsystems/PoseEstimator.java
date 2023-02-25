@@ -14,9 +14,9 @@ import frc.robot.Constants.VisionConstants;
 public class PoseEstimator extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Drivetrain m_drive;
-    private final LimelightBackup m_vision;
+    private final Limelight m_vision;
 
-    public PoseEstimator(Drivetrain drive, LimelightBackup limelight, Pose2d intialPose) {
+    public PoseEstimator(Drivetrain drive, Limelight limelight, Pose2d intialPose) {
         m_drive = drive;
         m_vision = limelight;
 

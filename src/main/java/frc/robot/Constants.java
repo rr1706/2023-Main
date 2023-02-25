@@ -121,7 +121,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 4.5; // Maximum Sustainable Drivetrain Speed under Normal
                                                                 // Conditions & Battery, Robot will not exceed this
                                                                 // speed in closed loop control
-     
+    public static final double kTestMaxAcceleration = 0.8;
+    public static final double kTestMaxSpeedMetersPerSecond = 1.2;
     public static final double kMaxAngularSpeed = Math.PI; // Maximum Angular Speed desired. NOTE: Robot can exceed this
                                                            // but spinning fast is not particularly useful or driver
                                                            // friendly
@@ -208,7 +209,6 @@ public final class Constants {
 
   public static final class VisionConstants {
     public static final double kPoseErrorAcceptance = 1.0; // How much error there can be between current stimated pose and vision pose in meters
-    public static final Pose3d kLimelightToRobot = new Pose3d();
   }
 
   public static final class GlobalConstants {
