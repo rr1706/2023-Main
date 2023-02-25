@@ -101,7 +101,9 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kRightBumper.value).onTrue(new InstantCommand(()->m_claw.setSpeed(1000))).onFalse(new InstantCommand(()->m_claw.stop()));
   }
 
-  private void configureAutoEvents() {}
+  private void configureAutoEvents() {
+    events.put("ConeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)));
+  }
 
   private void configureAutoChooser() {
     m_chooser.setDefaultOption("Do Nothin", doNothin);  
