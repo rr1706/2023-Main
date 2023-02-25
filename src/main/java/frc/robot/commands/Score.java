@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -49,22 +51,21 @@ public class Score extends SequentialCommandGroup {
             this::adjust,
             m_drivetrain, m_poseEstimator
         );
+        m_movePID.getController().setTolerance(FieldConstants.kScoringTolerance + 0.05);
 
         if (m_drivetrain.getChassisSpeed().equals(new ChassisSpeeds())) {
-            if (m_poseEstimator.inside(FieldConstants.kScoringZone, true) || m_poseEstimator.inside(FieldConstants.kScoringPrepZone, false)) {
+            if (m_poseEstimator.inside(FieldConstants.kScoringZone, true) || m_poseEstimator.inside(FieldConstants.kScoringPrepZone, true)) {
                 if (!((m_poseEstimator.getPose().getY() >= FieldConstants.kScoringPositions[m_goalPosition] - FieldConstants.kScoringTolerance) && (m_poseEstimator.getPose().getY() <= FieldConstants.kScoringPositions[m_goalPosition] + FieldConstants.kScoringTolerance))) {
                     addCommands(
                         m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(2.30, m_poseEstimator.getPose().getY(), m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose),
-                        m_movePID,
-                        m_aimPID,
-                        m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(2.30, m_poseEstimator.getPose().getY(), m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose)
+                        m_movePID.alongWith(new WaitUntilCommand(m_movePID.getController()::atSetpoint)),
+                        m_aimPID.alongWith(new WaitUntilCommand(m_movePID.getController()::atSetpoint))
                     ); 
                 }
             }
-
+            
             addCommands(
-                m_aimPID,
-                new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)).andThen(new WaitUntilCommand(m_motionControl::isFinished)),
+                new InstantCommand(() -> setMotionControlState()).alongWith(new InstantCommand(() -> m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(1.85, m_poseEstimator.getPose().getY(), m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose))),
                 new InstantCommand(() -> m_claw.setSpeed(100)).andThen(new WaitCommand(0.2)),
                 new InstantCommand(() -> m_claw.setSpeed(0))
             );
@@ -73,5 +74,32 @@ public class Score extends SequentialCommandGroup {
 
     private void adjust(double pidOutput) {
         m_drivetrain.drive(0.0, pidOutput, 0.0, true, true);
+    }
+
+    private void setMotionControlState() {
+        if (m_goalHeight == 1) {
+            m_motionControl.setState(StateConstants.kLow);
+        } else {
+            ArrayList<Integer> coneGoals = new ArrayList<>();
+            coneGoals.add(1);
+            coneGoals.add(3);
+            coneGoals.add(4);
+            coneGoals.add(6);
+            coneGoals.add(7);
+            coneGoals.add(9);
+            if (coneGoals.contains(m_goalPosition)) {
+                if (m_goalHeight == 2) {
+                    m_motionControl.setState(StateConstants.kConeMid);
+                } else {
+                    m_motionControl.setState(StateConstants.kConeHigh);
+                }
+            } else {
+                if (m_goalHeight == 2) {
+                    m_motionControl.setState(StateConstants.kCubeMid);
+                } else {
+                    m_motionControl.setState(StateConstants.kCubeHigh);
+                }
+            }
+        }
     }
 }
