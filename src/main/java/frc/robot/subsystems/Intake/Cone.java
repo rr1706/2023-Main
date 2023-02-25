@@ -22,6 +22,9 @@ public class Cone extends SubsystemBase {
     private final RelativeEncoder m_extEncoder;
     private final RelativeEncoder m_encoder;
 
+    private double m_speed = 0.0;
+    private boolean m_force = false;
+
     private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
     private TrapezoidProfile.State m_state = new TrapezoidProfile.State();
  
@@ -41,6 +44,10 @@ public class Cone extends SubsystemBase {
         m_motorExt.setSmartCurrentLimit(CurrentLimit.kConeExt);
         m_motor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_motorExt.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
+        
+        m_PID.setSmartMotionMaxAccel(20000, 0);
+        m_PID.setSmartMotionMaxVelocity(11000, 0);
+
         m_motor.burnFlash();
         m_motorExt.burnFlash();
 
@@ -49,7 +56,7 @@ public class Cone extends SubsystemBase {
     }
 
     public void set(double speed) {
-        m_motor.set(speed);
+        m_speed = speed;
     }
 
     public void resetEncoder() {
@@ -76,6 +83,14 @@ public class Cone extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Cone Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion, 0, 0.0);
+
+        
+        if(getPose()>25.0 || m_force){
+            m_motor.set(m_speed);
+        }
+        else{
+            m_motor.stopMotor();
+        }
     }
 
     public double getPose() {
@@ -88,6 +103,10 @@ public class Cone extends SubsystemBase {
 
     public boolean atSetpoint() {
         return Math.abs(m_setpoint.position-m_extEncoder.getPosition()) <= 1.0;
+    }
+
+    public void setForce(boolean force) {
+        m_force = force;
     }
 
 }

@@ -51,28 +51,24 @@ public class Limelight extends SubsystemBase {
     }
 
     /**
-     * 
-     * @return The robot's 2D pose according to the limelight
+     * Singifies if the limelight currently has an accetable target, defaulting to
+     * false if no value is provided in the Network Table.
+     * This default is important so that if the limelight becomes disconnected or
+     * gives bad numbers the code will assume there is not a valid target
+     *
+     * @return true if an acceptable target is visible.
      */
-    public Pose2d getPose2d() {
-        if (m_alliance == Alliance.Blue) {
-            double[] poseArray = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[0]);
-            return new Pose2d(
-                new Translation2d(poseArray[0], poseArray[1]),
-                new Rotation2d(poseArray[3], poseArray[4])
-            );
-        } else if (m_alliance == Alliance.Red) {
-            double[] poseArray = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[0]);
-            return new Pose2d(
-                new Translation2d(poseArray[0], poseArray[1]),
-                new Rotation2d(poseArray[3], poseArray[4])
-            );
-        }
-            double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[0]);
-            return new Pose2d(
-                new Translation2d(poseArray[0], poseArray[1]),
-                new Rotation2d(poseArray[3], poseArray[4])
-            );
+    public boolean valid() {
+        return m_lime.getEntry("tv").getDouble(0.0) == 1.0;
+    }
+
+    /**
+     * Allows retreival of the target area.
+     *
+     * @return the area of the target.
+     */
+    public double getTA() {
+        return m_lime.getEntry("ta").getDouble(0.0);
     }
     
     /**

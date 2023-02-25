@@ -23,15 +23,20 @@ public final class MotionControlSystem extends SubsystemBase {
     private final Elevator m_elevator = new Elevator();
     private final Wrist m_wrist = new Wrist();
 
-    private MotionControlState m_desiredState = StateConstants.kHome;
-    private MotionControlState m_tempState = StateConstants.kHome;
+    private MotionControlState m_desiredState = new MotionControlState(StateConstants.kHome) ;
     private boolean m_elevatorClear = false;
     private boolean atSetpoint = false;
 
-    public MotionControlSystem(){}
+    public MotionControlSystem(){
+    }
 
     public void setState(MotionControlState desiredState){
-        m_desiredState = desiredState;
+
+        SmartDashboard.putNumber("ElevatorState from Command", desiredState.m_elevator);
+        SmartDashboard.putNumber("ElevatorState from Constants", StateConstants.kConeIntake.m_elevator);
+
+        m_desiredState.setState(desiredState);
+
         m_elevatorClear = false;
     }
 
@@ -40,7 +45,12 @@ public final class MotionControlSystem extends SubsystemBase {
         MotionControlState currentState = new MotionControlState(m_arm.getPose(),m_cube.getPose(),m_elevator.getPose(),m_wrist.getPose(),m_cone.getPose());
 
         if(!m_elevatorClear){
-            m_elevator.setPose(-9.0);
+            if(m_desiredState.m_elevator < -9.0){
+                m_elevator.setPose(-9.0);
+            }
+            else{
+                m_elevator.setPose(m_desiredState.m_elevator);
+            }
         }
         if(currentState.m_elevator >= -10.0 && !m_elevatorClear){
             m_elevatorClear = true;
@@ -74,4 +84,28 @@ public final class MotionControlSystem extends SubsystemBase {
     public boolean isFinished() {
         return atSetpoint;
     }
+
+    public void coneIn(){
+        m_cone.setPose(0.0);
+        m_cone.set(0.0);
+    }
+
+    public void runCone(double speed, boolean force){
+        m_cone.setForce(force);
+        if(force){
+            m_cone.set(speed);
+        }
+        else{
+            m_cone.set(speed);
+        }
+    }
+
+    public void runCone(double speed){
+        m_cone.set(speed);
+    }
+
+    public void runElevatorUp(double pose){
+        m_desiredState.setElevator(m_desiredState.m_elevator+pose);
+    }
+
 }
