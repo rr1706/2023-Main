@@ -42,14 +42,14 @@ public class Score extends SequentialCommandGroup {
             m_vision::getTX,
             0.0,
             this::adjust,
-            m_drivetrain, m_vision
+            m_drivetrain
         );
         m_movePID = new PIDCommand(
             new PIDController(0.20, 0.0, 0.0),
             m_poseEstimator.getPose()::getY,
             FieldConstants.kScoringPositions[m_goalPosition],
             this::adjust,
-            m_drivetrain, m_poseEstimator
+            m_drivetrain
         );
         m_movePID.getController().setTolerance(FieldConstants.kScoringTolerance + 0.05);
 
