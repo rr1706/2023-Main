@@ -36,7 +36,7 @@ public class PoseEstimator extends SubsystemBase {
         if (Math.abs(Math.sqrt( Math.pow(visionPose.getX(), 2) + Math.pow(visionPose.getY(), 2)) - Math.sqrt( Math.pow(currentPose.getX(), 2) + Math.pow(currentPose.getY(), 2))) <= VisionConstants.kPoseErrorAcceptance) {
             m_poseEstimator.addVisionMeasurement(visionPose, timestamp);
         }
-        m_poseEstimator.updateWithTime(Timer.getFPGATimestamp() - (m_vision.getTotalLatency() / 1000.0), m_drive.getGyro(), m_drive.getModulePositions());
+        m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
     }
 
     private void updateShuffleboard() {
