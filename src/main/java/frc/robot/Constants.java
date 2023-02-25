@@ -21,12 +21,46 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+<<<<<<< Updated upstream
     public static final int kOperatorControllerPort = 1;
   }
 
   public static class CurrentLimit {
     public static final int kRotation = 25;
     public static final int kTranslation = 30;
+=======
+    public static final int kOperatorControllerPort = 2;
+    public static final int kOperatorBoardPort = 1;  }
+
+  public static final class CurrentLimit {
+    public static final int kTranslation = 60;
+    public static final int kRotation = 30;
+    public static final int kCubeExt = 20;
+    public static final int kConeExt = 20;
+    public static final int kCube = 25;
+    public static final int kCone = 25;
+    public static final int kClaw = 30;
+    public static final int kElevator = 30;
+    public static final int kWrist = 20;
+    public static final int kArm = 20;
+  }
+
+  public static final class StateConstants{
+    public static final MotionControlState kHome = new MotionControlState(-17.95, 0.0, -18.25, 11.2, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(64.9, 0.0, -12.3, 54.08, 0.0);
+    public static final MotionControlState kShoot = new MotionControlState(62.8, 0, -1.5, 44.2, 0.0);
+    public static final MotionControlState kMidShoot = new MotionControlState(44.8, 0, -5.0, 34.2, 0.0);
+    public static final MotionControlState kFloor = new MotionControlState(23.8, 0, -28.2, 32.7, 0.0);
+    public static final MotionControlState kCube = new MotionControlState(12.85, 22, -8.57, 41.13, 0.0);
+    public static final MotionControlState kConeIntake = new MotionControlState(-24.2, 0, -14.5, -30.8, 32.0);
+    public static final MotionControlState kLow = new MotionControlState(23.8, 0, -25.0, 29.2, 0.0);
+    public static final MotionControlState kConeMid = new MotionControlState(44.8, 0, -5.0, 34.2, 0.0);
+    public static final MotionControlState kConeHigh =  new MotionControlState(62.8, 0, -1.5, 44.2, 0.0);
+    public static final MotionControlState kCubeMid = new MotionControlState(7.8, 0, -10, 13.2, 0.0);
+    public static final MotionControlState kCubeHigh =  new MotionControlState(41.8, 0, -5.0, 31.2, 0.0);
+
+
+>>>>>>> Stashed changes
   }
 
   public static class ModuleConstants {

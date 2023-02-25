@@ -73,6 +73,28 @@ public class RobotContainer {
   private void configureBindings() {
     new POVButton(m_driverController, 0)
       .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
+<<<<<<< Updated upstream
+=======
+    new POVButton(m_driverController, 180)
+      .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)))));
+
+    new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align);
+    new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
+    new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
+    new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
+    new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCube(-0.4))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCube(0.0))).alongWith(new InstantCommand(()->m_claw.stop())));
+
+    new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
+
+    new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-750))).onFalse(new InstantCommand(()->m_claw.stop()));
+    
+    new JoystickRightTrigger(m_operatorController).onTrue(new WaitCommand(0.35).alongWith(new InstantCommand(()->m_claw.setSpeed(-250)).alongWith(new InstantCommand(()->m_motionControl.runCone(-0.35, true))).alongWith(new InstantCommand(()->m_motionControl.runElevatorUp(5.0)))).andThen((new InstantCommand(()->m_claw.setSpeed(-2000))).alongWith(new InstantCommand(()->m_motionControl.runCone(0.0,false))))).onFalse(new InstantCommand(()->m_motionControl.runCone(0.0,false)).alongWith(new InstantCommand(()->m_claw.stop())));
+
+    new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
+
+    new JoystickRightTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(2850))).onFalse(new InstantCommand(()->m_claw.stop()));
+    new JoystickButton(m_driverController, Button.kRightBumper.value).onTrue(new InstantCommand(()->m_claw.setSpeed(1000))).onFalse(new InstantCommand(()->m_claw.stop()));
+>>>>>>> Stashed changes
   }
 
   private void configureAutoEvents() {}

@@ -38,12 +38,59 @@ public class Limelight extends SubsystemBase {
      * 
      * @return The robot's 2D pose according to the limelight
      */
+<<<<<<< Updated upstream
     public Pose2d getPose2d() {
         double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[0]);
         return new Pose2d(
             new Translation2d(poseArray[0], poseArray[1]),
             new Rotation2d(poseArray[3], poseArray[4])
         );
+=======
+    public static double ty() {
+        return table.getEntry("ty").getDouble(0.0);
+    }
+
+    /**
+     * Singifies if the limelight currently has an accetable target, defaulting to
+     * false if no value is provided in the Network Table.
+     * This default is important so that if the limelight becomes disconnected or
+     * gives bad numbers the code will assume there is not a valid target
+     *
+     * @return true if an acceptable target is visible.
+     */
+    public static boolean valid() {
+        return table.getEntry("tv").getDouble(0.0) == 1.0;
+    }
+
+    /**
+     * Allows retreival of the target area.
+     *
+     * @return the area of the target.
+     */
+    public static double ta() {
+        return table.getEntry("ta").getDouble(0.0);
+    }
+
+
+    /**
+     * Enables the limelight LED array. It is important to only enable when in use
+     * to comply with FRC Game Rules.
+     */
+    public static void enable() {
+        table.getEntry("ledMode").setNumber(0);
+    }
+
+    public static void changePipeline(int pipeline){
+        table.getEntry("pipeline").setNumber(pipeline);
+    }
+
+    /**
+     * Disables the limelight LED array. It is important to disable when not in use
+     * to comply with FRC Game Rules.
+     */
+    public static void disable() {
+        table.getEntry("ledMode").setNumber(1);
+>>>>>>> Stashed changes
     }
     
     /**
