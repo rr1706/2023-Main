@@ -62,7 +62,7 @@ public class Score extends SequentialCommandGroup {
                         new InstantCommand(() -> setMotionControlState()).alongWith(m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(1.85, m_poseEstimator.getPose().getY(), m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose)),
                         new InstantCommand(() -> m_claw.setSpeed(3000)).andThen(new WaitCommand(0.2)),
                         new InstantCommand(() -> m_claw.setSpeed(0))
-                    ); 
+                    );
                 }
             }
         }

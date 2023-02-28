@@ -231,7 +231,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   
-  public Command toPose(Pose2d initial, Pose2d destination, Supplier current) {
+  public Command toPose(Pose2d initial, Pose2d destination, Supplier<Pose2d> current) {
     ArrayList<PathPoint> points = new ArrayList<>();
     points.add(new PathPoint(initial.getTranslation(), initial.getRotation()));
     points.add(new PathPoint(destination.getTranslation(), destination.getRotation()));

@@ -102,7 +102,15 @@ public class RobotContainer {
   }
 
   private void configureAutoEvents() {
+    events.put("Low", new InstantCommand(() -> m_motionControl.setState(StateConstants.kLow)));
+    events.put("ConeIntake", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeIntake)));
+    events.put("Floor", new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
+    events.put("Grab", new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     events.put("ConeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)));
+    events.put("ConeMid", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeMid)));
+    events.put("Home", new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
+    events.put("CubeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeHigh)));
+    events.put("CubeMid", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeMid)));
   }
 
   private void configureAutoChooser() {

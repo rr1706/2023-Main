@@ -1,10 +1,7 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -12,14 +9,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants.FieldConstants;
-
 public class Limelight extends SubsystemBase {
     private final NetworkTable m_lime;
     private final String m_name;
 
     private Alliance m_alliance = Alliance.Invalid;
-    private boolean m_poleScoring = false;
 
     public Limelight(String name) {
         m_lime = NetworkTableInstance.getDefault().getTable(name);
