@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -141,10 +142,10 @@ public final class Constants {
 
     private static final SwerveModuleState[] kLockedWheelsHelper = kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, 0.0, 1.0));
     public static final SwerveModuleState[] kLockedWheels = {
-      new SwerveModuleState(0.0, kLockedWheelsHelper[0].angle),
-      new SwerveModuleState(0.0, kLockedWheelsHelper[1].angle),
-      new SwerveModuleState(0.0, kLockedWheelsHelper[2].angle),
-      new SwerveModuleState(0.0, kLockedWheelsHelper[3].angle)
+      new SwerveModuleState(0.0, kLockedWheelsHelper[0].angle.rotateBy(new Rotation2d(Math.PI/2))),
+      new SwerveModuleState(0.0, kLockedWheelsHelper[1].angle.rotateBy(new Rotation2d(Math.PI/2))),
+      new SwerveModuleState(0.0, kLockedWheelsHelper[2].angle.rotateBy(new Rotation2d(Math.PI/2))),
+      new SwerveModuleState(0.0, kLockedWheelsHelper[3].angle.rotateBy(new Rotation2d(Math.PI/2)))
     };
 
   }
