@@ -106,20 +106,24 @@ public class RobotContainer {
   }
 
   private void configureAutoChooser() {
-    m_chooser.setDefaultOption("Do Nothin", doNothin);  
+    m_chooser.setDefaultOption("Do Nothin", doNothin);
 
     for (File auto : m_autoPathFiles) {
-      m_chooser.addOption(
-        auto.getName(), 
-        autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration))
-      );
+      if (auto.getName().contains(".path")) {
+        m_chooser.addOption(
+          auto.getName(), 
+          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration))
+        );
+      }
     }
 
     for (File auto : m_autoPathFiles) {
-      m_chooser.addOption(
-        "Slow " + auto.getName(), 
-        autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration))
-      );
+      if (auto.getName().contains(".path")) {
+        m_chooser.addOption(
+          "Slow " + auto.getName(), 
+          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration))
+        );
+      }
     }
   }
 

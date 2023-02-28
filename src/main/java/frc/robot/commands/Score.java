@@ -51,7 +51,7 @@ public class Score extends SequentialCommandGroup {
         );
         m_movePID.getController().setTolerance(FieldConstants.kScoringTolerance + 0.05);
 
-        if (m_drivetrain.getChassisSpeed().equals(new ChassisSpeeds())) {
+        if (m_drivetrain.getChassisSpeed().equals(new ChassisSpeeds()) && !(m_goalPosition == -1 || m_goalHeight == -1)) {
             if (m_poseEstimator.inside(FieldConstants.kScoringZone, true) || m_poseEstimator.inside(FieldConstants.kScoringPrepZone, true)) {
                 if (!((m_poseEstimator.getPose().getY() >= FieldConstants.kScoringPositions[m_goalPosition] - FieldConstants.kScoringTolerance) && (m_poseEstimator.getPose().getY() <= FieldConstants.kScoringPositions[m_goalPosition] + FieldConstants.kScoringTolerance))) {
                     addCommands(
