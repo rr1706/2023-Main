@@ -26,10 +26,10 @@ public class Score extends SequentialCommandGroup {
     private final MotionControlSystem m_motionControl;
     private final PIDCommand m_aimPID;
     private final PIDCommand m_movePID;
-    private final int m_goalPosition;
+    private final double m_goalPosition;
     private final int m_goalHeight;
 
-    public Score(Drivetrain drivetrain, PoseEstimator poseEstimator, Limelight vision, MotionControlSystem motionControl, Claw claw, int goalPosition, int goalHeight) {
+    public Score(Drivetrain drivetrain, PoseEstimator poseEstimator, Limelight vision, MotionControlSystem motionControl, Claw claw, double goalPosition, int goalHeight) {
         m_drivetrain = drivetrain;
         m_poseEstimator = poseEstimator;
         m_vision = vision;
@@ -46,20 +46,21 @@ public class Score extends SequentialCommandGroup {
         m_movePID = new PIDCommand(
             new PIDController(0.20, 0.0, 0.0),
             m_poseEstimator.getPose()::getY,
-            FieldConstants.kScoringPositions[m_goalPosition + 1],
+            m_goalPosition,
             this::adjust
         );
+
         m_movePID.getController().setTolerance(FieldConstants.kScoringTolerance + 0.05);
 
-        if (m_drivetrain.getChassisSpeed().equals(new ChassisSpeeds()) && !(m_goalPosition == -1 || m_goalHeight == -1)) {
+        if (m_drivetrain.getChassisSpeed().equals(new ChassisSpeeds()) && !(m_goalPosition == -1.0 || m_goalHeight == -1)) {
             if (m_poseEstimator.inside(FieldConstants.kScoringZone, true) || m_poseEstimator.inside(FieldConstants.kScoringPrepZone, true)) {
-                if (!((m_poseEstimator.getPose().getY() >= FieldConstants.kScoringPositions[m_goalPosition] - FieldConstants.kScoringTolerance) && (m_poseEstimator.getPose().getY() <= FieldConstants.kScoringPositions[m_goalPosition] + FieldConstants.kScoringTolerance))) {
+                if (!((m_poseEstimator.getPose().getY() >= m_goalPosition - FieldConstants.kScoringTolerance) && (m_poseEstimator.getPose().getY() <= m_goalPosition + FieldConstants.kScoringTolerance))) {
                     addCommands(
                         m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(2.30, m_poseEstimator.getPose().getY(), m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose),
                         m_movePID.alongWith(new WaitUntilCommand(m_movePID.getController()::atSetpoint)),
                         m_aimPID.alongWith(new WaitUntilCommand(m_movePID.getController()::atSetpoint)),
                         new InstantCommand(() -> setMotionControlState()).alongWith(m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(1.85, m_poseEstimator.getPose().getY(), m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose)),
-                        new InstantCommand(() -> m_claw.setSpeed(100)).andThen(new WaitCommand(0.2)),
+                        new InstantCommand(() -> m_claw.setSpeed(3000)).andThen(new WaitCommand(0.2)),
                         new InstantCommand(() -> m_claw.setSpeed(0))
                     ); 
                 }

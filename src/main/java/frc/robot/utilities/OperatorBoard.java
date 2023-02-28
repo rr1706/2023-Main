@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import frc.robot.Constants.FieldConstants;
 
 public class OperatorBoard {
 
@@ -16,13 +17,13 @@ public class OperatorBoard {
         return -1;
     }
 
-    public static int selectedPosition(GenericHID board) {
+    public static double selectedPosition(GenericHID board) {
         if (validButtons(board)) {
             for (int i = 4; i <= 12; i++) {
-                if (board.getRawButton(i)) {return i - 3;}
+                if (board.getRawButton(i)) {return FieldConstants.kScoringPositions[i-3];}
             }
         }
-        return -1;
+        return -1.0;
     }
 
     private static boolean validButtons(GenericHID board) {
