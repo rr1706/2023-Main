@@ -5,7 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -136,6 +138,14 @@ public final class Constants {
                                                       // maximized simultaneously)
 
     public static final double[] kKeepAnglePID = { 0.300, 0, 0 }; // Defines the PID values for the keep angle PID
+
+    private static final SwerveModuleState[] kLockedWheelsHelper = kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, 0.0, 1.0));
+    public static final SwerveModuleState[] kLockedWheels = {
+      new SwerveModuleState(0.0, kLockedWheelsHelper[0].angle),
+      new SwerveModuleState(0.0, kLockedWheelsHelper[1].angle),
+      new SwerveModuleState(0.0, kLockedWheelsHelper[2].angle),
+      new SwerveModuleState(0.0, kLockedWheelsHelper[3].angle)
+    };
 
   }
 
