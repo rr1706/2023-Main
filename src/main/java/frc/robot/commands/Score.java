@@ -41,15 +41,13 @@ public class Score extends SequentialCommandGroup {
             new PIDController(0.05, 0.0, 0.0),
             m_vision::getTX,
             0.0,
-            this::adjust,
-            m_drivetrain
+            this::adjust
         );
         m_movePID = new PIDCommand(
             new PIDController(0.20, 0.0, 0.0),
             m_poseEstimator.getPose()::getY,
             FieldConstants.kScoringPositions[m_goalPosition + 1],
-            this::adjust,
-            m_drivetrain
+            this::adjust
         );
         m_movePID.getController().setTolerance(FieldConstants.kScoringTolerance + 0.05);
 
@@ -67,6 +65,8 @@ public class Score extends SequentialCommandGroup {
                 }
             }
         }
+
+        addRequirements(m_drivetrain);
     }
 
     private void adjust(double pidOutput) {
