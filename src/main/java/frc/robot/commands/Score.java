@@ -47,7 +47,7 @@ public class Score extends SequentialCommandGroup {
         m_movePID = new PIDCommand(
             new PIDController(0.20, 0.0, 0.0),
             m_poseEstimator.getPose()::getY,
-            FieldConstants.kScoringPositions[m_goalPosition],
+            FieldConstants.kScoringPositions[m_goalPosition + 1],
             this::adjust,
             m_drivetrain
         );

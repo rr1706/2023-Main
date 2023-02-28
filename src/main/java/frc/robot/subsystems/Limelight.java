@@ -77,19 +77,19 @@ public class Limelight extends SubsystemBase {
      */
     public Pose3d getPose3d() {
         if (m_alliance == Alliance.Blue) {
-            double[] poseArray = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[0]);
+            double[] poseArray = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
             return new Pose3d(
                 new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
                 new Rotation3d(poseArray[3], poseArray[4], poseArray[5])
             );
         } else if (m_alliance == Alliance.Red) {
-            double[] poseArray = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[0]);
+            double[] poseArray = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[6]);
             return new Pose3d(
                 new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
                 new Rotation3d(poseArray[3], poseArray[4], poseArray[5])
             );
         } else {
-            double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[0]);
+            double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[6]);
             return new Pose3d(
                 new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
                 new Rotation3d(poseArray[3], poseArray[4], poseArray[5])
