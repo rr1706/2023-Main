@@ -62,6 +62,8 @@ public class RobotContainer {
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
+  private Score m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, 0, 0);
+
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
   private SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -88,7 +90,7 @@ public class RobotContainer {
 
     //new JoystickButton(m_driverController, Button.kA.value).whileTrue(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
    
-    new JoystickButton(m_driverController, Button.kA.value).whileTrue(new InstantCommand(()->CommandScheduler.getInstance().schedule(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard)))));
+    new JoystickButton(m_driverController, Button.kA.value).onTrue(new InstantCommand(()->m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard)))).whileTrue(m_score).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
    
     new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
