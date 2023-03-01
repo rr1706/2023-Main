@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -85,7 +86,10 @@ public class RobotContainer {
     new POVButton(m_driverController, 90)
       .onTrue(new InstantCommand(() -> m_poseEstimator.resetOdometry(new Pose2d(1.83, 7.56, new Rotation2d(0.0)))));
 
-    new JoystickButton(m_driverController, Button.kA.value).whileTrue(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
+    //new JoystickButton(m_driverController, Button.kA.value).whileTrue(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
+   
+    new JoystickButton(m_driverController, Button.kA.value).whileTrue(new InstantCommand(()->CommandScheduler.getInstance().schedule(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard)))));
+   
     new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
     new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
