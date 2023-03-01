@@ -67,7 +67,7 @@ public class Wrist extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 1.0;
+        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 4.0;
     }
     
 }

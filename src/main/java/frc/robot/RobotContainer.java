@@ -56,8 +56,8 @@ public class RobotContainer {
   private final GenericHID m_operatorBoard = new GenericHID(OperatorConstants.kOperatorBoardPort);
 
   private final Drivetrain m_drive = new Drivetrain();
-  private final Limelight m_vision = new Limelight("limelight");
-  private PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
+  private final Limelight m_vision = new Limelight("limelight-new");
+  private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
@@ -81,11 +81,11 @@ public class RobotContainer {
 
   private void configureBindings() {
     new POVButton(m_driverController, 0)
-      .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
-    new POVButton(m_driverController, 180)
-      .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)))));
+      .onTrue(new InstantCommand(() -> m_poseEstimator.resetOdometry(new Pose2d())));
+    new POVButton(m_driverController, 90)
+      .onTrue(new InstantCommand(() -> m_poseEstimator.resetOdometry(new Pose2d(1.83, 7.56, new Rotation2d(0.0)))));
 
-    new JoystickButton(m_driverController, Button.kA.value).whileTrue(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard)));
+    new JoystickButton(m_driverController, Button.kA.value).whileTrue(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
     new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
     new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));

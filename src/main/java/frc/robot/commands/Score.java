@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -52,20 +53,23 @@ public class Score extends SequentialCommandGroup {
 
         m_movePID.getController().setTolerance(FieldConstants.kScoringTolerance + 0.05);
 
-        if (m_drivetrain.getChassisSpeed().equals(new ChassisSpeeds()) && !(m_goalPosition == -1.0 || m_goalHeight == -1)) {
-            if (m_poseEstimator.inside(FieldConstants.kScoringZone, true) || m_poseEstimator.inside(FieldConstants.kScoringPrepZone, true)) {
-                if (!((m_poseEstimator.getPose().getY() >= m_goalPosition - FieldConstants.kScoringTolerance) && (m_poseEstimator.getPose().getY() <= m_goalPosition + FieldConstants.kScoringTolerance))) {
+        //if (!(m_goalPosition == -1.0 || m_goalHeight == -1)) {
+            //if (m_poseEstimator.inside(FieldConstants.kScoringZone, true) || m_poseEstimator.inside(FieldConstants.kScoringPrepZone, true)) {
+                //if (!((m_poseEstimator.getPose().getY() >= m_goalPosition - FieldConstants.kScoringTolerance) && (m_poseEstimator.getPose().getY() <= m_goalPosition + FieldConstants.kScoringTolerance))) {
+                        SmartDashboard.putNumber("Initial Pose X", m_poseEstimator.getPose().getX());
+                        SmartDashboard.putNumber("Initial Pose Y", m_poseEstimator.getPose().getY());
+
                     addCommands(
-                        m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(2.30, m_poseEstimator.getPose().getY(), m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose),
-                        m_movePID.alongWith(new WaitUntilCommand(m_movePID.getController()::atSetpoint)),
-                        m_aimPID.alongWith(new WaitUntilCommand(m_movePID.getController()::atSetpoint)),
-                        new InstantCommand(() -> setMotionControlState()).alongWith(m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(1.85, m_poseEstimator.getPose().getY(), m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose)),
+                        m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(2.30, m_poseEstimator.getPose().getY(), m_drivetrain.getPose().getRotation()), m_poseEstimator::getPose),
+                        //m_movePID.alongWith(new WaitUntilCommand(()->m_movePID.getController().atSetpoint())),
+                        //m_aimPID.alongWith(new WaitUntilCommand(()->m_movePID.getController().atSetpoint())),
+                        new InstantCommand(() -> setMotionControlState()).alongWith(m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(1.85, m_poseEstimator.getPose().getY(), m_drivetrain.getGyro()), m_poseEstimator::getPose)),
                         new InstantCommand(() -> m_claw.setSpeed(3000)).andThen(new WaitCommand(0.2)),
                         new InstantCommand(() -> m_claw.setSpeed(0))
                     );
-                }
-            }
-        }
+              //  }
+           // }
+        //}
 
         addRequirements(m_drivetrain);
     }

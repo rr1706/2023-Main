@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ArmsConstants;
 import frc.robot.Constants.CurrentLimit;
+import frc.robot.Constants.GlobalConstants;
 
 public class Arm extends SubsystemBase {
     private final CANSparkMax m_motor1;
@@ -38,11 +39,13 @@ public class Arm extends SubsystemBase {
 
         m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
         m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinArm);
-        m_motor2.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
-        m_motor2.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinArm);
+        m_motor2.enableSoftLimit(SoftLimitDirection.kForward, false);
+        m_motor2.enableSoftLimit(SoftLimitDirection.kReverse, false);
         m_motor1.setSmartCurrentLimit(CurrentLimit.kArm);
-        m_motor1.enableVoltageCompensation(12.0);
-        m_motor2.enableVoltageCompensation(12.0);
+
+        m_motor1.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
+        m_motor2.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
+
         m_motor1.burnFlash();
         m_motor2.burnFlash();
     }
@@ -74,7 +77,7 @@ public class Arm extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 1.0;
+        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 4.0;
     }
     
 }
