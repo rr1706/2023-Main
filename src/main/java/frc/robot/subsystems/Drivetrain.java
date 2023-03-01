@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 
+import java.beans.DesignMode;
 import java.io.PipedInputStream;
 import java.util.ArrayList;
 import java.util.function.Supplier;
@@ -73,7 +74,7 @@ public class Drivetrain extends SubsystemBase {
       DriveConstants.kBackRightOffset, DriveConstants.kBackRightTuningVals);
 
   // Creates an ahrs gyro (NavX) on the MXP port of the RoboRIO
-  private static Gyro ahrs = new AHRS(SPI.Port.kMXP);
+  private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
 
   // Creates Odometry object to store the pose of the robot
   private final SwerveDriveOdometry m_odometry 
@@ -234,8 +235,13 @@ public class Drivetrain extends SubsystemBase {
   
   public Command toPose(Pose2d initial, Pose2d destination, Supplier<Pose2d> current) {
     ArrayList<PathPoint> points = new ArrayList<>();
-    points.add(new PathPoint(initial.getTranslation(), new Rotation2d(0.0), initial.getRotation()));
-    points.add(new PathPoint(destination.getTranslation(), new Rotation2d(0.0), destination.getRotation()));
+    points.add(new PathPoint(initial.getTranslation(), initial.getRotation()));    
+    points.add(new PathPoint(destination.getTranslation(), destination.getRotation()));
+
+    SmartDashboard.putNumber("Initial Pose X", initial.getX());
+    SmartDashboard.putNumber("Initial Pose Y", initial.getY());
+    SmartDashboard.putNumber("Destination Pose X", destination.getX());
+    SmartDashboard.putNumber("Destination Pose Y", destination.getY());
 
     return new PPSwerveControllerCommand(
       PathPlanner.generatePath(new PathConstraints(DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration), points),
@@ -254,12 +260,13 @@ public class Drivetrain extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     ahrs.reset();
-    m_odometry.resetPosition(ahrs.getRotation2d(), getModulePositions(), pose);
-    m_autoOdometry.resetPosition(ahrs.getRotation2d(), getModulePositions(), pose);
+    ahrs.setAngleAdjustment(pose.getRotation().getDegrees());
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
+    m_autoOdometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
   public void setPose(Pose2d pose){
-    m_odometry.resetPosition(ahrs.getRotation2d(), getModulePositions(), pose);
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
 
@@ -270,8 +277,9 @@ public class Drivetrain extends SubsystemBase {
    */
   public void resetOdometry(Rotation2d angle) {
     ahrs.reset();
+    ahrs.setAngleAdjustment(angle.getDegrees());
     Pose2d pose = new Pose2d(getPose().getTranslation(), angle);
-    m_odometry.resetPosition(ahrs.getRotation2d(), getModulePositions(), pose);  }
+    m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);  }
 
   /**
    * Converts the 4 swerve module states into a chassisSpeed by making use of the

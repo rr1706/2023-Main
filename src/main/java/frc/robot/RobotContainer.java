@@ -8,6 +8,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.StateConstants;
+import frc.robot.commands.AutoAlign;
 import frc.robot.commands.DriveByController;
 import frc.robot.commands.Score;
 import frc.robot.subsystems.Drivetrain;
@@ -34,6 +35,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -62,6 +64,7 @@ public class RobotContainer {
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
+  private final AutoAlign m_autoAlign = new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision);
   private Score m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, 0, 0);
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
@@ -90,7 +93,8 @@ public class RobotContainer {
 
     //new JoystickButton(m_driverController, Button.kA.value).whileTrue(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
    
-    new JoystickButton(m_driverController, Button.kA.value).onTrue(new InstantCommand(()->m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard)))).whileTrue(m_score).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
+    new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_autoAlign);
+    //new JoystickButton(m_driverController, Button.kA.value).onTrue(new InstantCommand(()->m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard)))).whileTrue(m_score).onFalse(new InstantCommand(()->m_score.cancel()).andThen(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome))));
    
     new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
@@ -127,7 +131,7 @@ public class RobotContainer {
         m_chooser.addOption(
           auto.getName(), 
           autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration))
-        );
+          );
       }
     }
 
@@ -139,6 +143,8 @@ public class RobotContainer {
         );
       }
     }
+
+    SmartDashboard.putData(m_chooser);
   }
 
   /**

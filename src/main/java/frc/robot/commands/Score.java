@@ -56,14 +56,14 @@ public class Score extends SequentialCommandGroup {
         //if (!(m_goalPosition == -1.0 || m_goalHeight == -1)) {
             //if (m_poseEstimator.inside(FieldConstants.kScoringZone, true) || m_poseEstimator.inside(FieldConstants.kScoringPrepZone, true)) {
                 //if (!((m_poseEstimator.getPose().getY() >= m_goalPosition - FieldConstants.kScoringTolerance) && (m_poseEstimator.getPose().getY() <= m_goalPosition + FieldConstants.kScoringTolerance))) {
-                        SmartDashboard.putNumber("Initial Pose X", m_poseEstimator.getPose().getX());
-                        SmartDashboard.putNumber("Initial Pose Y", m_poseEstimator.getPose().getY());
+                      //  SmartDashboard.putNumber("Initial Pose X", m_poseEstimator.getPose().getX());
+                       // SmartDashboard.putNumber("Initial Pose Y", m_poseEstimator.getPose().getY());
 
                     addCommands(
-                        m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(2.30, m_poseEstimator.getPose().getY(), m_drivetrain.getPose().getRotation()), m_poseEstimator::getPose),
+                        m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(6, 4, m_poseEstimator.getPose().getRotation()), m_poseEstimator::getPose),
                         //m_movePID.alongWith(new WaitUntilCommand(()->m_movePID.getController().atSetpoint())),
                         //m_aimPID.alongWith(new WaitUntilCommand(()->m_movePID.getController().atSetpoint())),
-                        new InstantCommand(() -> setMotionControlState()).alongWith(m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(1.85, m_poseEstimator.getPose().getY(), m_drivetrain.getGyro()), m_poseEstimator::getPose)),
+                        //new InstantCommand(() -> setMotionControlState()).alongWith(m_drivetrain.toPose(m_poseEstimator.getPose(), new Pose2d(1.85, m_poseEstimator.getPose().getY(), m_drivetrain.getGyro()), m_poseEstimator::getPose)),
                         new InstantCommand(() -> m_claw.setSpeed(3000)).andThen(new WaitCommand(0.2)),
                         new InstantCommand(() -> m_claw.setSpeed(0))
                     );

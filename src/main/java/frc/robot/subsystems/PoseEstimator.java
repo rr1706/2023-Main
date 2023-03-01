@@ -78,7 +78,7 @@ public class PoseEstimator extends SubsystemBase {
 
     public void resetOdometry(Pose2d pose) {
         m_drive.resetOdometry(pose);
-        m_poseEstimator.resetPosition(m_drive.getGyro(), m_drive.getModulePositions(), pose);
+        m_poseEstimator.resetPosition(m_drive.getGyro().times(-1.0), m_drive.getModulePositions(), pose);
     }
 
 }
