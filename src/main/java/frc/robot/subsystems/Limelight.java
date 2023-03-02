@@ -128,7 +128,7 @@ public class Limelight extends SubsystemBase {
      * @param status 0 = Pipeline Controlled, 1 = Off, 2 = On, 3 = Blinking
      */
     public void setLights(int status) {
-        m_lime.getEntry("ledMode").setDouble((double) status);
+        m_lime.getEntry("ledMode").setNumber(status);
     }
 
 }

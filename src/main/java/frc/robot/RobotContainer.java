@@ -10,6 +10,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.commands.AutoAlign;
 import frc.robot.commands.DriveByController;
+import frc.robot.commands.RunClaw;
 import frc.robot.commands.Score;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
@@ -64,8 +65,9 @@ public class RobotContainer {
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
-  private final AutoAlign m_autoAlign = new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision);
+  private final AutoAlign m_align = new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision);
   private Score m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, 0, 0);
+  private final RunClaw m_runClaw = new RunClaw(m_operatorBoard, m_claw);
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
@@ -74,41 +76,40 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(0.25, 0, 0), new PIDConstants(ModuleConstants.kTurnPID[0], ModuleConstants.kTurnPID[1], ModuleConstants.kTurnPID[2]), m_drive::setModuleStates, events, true, m_drive, m_vision, m_poseEstimator, m_claw);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(0.25, 0, 0), new PIDConstants(0.05,0.002,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_poseEstimator, m_claw);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     configureAutoEvents();
     configureAutoChooser();
     configureBindings();
-
+    m_vision.setPipeline(0);
     m_drive.setDefaultCommand(m_driveByController);
   }
 
   private void configureBindings() {
     new POVButton(m_driverController, 0)
-      .onTrue(new InstantCommand(() -> m_poseEstimator.resetOdometry(new Pose2d())));
-    new POVButton(m_driverController, 90)
-      .onTrue(new InstantCommand(() -> m_poseEstimator.resetOdometry(new Pose2d(1.83, 7.56, new Rotation2d(0.0)))));
+    .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
+  new POVButton(m_driverController, 180)
+    .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)))));
 
-    //new JoystickButton(m_driverController, Button.kA.value).whileTrue(new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
-   
-    new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_autoAlign);
-    //new JoystickButton(m_driverController, Button.kA.value).onTrue(new InstantCommand(()->m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, OperatorBoard.selectedPosition(m_operatorBoard), OperatorBoard.selectedHeight(m_operatorBoard)))).whileTrue(m_score).onFalse(new InstantCommand(()->m_score.cancel()).andThen(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome))));
-   
-    new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
-    new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
-    new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
-    new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kMidShoot)));
+  new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align);
+  new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
+  new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
+  new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
+  
+  new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.stop())).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn())));
+  new JoystickButton(m_driverController, Button.kRightBumper.value).onTrue(new InstantCommand(()->m_motionControl.toggleCube()).alongWith(new InstantCommand(()->m_motionControl.runCube(-0.15)))).onFalse(new InstantCommand(()->m_motionControl.runCube(0.0)));
 
-    new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
+  new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
 
-    new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-500))).onFalse(new InstantCommand(()->m_claw.stop()));
-    
-    new JoystickRightTrigger(m_operatorController).onTrue(new WaitCommand(0.35).alongWith(new InstantCommand(()->m_claw.setSpeed(-250)).alongWith(new InstantCommand(()->m_motionControl.runCone(-0.35, true))).alongWith(new InstantCommand(()->m_motionControl.runElevatorUp(5.0)))).andThen((new InstantCommand(()->m_claw.setSpeed(-2000))).alongWith(new InstantCommand(()->m_motionControl.runCone(0.0,false))))).onFalse(new InstantCommand(()->m_motionControl.runCone(0.0,false)).alongWith(new InstantCommand(()->m_claw.stop())));
+  new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-1250))).onFalse(new InstantCommand(()->m_claw.stop()));
+  
+  //new JoystickRightTrigger(m_operatorController).onTrue(new WaitCommand(0.35).alongWith(new InstantCommand(()->m_claw.setSpeed(-250)).alongWith(new InstantCommand(()->m_motionControl.runCone(-0.35, true))).alongWith(new InstantCommand(()->m_motionControl.runElevatorUp(5.0)))).andThen((new InstantCommand(()->m_claw.setSpeed(-2000))).alongWith(new InstantCommand(()->m_motionControl.runCone(0.0,false))))).onFalse(new InstantCommand(()->m_motionControl.runCone(0.0,false)).alongWith(new InstantCommand(()->m_claw.stop())));
 
-    new JoystickRightTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(3000))).onFalse(new InstantCommand(()->m_claw.stop()));
-    new JoystickButton(m_driverController, Button.kRightBumper.value).onTrue(new InstantCommand(()->m_claw.setSpeed(1000))).onFalse(new InstantCommand(()->m_claw.stop()));
+  new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
+  
+  new JoystickRightTrigger(m_driverController).whileTrue(m_runClaw);
   }
 
   private void configureAutoEvents() {

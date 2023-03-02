@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
@@ -48,7 +49,7 @@ public class AutoAlign extends CommandBase {
     public void initialize(){
       m_state = StateConstants.kHome;
       m_lastState = StateConstants.kHome;
-      m_vision.setLights(2);
+      m_vision.setLights(0);
       visionLock = false;
       gyroLock = false;
     }
@@ -77,13 +78,13 @@ public class AutoAlign extends CommandBase {
         m_state = StateConstants.kConeMid;
         visionLock = true;
         gyroLock = false;
-        m_vision.setPipeline(2);
+        m_vision.setPipeline(1);
       }
       else if(coneHigh){
         m_state = StateConstants.kConeHigh;
         visionLock = true;
         gyroLock = false;
-        m_vision.setPipeline(1);
+        m_vision.setPipeline(2);
       }
       else if(cubeMid){
         visionLock = false;
@@ -97,7 +98,7 @@ public class AutoAlign extends CommandBase {
       }
       else{
         visionLock = false;
-        gyroLock = true;
+        gyroLock = false;
         m_state = StateConstants.kHome;
       }
 
@@ -110,8 +111,25 @@ public class AutoAlign extends CommandBase {
 
       double desiredRot = 0.0;// m_rotPID.calculate(m_drive.getGyro().getDegrees(),0.0);
       
+      if(!m_controlSystem.atSetpoint()){
+        m_controller.setRumble(RumbleType.kBothRumble, 0.0);
+      }
+
       if(m_controlSystem.atSetpoint() && visionLock){
-        desiredRot = m_rotPID.calculate(m_vision.getTX()+2.0,0.0);
+        double angle = m_vision.getTX();
+        double atAngle = 0.6;
+        if(coneMid){
+            atAngle = 1.2;
+        }
+
+        if(Math.abs(angle) <= atAngle && m_vision.getTA()>0.160){
+            m_controller.setRumble(RumbleType.kBothRumble, 0.5);
+        }
+        else{
+            m_controller.setRumble(RumbleType.kBothRumble, 0.0);
+        }
+
+        desiredRot = m_rotPID.calculate(angle,0.0);
       }
       else if(gyroLock){
         desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
@@ -147,7 +165,10 @@ public class AutoAlign extends CommandBase {
     public void end(boolean interrupted){
       SmartDashboard.putBoolean("DrivingByController", false);
       m_controlSystem.setState(StateConstants.kHome);
-      m_vision.setLights(1);
+      m_vision.setLights(0);
+      m_vision.setPipeline(0);
+      m_controller.setRumble(RumbleType.kBothRumble, 0.0);
+
     }
   
     /**

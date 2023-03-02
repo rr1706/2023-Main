@@ -25,8 +25,8 @@ import frc.robot.utilities.MotionControlState;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
-    public static final int kOperatorControllerPort = 1;
-    public static final int kOperatorBoardPort = 2;  }
+    public static final int kOperatorControllerPort = 2;
+    public static final int kOperatorBoardPort = 1;  }
 
   public static final class CurrentLimit {
     public static final int kTranslation = 65;
@@ -42,7 +42,7 @@ public final class Constants {
   }
 
   public static final class StateConstants{
-    public static final double armAdj = 1.5;
+    public static final double armAdj = 0.5;
     public static final MotionControlState kHome = new MotionControlState(-17.95+armAdj, 0.0, -18.25, 11.2, 0.0);
     public static final MotionControlState kGrab = new MotionControlState(64.9+armAdj, 0.0, -12.3, 54.08, 0.0);
     public static final MotionControlState kShoot = new MotionControlState(62.8+armAdj, 0, -1.5, 44.2, 0.0);
@@ -124,8 +124,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 5.0; // Maximum Sustainable Drivetrain Speed under Normal
                                                                 // Conditions & Battery, Robot will not exceed this
                                                                 // speed in closed loop control
-    public static final double kTestMaxAcceleration = 0.8;
-    public static final double kTestMaxSpeedMetersPerSecond = 1.2;
+    public static final double kTestMaxAcceleration = 3.0;
+    public static final double kTestMaxSpeedMetersPerSecond = 2.0;
      
     public static final double kMaxAngularSpeed = Math.PI*1.5; // Maximum Angular Speed desired. NOTE: Robot can exceed this
                                                            // but spinning fast is not particularly useful or driver

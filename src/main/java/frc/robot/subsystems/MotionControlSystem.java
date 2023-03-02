@@ -26,6 +26,8 @@ public final class MotionControlSystem extends SubsystemBase {
 
     private MotionControlState m_desiredState = new MotionControlState(StateConstants.kHome) ;
     private boolean m_elevatorClear = false;
+    private boolean m_forceCube = false;
+    private boolean m_runCube = false;
 
     public MotionControlSystem() {
         SmartDashboard.putBoolean("+0.5 to ARM", false);
@@ -46,6 +48,10 @@ public final class MotionControlSystem extends SubsystemBase {
     public void periodic(){
         MotionControlState currentState = new MotionControlState(m_arm.getPose(),m_cube.getPose(),m_elevator.getPose(),m_wrist.getPose(),m_cone.getPose());
 
+        if(m_forceCube){
+            m_desiredState.setCube(22.0);
+        }
+
         if(SmartDashboard.getBoolean("+0.5 to ARM", false)){
             m_offset += 0.5;
             SmartDashboard.putBoolean("+0.5 to ARM", false);
@@ -59,8 +65,8 @@ public final class MotionControlSystem extends SubsystemBase {
         
 
         double clearHeight = -9.0;
-        if(m_desiredState.m_cube > 20.0 && m_cube.getPose() <= 20.0 || m_desiredState.m_cube < 5.0 && m_cube.getPose() >= 5.0){
-            clearHeight = -7.0;
+        if(m_desiredState.m_cube > 20.0 && m_cube.getPose() <= 20.0 || m_desiredState.m_cube < 5.0 && m_cube.getPose() >= 5.0 || m_forceCube){
+            clearHeight = -2.0;
         }
 
 
@@ -85,6 +91,13 @@ public final class MotionControlSystem extends SubsystemBase {
 
         if(m_elevatorClear && atSetpoint){
             m_elevator.setPose(m_desiredState.m_elevator);
+        }
+
+        if((atSetpoint && m_runCube) || (!m_forceCube && m_runCube)){
+            m_cube.set(-0.4);
+        }
+        else if(!m_forceCube){
+            m_cube.set(0.0);
         }
 
         SmartDashboard.putNumber("Elevator Desired", m_desiredState.m_elevator);
@@ -123,6 +136,10 @@ public final class MotionControlSystem extends SubsystemBase {
         }
     }
 
+    public void runCubeWhenReady(boolean run){
+        m_runCube = run;
+    }
+
     public void runCone(double speed){
         m_cone.set(speed);
     }
@@ -134,5 +151,18 @@ public final class MotionControlSystem extends SubsystemBase {
     public void runElevatorUp(double pose){
         m_desiredState.setElevator(m_desiredState.m_elevator+pose);
     }
+
+    public void toggleCube(){
+       if(m_forceCube){
+         m_desiredState.setCube(0.0);
+       }
+       m_forceCube = !m_forceCube;
+       m_elevatorClear = false;
+    }
+    public void forceCubeIn(){
+        m_desiredState.setCube(0.0);
+        m_forceCube = false;
+        m_elevatorClear = false;
+     }
 
 }

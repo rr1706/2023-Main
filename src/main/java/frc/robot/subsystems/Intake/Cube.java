@@ -28,11 +28,15 @@ public class Cube extends SubsystemBase {
     private TrapezoidProfile.State m_state = new TrapezoidProfile.State();
  
     public Cube() {
-        m_motor = new CANSparkMax(IntakeConstants.kCubeMotors[0], MotorType.kBrushless);
-        m_motorExt = new CANSparkMax(IntakeConstants.kCubeMotors[1], MotorType.kBrushless);
+        m_motor = new CANSparkMax(IntakeConstants.kCubeMotors[1], MotorType.kBrushless);
+        m_motorExt = new CANSparkMax(IntakeConstants.kCubeMotors[0], MotorType.kBrushless);
+
         m_PID = m_motorExt.getPIDController();
         m_extEncoder = m_motorExt.getEncoder();
         m_encoder = m_motor.getEncoder();
+
+        m_motor.enableSoftLimit(SoftLimitDirection.kForward, false);
+        m_motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
         m_motorExt.setSoftLimit(SoftLimitDirection.kForward, (float) IntakeConstants.kExtendedCube);
         m_motorExt.setSoftLimit(SoftLimitDirection.kReverse, (float) IntakeConstants.kRetractedCube);
         m_PID.setP(IntakeConstants.kCubeP);
@@ -41,7 +45,10 @@ public class Cube extends SubsystemBase {
         m_motorExt.setSmartCurrentLimit(CurrentLimit.kCubeExt);
         m_motor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_motorExt.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
-
+        
+        m_PID.setSmartMotionMaxAccel(20000, 0);
+        m_PID.setSmartMotionMaxVelocity(11000, 0);
+        
         m_motor.burnFlash();
         m_motorExt.burnFlash();
 
@@ -78,6 +85,8 @@ public class Cube extends SubsystemBase {
         SmartDashboard.putNumber("Cube Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion, 0, 0.0);
 
+        m_motor.set(m_speed);
+
     }
 
     public double getPose() {
@@ -89,7 +98,7 @@ public class Cube extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(m_setpoint.position-m_extEncoder.getPosition()) <= 1.0;
+        return Math.abs(m_setpoint.position-m_extEncoder.getPosition()) <= 2.0;
     }
 
 }
