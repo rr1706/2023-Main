@@ -169,6 +169,13 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setModuleStates(ChassisSpeeds chassisSpeeds) {
+    ChassisSpeeds newChassisSpeeds;
+    if (chassisSpeeds.omegaRadiansPerSecond > DriveConstants.kMaxAngularSpeed) {
+      // Fix for extremely fast auto rotation speeds
+      newChassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, DriveConstants.kMaxAngularSpeed);
+    } else {
+      newChassisSpeeds = chassisSpeeds;
+    }
     SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(desiredStates[0]);
