@@ -45,7 +45,7 @@ public class Cone extends SubsystemBase {
         m_motor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_motorExt.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         
-        m_PID.setSmartMotionMaxAccel(20000, 0);
+        m_PID.setSmartMotionMaxAccel(25000, 0);
         m_PID.setSmartMotionMaxVelocity(11000, 0);
 
         m_motor.burnFlash();

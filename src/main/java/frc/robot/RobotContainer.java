@@ -9,6 +9,8 @@ import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.commands.AutoAlign;
+import frc.robot.commands.ConeIntake;
+import frc.robot.commands.ConeTransfer;
 import frc.robot.commands.DriveByController;
 import frc.robot.commands.RunClaw;
 import frc.robot.commands.Score;
@@ -40,6 +42,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
@@ -68,6 +71,8 @@ public class RobotContainer {
   private final AutoAlign m_align = new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision);
   private Score m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, 0, 0);
   private final RunClaw m_runClaw = new RunClaw(m_operatorBoard, m_claw);
+  private final ConeIntake m_coneIntake = new ConeIntake(m_motionControl, m_claw);
+  private final Command m_ConeTransfer = new WaitCommand(1.25).andThen(new ConeTransfer(m_motionControl, m_claw));
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
@@ -76,7 +81,7 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(0.25, 0, 0), new PIDConstants(0.05,0.002,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_poseEstimator, m_claw);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(0.5, 0, 0), new PIDConstants(1.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_poseEstimator, m_claw);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -95,18 +100,17 @@ public class RobotContainer {
 
   new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align);
   new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
-  new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kShoot)));
-  new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
+
+  new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(()->m_motionControl.forceCubeIn()).andThen(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor))));
   
-  new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.stop())).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn())));
-  new JoystickButton(m_driverController, Button.kRightBumper.value).onTrue(new InstantCommand(()->m_motionControl.toggleCube()).alongWith(new InstantCommand(()->m_motionControl.runCube(-0.15)))).onFalse(new InstantCommand(()->m_motionControl.runCube(0.0)));
+  new JoystickButton(m_driverController, Button.kRightBumper.value).whileTrue(m_coneIntake).onFalse(m_ConeTransfer);
+  new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-1250)))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.setSpeed(-250))).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn())));
+  new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(()->m_motionControl.toggleCube()).alongWith(new InstantCommand(()->m_motionControl.runCube(-0.15)))).onFalse(new InstantCommand(()->m_motionControl.runCube(0.0)));
 
   new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
 
   new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-1250))).onFalse(new InstantCommand(()->m_claw.stop()));
   
-  //new JoystickRightTrigger(m_operatorController).onTrue(new WaitCommand(0.35).alongWith(new InstantCommand(()->m_claw.setSpeed(-250)).alongWith(new InstantCommand(()->m_motionControl.runCone(-0.35, true))).alongWith(new InstantCommand(()->m_motionControl.runElevatorUp(5.0)))).andThen((new InstantCommand(()->m_claw.setSpeed(-2000))).alongWith(new InstantCommand(()->m_motionControl.runCone(0.0,false))))).onFalse(new InstantCommand(()->m_motionControl.runCone(0.0,false)).alongWith(new InstantCommand(()->m_claw.stop())));
-
   new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
   
   new JoystickRightTrigger(m_driverController).whileTrue(m_runClaw);
@@ -122,6 +126,21 @@ public class RobotContainer {
     events.put("Home", new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)));
     events.put("CubeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeHigh)));
     events.put("CubeMid", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeMid)));
+    events.put("StopDrive", new InstantCommand(()->m_drive.stop()));
+    events.put("CubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))));
+    events.put("StopCubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.stop())).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn()))));
+    events.put("ShootConeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)).alongWith(new WaitCommand(1.0))
+      .andThen(new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision, 3)
+        .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard, m_claw,3)))
+        .withTimeout(2.0)));
+    events.put("GoToCubeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeHigh)));
+    events.put("ShootCubeHigh", new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision, 5)
+    .alongWith(new WaitCommand(1.0).andThen(new RunClaw(m_operatorBoard, m_claw,5)))
+    .withTimeout(2.0));  
+    events.put("ConeIntake", m_coneIntake);
+    events.put("StopConeIntake",new InstantCommand(()-> m_coneIntake.forceCancel()));
+    events.put("ConeTransfer", m_ConeTransfer);
+    events.put("Dock", new RunCommand(()->m_drive.drive(1.0, 0, 0, true, false),m_drive));
   }
 
   private void configureAutoChooser() {
@@ -131,7 +150,7 @@ public class RobotContainer {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
           auto.getName(), 
-          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration))
+          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 2.5, 3.0))
           );
       }
     }

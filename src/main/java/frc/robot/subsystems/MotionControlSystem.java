@@ -36,8 +36,8 @@ public final class MotionControlSystem extends SubsystemBase {
 
     public void setState(MotionControlState desiredState){
 
-        SmartDashboard.putNumber("ElevatorState from Command", desiredState.m_elevator);
-        SmartDashboard.putNumber("ElevatorState from Constants", StateConstants.kConeIntake.m_elevator);
+       // SmartDashboard.putNumber("ElevatorState from Command", desiredState.m_elevator);
+        //SmartDashboard.putNumber("ElevatorState from Constants", StateConstants.kConeIntake.m_elevator);
 
         m_desiredState.setState(desiredState);
 

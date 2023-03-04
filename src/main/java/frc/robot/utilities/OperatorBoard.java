@@ -45,4 +45,13 @@ public class OperatorBoard {
         return pressedPositionButtons == 1 && pressedHeightButtons == 1;
     }
 
+    public static int scorePosition(GenericHID board){
+        if(board.getRawButton(4) || board.getRawButton(5) || board.getRawButton(6)){return 1;}
+        else if(board.getRawButton(7) || board.getRawButton(9)){return 2;}
+        else if(board.getRawButton(10) || board.getRawButton(12)){return 3;}
+        else if(board.getRawButton(8)){return 4;}
+        else if(board.getRawButton(11)){return 5;}
+        else{return 0;}
+    } 
+
 }

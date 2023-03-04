@@ -1,8 +1,10 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,9 +27,14 @@ public class AutoAlign extends CommandBase {
     private final Limelight m_vision;
 
     private boolean fieldOrient = true;
+    private boolean useLockedPosition = false;
+    private final int lockedPosition;
+    private final Timer m_timer = new Timer();
 
     private boolean visionLock = false;
     private boolean gyroLock = false;
+    private boolean gyroLock180 = false;
+    private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
     private final PIDController m_rotPID 
@@ -39,11 +46,23 @@ public class AutoAlign extends CommandBase {
         m_operatorBoard = operatorBoard;
         m_controlSystem = motionSystem;
         m_vision = vision;
+        lockedPosition = -1;
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.01, 0.01);
         addRequirements(m_drive);
     }
-
+    public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, int scorePosition){
+        m_drive = drive;
+        m_controller = controller;
+        m_operatorBoard = operatorBoard;
+        useLockedPosition = true;
+        lockedPosition = scorePosition;
+        m_controlSystem = motionSystem;
+        m_vision = vision;
+        m_rotPID.enableContinuousInput(-180, 180);
+        m_rotPID.setIntegratorRange(-0.01, 0.01);
+        addRequirements(m_drive);
+    }
     
     @Override
     public void initialize(){
@@ -52,6 +71,15 @@ public class AutoAlign extends CommandBase {
       m_vision.setLights(0);
       visionLock = false;
       gyroLock = false;
+      timeForCube = false;
+      m_timer.reset();
+      m_timer.start();
+      if(Math.abs(MathUtil.inputModulus(m_drive.getGyro().getDegrees(),-180,180)) <= 45.0){
+        gyroLock180 = true;
+      }
+      else{
+        gyroLock180 = false;
+      }
     }
 
     @Override
@@ -60,14 +88,39 @@ public class AutoAlign extends CommandBase {
       double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond;
       double desiredX = -inputTransform(1.0*m_controller.getLeftY())*maxLinear;
       double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
+
+      if(useLockedPosition){
+        desiredX = -0.25;
+        desiredY = 0.0;
+      }
+
       Translation2d desiredTranslation = new Translation2d(desiredX, desiredY);
       double desiredMag = desiredTranslation.getDistance(new Translation2d());
 
-      boolean low = m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
-      boolean coneMid = m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
-      boolean coneHigh = m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
-      boolean cubeMid = m_operatorBoard.getRawButton(8);
-      boolean cubeHigh = m_operatorBoard.getRawButton(11); 
+    
+      boolean low = false;//m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
+      boolean coneMid = false;//m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
+      boolean coneHigh = false;//m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
+      boolean cubeMid = false;//m_operatorBoard.getRawButton(8);
+      boolean cubeHigh = false;
+
+        if(useLockedPosition){
+            switch(lockedPosition){
+                case 1: low = true; break;
+                case 2: coneMid = true; break;
+                case 3: coneHigh = true; break;
+                case 4: cubeMid = true; break;
+                case 5: cubeHigh = true; break;
+                default: break;
+            }
+        }
+        else{
+            low = m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
+            coneMid = m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
+            coneHigh = m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
+            cubeMid = m_operatorBoard.getRawButton(8);
+            cubeHigh = m_operatorBoard.getRawButton(11); 
+        }
 
       if(low){
         m_state = StateConstants.kLow;
@@ -89,7 +142,19 @@ public class AutoAlign extends CommandBase {
       else if(cubeMid){
         visionLock = false;
         gyroLock = true;
-        m_state = StateConstants.kCubeMid;
+        double time = m_timer.get();
+        if(gyroLock180 && time<0.80){
+            m_state = StateConstants.kRevCubeMidInt;
+        }
+        else if(gyroLock180 && time < 1.20){
+            m_state = StateConstants.kRevCubeMidMid;
+        }
+        else if(gyroLock180){
+            m_state = StateConstants.kRevCubeMidFin;
+        }
+        else{
+            m_state = StateConstants.kCubeMid;
+        }
       }
       else if(cubeHigh){
         visionLock = false;
@@ -130,12 +195,16 @@ public class AutoAlign extends CommandBase {
         }
 
         desiredRot = m_rotPID.calculate(angle,0.0);
+        if((-Math.abs(m_drive.getGyro().getDegrees())+180.0)>3.0){
+            desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
+        }
+
       }
-      else if(gyroLock){
-        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
+      else if(gyroLock && gyroLock180){
+        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 0.0);
       }
       else{
-        desiredRot = -inputTransform(m_controller.getRightX())* DriveConstants.kMaxAngularSpeed;
+        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
       }
 
       if(desiredMag >= maxLinear){

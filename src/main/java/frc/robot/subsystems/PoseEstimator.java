@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -18,10 +19,11 @@ public class PoseEstimator extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Drivetrain m_drive;
     private final Limelight m_vision;
-
+    private final Field2d m_field = new Field2d();
     public PoseEstimator(Drivetrain drive, Limelight limelight, Pose2d intialPose) {
         m_drive = drive;
         m_vision = limelight;
+        SmartDashboard.putData("Field", m_field);
 
         m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose);
     }
@@ -49,7 +51,8 @@ public class PoseEstimator extends SubsystemBase {
         SmartDashboard.putNumber("Robot X", poseArray[0]);
         SmartDashboard.putNumber("Robot Y",  poseArray[1]);
         SmartDashboard.putNumber("Robot Gyro",  poseArray[2]);
-    }
+        m_field.setRobotPose(pose);   
+     }
 
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();

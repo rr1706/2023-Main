@@ -42,19 +42,24 @@ public final class Constants {
   }
 
   public static final class StateConstants{
-    public static final double armAdj = 0.5;
-    public static final MotionControlState kHome = new MotionControlState(-17.95+armAdj, 0.0, -18.25, 11.2, 0.0);
-    public static final MotionControlState kGrab = new MotionControlState(64.9+armAdj, 0.0, -12.3, 54.08, 0.0);
+    public static final double armAdj = 0.0;
+    public static final MotionControlState kHome = new MotionControlState(-18+armAdj, 0.0, -18.25, 11.2, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(65.8+armAdj, 0.0, -12.3, 54.08, 0.0);
     public static final MotionControlState kShoot = new MotionControlState(62.8+armAdj, 0, -1.5, 44.2, 0.0);
     public static final MotionControlState kMidShoot = new MotionControlState(44.8+armAdj, 0, -5.0, 34.2, 0.0);
     public static final MotionControlState kFloor = new MotionControlState(23.8+armAdj, 0, -28.2, 32.7, 0.0);
-    public static final MotionControlState kCube = new MotionControlState(22.64+armAdj, 22, -9.79, 56.33, 0.0);
-    public static final MotionControlState kConeIntake = new MotionControlState(-24.2+armAdj, 0, -14.5, -30.8, 32.0);
+    public static final MotionControlState kCube = new MotionControlState(24+armAdj, 22, -10.0, 57, 0.0);
+    public static final MotionControlState kConeIntake = new MotionControlState(-19.5+armAdj, 0, -21.0, -21.5, 38.0);
     public static final MotionControlState kLow = new MotionControlState(23.8+armAdj, 0, -25.0, 29.2, 0.0);
-    public static final MotionControlState kConeMid = new MotionControlState(44.8+armAdj, 0, -5.0, 34.2, 0.0);
-    public static final MotionControlState kConeHigh =  new MotionControlState(62.8+armAdj, 0, -1.5, 44.2, 0.0);
-    public static final MotionControlState kCubeMid = new MotionControlState(7.8+armAdj, 0, -7.5, 16, 0.0);
-    public static final MotionControlState kCubeHigh =  new MotionControlState(41.8+armAdj, 0, -5.0, 33, 0.0);
+    public static final MotionControlState kConeMid = new MotionControlState(46+armAdj, 0, -5.0, 34.2, 0.0);
+    public static final MotionControlState kConeHigh =  new MotionControlState(64+armAdj, 0, -1.5, 44.2, 0.0);
+    public static final MotionControlState kCubeMid = new MotionControlState(9+armAdj, 0, -7.5, 16, 0.0);
+    public static final MotionControlState kCubeHigh =  new MotionControlState(43+armAdj, 0, -5.0, 33, 0.0);
+    public static final MotionControlState kRevCubeMidInt = new MotionControlState(27+armAdj, 0, -1.5, 10.0, 0.0);
+    public static final MotionControlState kRevCubeMidMid = new MotionControlState(27+armAdj, 0, -1.5, -20, 0.0);
+    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-22.5+armAdj, 0, -1.5, -20, 0.0);
+
+
 
   }
 
@@ -87,7 +92,7 @@ public final class Constants {
     public static final int kBackLeftTurningEncoderPort = 2; // Analog Port of the Module Absolute Encoder
     public static final int kBackRightTurningEncoderPort = 3; // Analog Port of the Module Absolute Encoder
 
-    public static final double kFrontLeftOffset = -0.8914; // Encoder Offset in Radians
+    public static final double kFrontLeftOffset = -0.8914+0.0546; // Encoder Offset in Radians
     public static final double kFrontRightOffset = -3.8591+Math.PI; // Encoder Offset in Radians
     public static final double kBackLeftOffset = -1.991+0.7833; // Encoder Offset in Radians
     public static final double kBackRightOffset = -3.7096+Math.PI; // Encoder Offset in Radians
@@ -171,7 +176,7 @@ public final class Constants {
     /**
      * True = Blue --- False = Red
      */
-    public static final boolean kAlliance = DriverStation.getAlliance() == Alliance.Blue;
+    //public static final boolean kAlliance = DriverStation.getAlliance() == Alliance.Blue;
   }
 
   public static final class ArmsConstants {
@@ -196,12 +201,15 @@ public final class Constants {
     public static final int[] kArmMotors = {16, 17};
     public static final int[] kElevatorMotors = {12, 13};
     public static final int kWristMotor = 15;
+
+    public static final int kArmAbsEncoder = 4;
+
   }
 
   public static final class IntakeConstants {
     public static final double kDefaultCone = 0.0;
     public static final TrapezoidProfile.Constraints kConeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kExtendedCone = 33.0;
+    public static final double kExtendedCone = 38.0;
     public static final double kRetractedCone = 0.0;
     
     public static final double kDefaultCube = 0.0;
