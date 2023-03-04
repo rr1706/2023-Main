@@ -191,9 +191,9 @@ public class Drivetrain extends SubsystemBase {
     m_backRight.stop();
   }
 
-  //public double getTilt() {
-   // return MathUtils.pythagorean(ahrs.get, ahrs.getPitch());
-//  }
+  public double getTilt() {
+    return MathUtils.pythagorean(ahrs.getRoll(), ahrs.getPitch());
+  }
 
   /**
    * Updates odometry for the swerve drivetrain. This should be called

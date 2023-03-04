@@ -34,9 +34,9 @@ public class Dock extends CommandBase {
             m_climbing = false;
         }
         if (m_climbing) {
-            m_drive.drive(m_climbPID.calculate(0.0), 0.0, 0.0, true, true);
+            m_drive.drive(m_climbPID.calculate(m_drive.getTilt()), 0.0, 0.0, true, true);
         } else {
-            m_drive.drive(m_levelingPID.calculate(0.0), 0.0, 0.0, true, true);
+            m_drive.drive(m_levelingPID.calculate(m_drive.getTilt()), 0.0, 0.0, true, true);
             if (m_levelingPID.atSetpoint() && m_levelEpoch == 0.0) {
                 m_levelEpoch = Timer.getFPGATimestamp();
             }
