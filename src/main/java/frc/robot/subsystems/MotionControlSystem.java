@@ -93,7 +93,7 @@ public final class MotionControlSystem extends SubsystemBase {
             m_elevator.setPose(m_desiredState.m_elevator);
         }
 
-        if((atSetpoint && m_runCube) || (!m_forceCube && m_runCube)){
+        if((atSetpoint && m_runCube)){
             m_cube.set(-0.4);
         }
         else if(!m_forceCube){

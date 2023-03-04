@@ -105,7 +105,7 @@ public class RobotContainer {
   
   new JoystickButton(m_driverController, Button.kRightBumper.value).whileTrue(m_coneIntake).onFalse(m_ConeTransfer);
   new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-1250)))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.setSpeed(-250))).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn())));
-  new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(()->m_motionControl.toggleCube()).alongWith(new InstantCommand(()->m_motionControl.runCube(-0.15)))).onFalse(new InstantCommand(()->m_motionControl.runCube(0.0)));
+  //new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(()->m_motionControl.toggleCube()).alongWith(new InstantCommand(()->m_motionControl.runCube(-0.15)))).onFalse(new InstantCommand(()->m_motionControl.runCube(0.0)));
 
   new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
 
@@ -174,5 +174,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_chooser.getSelected();
+  }
+
+  public Command onEnable(){
+    return new InstantCommand(()->m_motionControl.setState(StateConstants.kHome));
   }
 }

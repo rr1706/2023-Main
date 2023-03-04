@@ -55,7 +55,7 @@ public class RunClaw extends CommandBase{
             m_claw.setSpeed(2850);
         }
         else if(coneMid){
-            m_claw.setSpeed(1500);
+            m_claw.setSpeed(1200);
         }
         else if(coneHigh){
             m_claw.setSpeed(2850);

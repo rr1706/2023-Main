@@ -38,7 +38,7 @@ public class AutoAlign extends CommandBase {
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
     private final PIDController m_rotPID 
-    = new PIDController(0.05, 0.002, 0.00);
+    = new PIDController(0.12, 0.05, 0.00);
 
     public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision){
         m_drive = drive;
@@ -48,7 +48,7 @@ public class AutoAlign extends CommandBase {
         m_vision = vision;
         lockedPosition = -1;
         m_rotPID.enableContinuousInput(-180, 180);
-        m_rotPID.setIntegratorRange(-0.01, 0.01);
+        m_rotPID.setIntegratorRange(-0.2, 0.2);
         addRequirements(m_drive);
     }
     public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, int scorePosition){
@@ -182,20 +182,20 @@ public class AutoAlign extends CommandBase {
 
       if(m_controlSystem.atSetpoint() && visionLock){
         double angle = m_vision.getTX();
-        double atAngle = 0.6;
+        double atAngle = 0.4;
         if(coneMid){
-            atAngle = 1.2;
+            atAngle = 0.8;
         }
 
-        if(Math.abs(angle) <= atAngle && m_vision.getTA()>0.160){
-            m_controller.setRumble(RumbleType.kBothRumble, 0.5);
+        if(Math.abs(angle) <= atAngle && m_vision.getTA()>0.165){
+            m_controller.setRumble(RumbleType.kBothRumble, 1.0);
         }
         else{
             m_controller.setRumble(RumbleType.kBothRumble, 0.0);
         }
 
         desiredRot = m_rotPID.calculate(angle,0.0);
-        if((-Math.abs(m_drive.getGyro().getDegrees())+180.0)>3.0){
+        if((-Math.abs(m_drive.getGyro().getDegrees())+180.0)>15.0){
             desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
         }
 
@@ -211,6 +211,10 @@ public class AutoAlign extends CommandBase {
         desiredTranslation = desiredTranslation.times(maxLinear/desiredMag);
       }
   
+      if(Math.abs(desiredRot) > 1.5){
+        desiredRot = Math.signum(desiredRot)*1.50;
+      }
+
       //Translation2d rotAdj= desiredTranslation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(desiredRot*0.05);
   
       //desiredTranslation = desiredTranslation.plus(rotAdj);
