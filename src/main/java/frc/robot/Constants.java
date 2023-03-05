@@ -184,18 +184,20 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kElevatorConstraints = new TrapezoidProfile.Constraints(250, 50);
     public static final double kMinElevator = -30;
     public static final double kMaxElevator = -1;
+    public static final double kElevatorToCentimeters = 0.0;
 
     public static final double kDefaultArm = 0.0;
     public static final TrapezoidProfile.Constraints kArmConstraints = new TrapezoidProfile.Constraints(250, 50);
     public static final double kMinArm = -25;
     public static final double kMaxArm = 70;
+    public static final double kArmToRadians = 0.0;
+    public static final double kArmLength = 0.0;
 
     public static final double kDefaultWrist = 0.0;
     public static final TrapezoidProfile.Constraints kWristConstraints = new TrapezoidProfile.Constraints(250, 50);
     public static final double kMinWrist = -35;
     public static final double kMaxWrist = 56;
-
-    public static final double kArmLength = 0.0;
+    public static final double kWristToRadians = 0.0;
     public static final double kWristLength = 0.0;
 
     public static final int[] kArmMotors = {16, 17};

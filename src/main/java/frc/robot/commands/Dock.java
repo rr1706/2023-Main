@@ -40,9 +40,8 @@ public class Dock extends CommandBase {
             if (m_levelingPID.atSetpoint() && m_levelEpoch == 0.0) {
                 m_levelEpoch = Timer.getFPGATimestamp();
             }
-            if (m_levelingPID.atSetpoint() && Timer.getFPGATimestamp() - m_levelEpoch >= 1.5) {
+            if (m_levelingPID.atSetpoint() && Timer.getFPGATimestamp() - m_levelEpoch >= 0.2) {
                 m_drive.setModuleStates(DriveConstants.kLockedWheels);
-                m_finished = true;
             }
             if (!m_levelingPID.atSetpoint()) {
                 m_levelEpoch = 0.0;
@@ -52,6 +51,7 @@ public class Dock extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
+        m_drive.stop();
         m_climbing = true;
         m_levelEpoch = 0.0;
     }
