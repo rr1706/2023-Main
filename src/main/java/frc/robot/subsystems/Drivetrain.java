@@ -227,15 +227,16 @@ public class Drivetrain extends SubsystemBase {
     Pose2d pose = m_odometry.getPoseMeters();
     Translation2d position = pose.getTranslation();
 
-    return m_odometry.getPoseMeters();
+    SmartDashboard.putNumber("Robot X", position.getX());
+    SmartDashboard.putNumber("Robot Y", position.getY());
+
+    return pose;
   }
 
   public Pose2d getAutoPose() {
     updateAutoOdometry();
     Pose2d pose = m_autoOdometry.getPoseMeters();
     Translation2d position = pose.getTranslation();
-    SmartDashboard.putNumber("Auto X", position.getX());
-    SmartDashboard.putNumber("Auto Y", position.getY());
     return m_autoOdometry.getPoseMeters();
   }
 

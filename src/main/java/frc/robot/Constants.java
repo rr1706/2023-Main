@@ -65,7 +65,7 @@ public final class Constants {
 
   public static final class ModuleConstants {
     private static final double kTranslationGearRatio = 5.1923; // Overall gear ratio of the swerve module
-    private static final double kWheelDiameter = 0.09786; // Wheel Diameter in meters, may need to be
+    private static final double kWheelDiameter = 0.09645; // Wheel Diameter in meters, may need to be
                                                                          // experimentally determined due to compliance
                                                                          // of floor/tread material
 
