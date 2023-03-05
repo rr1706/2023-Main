@@ -11,6 +11,7 @@ import frc.robot.Constants.StateConstants;
 import frc.robot.commands.AutoAlign;
 import frc.robot.commands.ConeIntake;
 import frc.robot.commands.ConeTransfer;
+import frc.robot.commands.Dock;
 import frc.robot.commands.DriveByController;
 import frc.robot.commands.RunClaw;
 import frc.robot.commands.Score;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.util.HashMap;
 
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
@@ -42,6 +44,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -138,9 +141,10 @@ public class RobotContainer {
     .alongWith(new WaitCommand(1.0).andThen(new RunClaw(m_operatorBoard, m_claw,5)))
     .withTimeout(2.0));  
     events.put("ConeIntake", m_coneIntake);
-    events.put("StopConeIntake",new InstantCommand(()-> m_coneIntake.forceCancel()));
+    events.put("StopConeIntake",new InstantCommand(() -> m_coneIntake.forceCancel()));
     events.put("ConeTransfer", m_ConeTransfer);
-    events.put("Dock", new RunCommand(()->m_drive.drive(1.0, 0, 0, true, false),m_drive));
+    events.put("DockSimple", new RunCommand(() -> m_drive.drive(1.0, 0, 0, true, false),m_drive));
+    events.put("FullDock", new RepeatCommand(new Dock(m_drive)));
   }
 
   private void configureAutoChooser() {
