@@ -101,6 +101,8 @@ public class RobotContainer {
   new POVButton(m_driverController, 180)
     .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)))));
 
+  new JoystickButton(m_driverController, Button.kY.value).whileTrue(new Dock(m_drive, false));
+
   new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align);
   new JoystickButton(m_driverController, Button.kX.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
 
@@ -144,7 +146,8 @@ public class RobotContainer {
     events.put("StopConeIntake",new InstantCommand(() -> m_coneIntake.forceCancel()));
     events.put("ConeTransfer", m_ConeTransfer);
     events.put("DockSimple", new RunCommand(() -> m_drive.drive(1.0, 0, 0, true, false),m_drive));
-    events.put("FullDock", new RepeatCommand(new Dock(m_drive)));
+    events.put("DockNear", new RepeatCommand(new Dock(m_drive, true)));
+    events.put("DockFar", new RepeatCommand(new Dock(m_drive, false)));
   }
 
   private void configureAutoChooser() {

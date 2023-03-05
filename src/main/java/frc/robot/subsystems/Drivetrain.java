@@ -137,6 +137,7 @@ public class Drivetrain extends SubsystemBase {
     double speed = Math.sqrt(xSpeed*xSpeed+ySpeed*ySpeed);
 
     SmartDashboard.putNumber("Speed", speed);
+    SmartDashboard.putNumber("Tilt", getTilt());
 
     // SmartDashboard.putNumber("Accel X", m_fieldRelAccel.ax);
     // SmartDashboard.putNumber("Accel Y", m_fieldRelAccel.ay);
@@ -192,7 +193,12 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getTilt() {
-    return MathUtils.pythagorean(ahrs.getRoll(), ahrs.getPitch());
+    return ahrs.getRoll();
+    // return MathUtils.pythagorean(ahrs.getRoll(), ahrs.getPitch());
+  }
+
+  public double getTiltVel() {
+    return ahrs.getRawGyroY();
   }
 
   /**

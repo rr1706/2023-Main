@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.Drivetrain;
@@ -10,41 +11,75 @@ public class Dock extends CommandBase {
     private final Drivetrain m_drive;
     private final PIDController m_climbPID;
     private final PIDController m_levelingPID;
+    private final double m_initialTilt;
 
     private boolean m_climbing = true; // is the robot climbing or leveling
+    private boolean m_initialHump = false;
     private double m_levelEpoch = 0.0;
+    private int directionFactor = -1;
 
     private boolean m_finished = false;
 
-    public Dock(Drivetrain drive) {
+    public Dock(Drivetrain drive, boolean direction) {
         m_drive = drive;
-        m_climbPID = new PIDController(0.4, 0.0, 0.0);
-        m_climbPID.setSetpoint(13.5);
+        m_climbPID = new PIDController(0.15, 0.0, 0.0);
+        m_climbPID.setSetpoint(-13.5*directionFactor);
         m_climbPID.setTolerance(1.5);
-        m_levelingPID = new PIDController(0.05, 0.0, 0.0);
+        m_levelingPID = new PIDController(0.04, 0.0, 0.0);
         m_levelingPID.setSetpoint(0.0);
-        m_levelingPID.setTolerance(2.0);
+        m_levelingPID.setTolerance(8.0);
+        m_initialTilt = 0.0;
+        if (direction) {
+            directionFactor *= -1;
+        }
 
         addRequirements(m_drive);
     }
 
     @Override
+    public void initialize() {
+        m_climbing = true;
+        m_levelEpoch = 0.0;
+        m_climbPID.setSetpoint(-13.5*directionFactor);
+        m_finished = false;
+        m_initialHump = false;
+        m_drive.drive(directionFactor*1.0, 0.0, 0.0, true, true);
+    }
+
+    @Override
     public void execute() {
+        SmartDashboard.putBoolean("climbing", m_climbing);
         if (m_climbPID.atSetpoint()) {
             m_climbing = false;
         }
         if (m_climbing) {
-            m_drive.drive(m_climbPID.calculate(m_drive.getTilt()), 0.0, 0.0, true, true);
+            m_climbPID.calculate(m_drive.getTilt());
+            m_drive.drive(directionFactor * 1.0, 0.0, 0.0, true, true);
         } else {
-            m_drive.drive(m_levelingPID.calculate(m_drive.getTilt()), 0.0, 0.0, true, true);
-            if (m_levelingPID.atSetpoint() && m_levelEpoch == 0.0) {
-                m_levelEpoch = Timer.getFPGATimestamp();
+            m_climbPID.calculate(m_drive.getTilt());
+            if (((directionFactor == 1 &&  m_drive.getTiltVel() <= -7.0) || (directionFactor == -1 &&  m_drive.getTiltVel() >= 7.0)) && !m_finished) {
+                m_levelingPID.calculate(m_drive.getTilt());
+                if (!m_finished) {
+                    if (!m_initialHump) {
+                        m_levelEpoch = Timer.getFPGATimestamp();
+                    }
+                    m_drive.drive(directionFactor*  1.0, 0, 0, true, true);
+                    m_initialHump = true;
+                    if (Timer.getFPGATimestamp() - m_levelEpoch >= 1.0) {
+                        m_finished = true;
+                        m_drive.setModuleStates(DriveConstants.kLockedWheels);
+                    }
+                }
             }
-            if (m_levelingPID.atSetpoint() && Timer.getFPGATimestamp() - m_levelEpoch >= 0.2) {
+            else if(m_finished){
+                m_levelingPID.calculate(m_drive.getTilt());
                 m_drive.setModuleStates(DriveConstants.kLockedWheels);
-            }
-            if (!m_levelingPID.atSetpoint()) {
-                m_levelEpoch = 0.0;
+            } else {
+                if (!m_finished) {
+
+                    m_levelingPID.calculate(m_drive.getTilt());
+                    m_drive.drive(directionFactor * 0.5, 0.0, 0.0, true, true);
+                }
             }
         }
     }
@@ -58,7 +93,7 @@ public class Dock extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return m_finished;
+        return false;
     }
 
 }
