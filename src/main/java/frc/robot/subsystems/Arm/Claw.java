@@ -36,8 +36,8 @@ public class Claw extends SubsystemBase{
         mPID.setP(0.0001);
         mPID.setFF(0.0000);
 
-        mPID.setSmartMotionMaxAccel(17500, 0);
-        mPID.setSmartMotionMaxVelocity(5500, 0);
+        mPID.setSmartMotionMaxAccel(14000, 0);
+        mPID.setSmartMotionMaxVelocity(5000, 0);
 
         mMotor1.burnFlash();
         mMotor2.burnFlash();

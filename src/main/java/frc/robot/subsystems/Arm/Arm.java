@@ -25,7 +25,7 @@ public class Arm extends SubsystemBase {
     private final SparkMaxPIDController m_PID;
     private final RelativeEncoder m_encoder;
     private final AnalogPotentiometer m_absEncoder;
-    private final ProfiledPIDController m_rioPID = new ProfiledPIDController(0.04,0.005,0.00, new Constraints(300, 250));
+    private final ProfiledPIDController m_rioPID = new ProfiledPIDController(0.04,0.005,0.00, new Constraints(200, 200));
     private final ArmFeedforward m_ff = new ArmFeedforward(0.00,0.045,0.0052);
 
     private boolean m_useABSEnc = true;
@@ -60,6 +60,8 @@ public class Arm extends SubsystemBase {
 
         m_motor1.burnFlash();
         m_motor2.burnFlash();
+
+        m_setpoint = new TrapezoidProfile.State(getPose(),0.0);
     }
 
     @Override

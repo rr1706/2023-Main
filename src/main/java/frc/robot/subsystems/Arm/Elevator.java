@@ -45,6 +45,9 @@ public class Elevator extends SubsystemBase {
         m_motor2.enableVoltageCompensation(12.0);
         m_motor1.burnFlash();
         m_motor2.burnFlash();
+
+        m_setpoint = new TrapezoidProfile.State(getPose(),0.0);
+
     }
 
     @Override
