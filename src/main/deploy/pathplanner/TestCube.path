@@ -197,7 +197,7 @@
       "stopEvent": {
         "names": [
           "StopDrive",
-          "Dock"
+          "FullDock"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
