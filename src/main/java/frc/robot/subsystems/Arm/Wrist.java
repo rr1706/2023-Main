@@ -37,6 +37,8 @@ public class Wrist extends SubsystemBase {
         m_motor.setSmartCurrentLimit(CurrentLimit.kWrist);
         m_motor.enableVoltageCompensation(12.0);
         m_motor.burnFlash();
+
+        m_setpoint = new TrapezoidProfile.State(getPose(),0.0);
     }
 
     @Override

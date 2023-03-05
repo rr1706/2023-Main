@@ -24,7 +24,7 @@ public final class MotionControlSystem extends SubsystemBase {
     private final Wrist m_wrist = new Wrist();
     private double m_offset = 0.0;
 
-    private MotionControlState m_desiredState = new MotionControlState(StateConstants.kHome) ;
+    private MotionControlState m_desiredState;// = new MotionControlState(StateConstants.kHome) ;
     private boolean m_elevatorClear = false;
     private boolean m_forceCube = false;
     private boolean m_runCube = false;
@@ -32,6 +32,7 @@ public final class MotionControlSystem extends SubsystemBase {
     public MotionControlSystem() {
         SmartDashboard.putBoolean("+0.5 to ARM", false);
         SmartDashboard.putBoolean("-0.5 to ARM", false);
+        m_desiredState = getMotionState();
     }
 
     public void setState(MotionControlState desiredState){
@@ -163,6 +164,9 @@ public final class MotionControlSystem extends SubsystemBase {
         m_desiredState.setCube(0.0);
         m_forceCube = false;
         m_elevatorClear = false;
+     }
+     public MotionControlState getMotionState(){
+        return new MotionControlState(m_arm.getPose(), m_cube.getPose(), m_elevator.getPose(), m_wrist.getPose(), m_cone.getPose());
      }
 
 }
