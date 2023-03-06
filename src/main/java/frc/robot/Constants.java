@@ -65,19 +65,22 @@ public final class Constants {
 
   public static final class ModuleConstants {
     private static final double kTranslationGearRatio = 5.1923; // Overall gear ratio of the swerve module
+    public static final double kRotationGearRatio = 18.0;
     private static final double kWheelDiameter = 0.09645; // Wheel Diameter in meters, may need to be
                                                                          // experimentally determined due to compliance
                                                                          // of floor/tread material
 
     public static final double kVelocityFactor = (1.0 / kTranslationGearRatio / 60.0) * kWheelDiameter * Math.PI; 
-
+    public static final double kNEOSteerP = 0.800;
     public static final double[] kTurnPID = { 0.800, 0, 0 }; // Defines the PID values for rotation of the serve
                                                              // modules, should show some minor oscillation when no
                                                              // weight is loaded on the modules
   }
 
   public static final class DriveConstants {
-  public static final int kFrontLeftDriveMotorPort = 1; // CANID of the Translation SparkMAX
+    public static final boolean kUseNEO = true;
+
+    public static final int kFrontLeftDriveMotorPort = 1; // CANID of the Translation SparkMAX
     public static final int kFrontRightDriveMotorPort = 3; // CANID of the Translation SparkMAX
     public static final int kBackLeftDriveMotorPort = 5; // CANID of the Translation SparkMAX
     public static final int kBackRightDriveMotorPort = 7; // CANID of the Translation SparkMAX

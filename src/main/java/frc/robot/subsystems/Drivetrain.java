@@ -53,25 +53,25 @@ public class Drivetrain extends SubsystemBase {
   // parameters from the constants file
   private final SwerveModule m_frontLeft = new SwerveModule(DriveConstants.kFrontLeftDriveMotorPort,
       DriveConstants.kFrontLeftTurningMotorPort, DriveConstants.kFrontLeftTurningEncoderPort,
-      DriveConstants.kFrontLeftOffset, DriveConstants.kFrontLeftTuningVals);
+      DriveConstants.kFrontLeftOffset, DriveConstants.kFrontLeftTuningVals, DriveConstants.kUseNEO);
 
   // Creates a swerveModule object for the front right swerve module feeding in
   // parameters from the constants file
   private final SwerveModule m_frontRight = new SwerveModule(DriveConstants.kFrontRightDriveMotorPort,
       DriveConstants.kFrontRightTurningMotorPort, DriveConstants.kFrontRightTurningEncoderPort,
-      DriveConstants.kFrontRightOffset, DriveConstants.kFrontRightTuningVals);
+      DriveConstants.kFrontRightOffset, DriveConstants.kFrontRightTuningVals, DriveConstants.kUseNEO);
 
   // Creates a swerveModule object for the back left swerve module feeding in
   // parameters from the constants file
   private final SwerveModule m_backLeft = new SwerveModule(DriveConstants.kBackLeftDriveMotorPort,
       DriveConstants.kBackLeftTurningMotorPort, DriveConstants.kBackLeftTurningEncoderPort,
-      DriveConstants.kBackLeftOffset, DriveConstants.kBackLeftTuningVals);
+      DriveConstants.kBackLeftOffset, DriveConstants.kBackLeftTuningVals, DriveConstants.kUseNEO);
 
   // Creates a swerveModule object for the back right swerve module feeding in
   // parameters from the constants file
   private final SwerveModule m_backRight = new SwerveModule(DriveConstants.kBackRightDriveMotorPort,
       DriveConstants.kBackRightTurningMotorPort, DriveConstants.kBackRightTurningEncoderPort,
-      DriveConstants.kBackRightOffset, DriveConstants.kBackRightTuningVals);
+      DriveConstants.kBackRightOffset, DriveConstants.kBackRightTuningVals, DriveConstants.kUseNEO);
 
   // Creates an ahrs gyro (NavX) on the MXP port of the RoboRIO
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
