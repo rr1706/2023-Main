@@ -26,6 +26,7 @@ import frc.robot.utilities.OperatorBoard;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -158,7 +159,7 @@ public class RobotContainer {
         m_chooser.addOption(
           auto.getName(), 
           autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 2.5, 3.0))
-          );
+        );
       }
     }
 
