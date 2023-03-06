@@ -25,15 +25,15 @@ public class Arm extends SubsystemBase {
     private final SparkMaxPIDController m_PID;
     private final RelativeEncoder m_encoder;
     private final AnalogPotentiometer m_absEncoder;
-    private final ProfiledPIDController m_rioPID = new ProfiledPIDController(0.04,0.005,0.00, new Constraints(200, 200));
-    private final ArmFeedforward m_ff = new ArmFeedforward(0.00,0.045,0.0052);
+    private final ProfiledPIDController m_rioPID = new ProfiledPIDController(0.012,0.1,0.00, new Constraints(300, 350));
+    private final ArmFeedforward m_ff = new ArmFeedforward(0.00,0.045,0.0045);
 
     private boolean m_useABSEnc = true;
 
     private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
 
     public Arm() {
-        m_rioPID.setIntegratorRange(-0.01, 0.01);
+        m_rioPID.setIntegratorRange(-0.015, 0.015);
         m_motor1 = new CANSparkMax(ArmsConstants.kArmMotors[0], MotorType.kBrushless);
         m_motor2 = new CANSparkMax(ArmsConstants.kArmMotors[1], MotorType.kBrushless);
         m_PID = m_motor1.getPIDController();

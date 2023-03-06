@@ -49,16 +49,16 @@ public class RunClaw extends CommandBase{
         }
     
         if(cubeMid){
-            m_claw.setSpeed(2850);
+            m_claw.setSpeed(2500);
         }
         else if(cubeHigh){
-            m_claw.setSpeed(2850);
+            m_claw.setSpeed(2500);
         }
         else if(coneMid){
             m_claw.setSpeed(1200);
         }
         else if(coneHigh){
-            m_claw.setSpeed(2850);
+            m_claw.setSpeed(2950);
         }
         else{
             m_claw.setSpeed(2000);

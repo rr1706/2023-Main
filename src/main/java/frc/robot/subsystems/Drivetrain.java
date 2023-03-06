@@ -14,6 +14,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -31,6 +33,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import frc.robot.RobotContainer;
 import frc.robot.Constants.*;
 import frc.robot.utilities.MathUtils;
 
@@ -39,39 +42,45 @@ import frc.robot.utilities.MathUtils;
  */
 public class Drivetrain extends SubsystemBase {
 
+  private double keepAngle = 0.0; // Double to store the current target keepAngle in radians
+  private double timeSinceRot = 0.0; // Double to store the time since last rotation command
+  private double lastRotTime = 0.0; // Double to store the time of the last rotation command
+  private double timeSinceDrive = 0.0; // Double to store the time since last translation command
+  private double lastDriveTime = 0.0; // Double to store the time of the last translation command
+
   // Create the PIDController for the Keep Angle PID
   private final PIDController m_keepAnglePID = new PIDController(DriveConstants.kKeepAnglePID[0],
       DriveConstants.kKeepAnglePID[1], DriveConstants.kKeepAnglePID[2]);
 
   private final Timer keepAngleTimer = new Timer(); // Creates timer used in the perform keep angle function
 
-  private final SlewRateLimiter m_slewX = new SlewRateLimiter(8.0);
-  private final SlewRateLimiter m_slewY = new SlewRateLimiter(8.0);
-  private final SlewRateLimiter m_slewRot = new SlewRateLimiter(12.5);
+  private final SlewRateLimiter m_slewX = new SlewRateLimiter(7.5);
+  private final SlewRateLimiter m_slewY = new SlewRateLimiter(7.5);
+  private final SlewRateLimiter m_slewRot = new SlewRateLimiter(12.0);
 
   // Creates a swerveModule object for the front left swerve module feeding in
   // parameters from the constants file
   private final SwerveModule m_frontLeft = new SwerveModule(DriveConstants.kFrontLeftDriveMotorPort,
       DriveConstants.kFrontLeftTurningMotorPort, DriveConstants.kFrontLeftTurningEncoderPort,
-      DriveConstants.kFrontLeftOffset, DriveConstants.kFrontLeftTuningVals);
+      DriveConstants.kFrontLeftOffset, DriveConstants.kFrontLeftTuningVals, DriveConstants.kUseNEO);
 
   // Creates a swerveModule object for the front right swerve module feeding in
   // parameters from the constants file
   private final SwerveModule m_frontRight = new SwerveModule(DriveConstants.kFrontRightDriveMotorPort,
       DriveConstants.kFrontRightTurningMotorPort, DriveConstants.kFrontRightTurningEncoderPort,
-      DriveConstants.kFrontRightOffset, DriveConstants.kFrontRightTuningVals);
+      DriveConstants.kFrontRightOffset, DriveConstants.kFrontRightTuningVals, DriveConstants.kUseNEO);
 
   // Creates a swerveModule object for the back left swerve module feeding in
   // parameters from the constants file
   private final SwerveModule m_backLeft = new SwerveModule(DriveConstants.kBackLeftDriveMotorPort,
       DriveConstants.kBackLeftTurningMotorPort, DriveConstants.kBackLeftTurningEncoderPort,
-      DriveConstants.kBackLeftOffset, DriveConstants.kBackLeftTuningVals);
+      DriveConstants.kBackLeftOffset, DriveConstants.kBackLeftTuningVals, DriveConstants.kUseNEO);
 
   // Creates a swerveModule object for the back right swerve module feeding in
   // parameters from the constants file
   private final SwerveModule m_backRight = new SwerveModule(DriveConstants.kBackRightDriveMotorPort,
       DriveConstants.kBackRightTurningMotorPort, DriveConstants.kBackRightTurningEncoderPort,
-      DriveConstants.kBackRightOffset, DriveConstants.kBackRightTuningVals);
+      DriveConstants.kBackRightOffset, DriveConstants.kBackRightTuningVals, DriveConstants.kUseNEO);
 
   // Creates an ahrs gyro (NavX) on the MXP port of the RoboRIO
   private static AHRS ahrs = new AHRS(SPI.Port.kMXP);
@@ -110,6 +119,12 @@ public class Drivetrain extends SubsystemBase {
     
     xSpeed = m_slewX.calculate(xSpeed);
     ySpeed = m_slewY.calculate(ySpeed);
+
+    SmartDashboard.putNumber("Desired Drivetrain Speed", MathUtils.pythagorean(xSpeed, ySpeed));
+
+    rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
+                                                 // depending on driver input
+
     rot = m_slewRot.calculate(rot);
 
     // SmartDashboard.putNumber("xSpeed Commanded", xSpeed);
@@ -148,6 +163,12 @@ public class Drivetrain extends SubsystemBase {
      SmartDashboard.putNumber("Back Left Encoder", m_backLeft.getTurnEncoder());
      SmartDashboard.putNumber("Back Right Encoder", m_backRight.getTurnEncoder());
 
+     SmartDashboard.putNumber("Front Left Speed", m_frontLeft.getState().speedMetersPerSecond);
+     SmartDashboard.putNumber("Front Right Speed",m_frontRight.getState().speedMetersPerSecond);
+     SmartDashboard.putNumber("Back Left Speed", m_backLeft.getState().speedMetersPerSecond);
+     SmartDashboard.putNumber("Back Right Speed", m_backRight.getState().speedMetersPerSecond);
+
+     SmartDashboard.putNumber("RIO 5v",RobotController.getVoltage5V());
     // Update swerve drive odometry periodically so robot pose can be tracked
     updateOdometry();
 
@@ -310,6 +331,49 @@ public class Drivetrain extends SubsystemBase {
   public SwerveModulePosition[] getModulePositions(){
     return new SwerveModulePosition[] {m_frontLeft.getPosition(), m_frontRight.getPosition(), m_backLeft.getPosition(),
       m_backRight.getPosition()};
+  }
+
+    /**
+   * Keep angle function is performed to combat drivetrain drift without the need
+   * of constant "micro-adjustments" from the driver.
+   * A PIDController is used to attempt to maintain the robot heading to the
+   * keepAngle value. This value is updated when the robot
+   * is rotated manually by the driver input
+   * 
+   * @return rotation command in radians/s
+   * @param xSpeed is the input drive X speed command
+   * @param ySpeed is the input drive Y speed command
+   * @param rot    is the input drive rotation speed command
+   */
+  private double performKeepAngle(double xSpeed, double ySpeed, double rot) {
+    double output = rot; // Output shouold be set to the input rot command unless the Keep Angle PID is
+                         // called
+    if (Math.abs(rot) >= DriveConstants.kMinRotationCommand) { // If the driver commands the robot to rotate set the
+                                                               // last rotate time to the current time
+      lastRotTime = keepAngleTimer.get();
+    }
+    if (Math.abs(xSpeed) >= DriveConstants.kMinTranslationCommand
+        || Math.abs(ySpeed) >= DriveConstants.kMinTranslationCommand) { // if driver commands robot to translate set the
+                                                                        // last drive time to the current time
+      lastDriveTime = keepAngleTimer.get();
+    }
+    timeSinceRot = keepAngleTimer.get() - lastRotTime; // update variable to the current time - the last rotate time
+    timeSinceDrive = keepAngleTimer.get() - lastDriveTime; // update variable to the current time - the last drive time
+    if (timeSinceRot < 0.5) { // Update keepAngle up until 0.5s after rotate command stops to allow rotation
+                              // move to finish
+      keepAngle = getGyro().getRadians();
+    } else if (Math.abs(rot) < DriveConstants.kMinRotationCommand && timeSinceDrive < 0.25) { // Run Keep angle pid
+                                                                                              // until 0.75s after drive
+                                                                                              // command stops to combat
+                                                                                              // decel drift
+      output = m_keepAnglePID.calculate(getGyro().getRadians(), keepAngle); // Set output command to the result of the
+                                                                            // Keep Angle PID
+    }
+    return output;
+  }
+
+  public void updateKeepAngle() {
+    keepAngle = getGyro().getRadians();
   }
 
 }

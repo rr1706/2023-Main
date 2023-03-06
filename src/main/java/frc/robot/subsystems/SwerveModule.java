@@ -12,10 +12,13 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.*;
 
 /**
@@ -27,8 +30,12 @@ public class SwerveModule {
   private final CANSparkMax m_driveMotor;
   private final CANSparkMax m_turningMotor;
 
+  private final boolean m_useNEO;
+
   // Create a CANEncoder object for the translation position and velocity
   private final RelativeEncoder m_driveEncoder;
+  private final RelativeEncoder m_turnEncoder;
+  private double referenceAngleRadians = 0;
 
   // Create a Potentiometer to store the output of the absolute encoder that
   // tracks the angular position of the swerve module
@@ -63,6 +70,9 @@ public class SwerveModule {
   private final PIDController m_turningPIDController = new PIDController(ModuleConstants.kTurnPID[0],
       ModuleConstants.kTurnPID[1], ModuleConstants.kTurnPID[2]);
 
+  private final SparkMaxPIDController m_turnPID;
+  private final SparkMaxPIDController m_transPID;
+
   /**
    * Constructs a SwerveModule with a drive motor, turning motor, drive encoder
    * and turning encoder.
@@ -76,7 +86,7 @@ public class SwerveModule {
    *                              FeedForward, Prop Gain, ModuleID}
    */
   public SwerveModule(int driveMotorChannel, int turningMotorChannel, int turningEncoderChannel, double angularOffset,
-      double[] tuningVals) {
+      double[] tuningVals, boolean useNEO) {
 
     m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless); // Define the drive motor as the SparkMAX
                                                                              // with the input driveMotorChannel
@@ -84,11 +94,16 @@ public class SwerveModule {
     m_driveMotor.enableVoltageCompensation(GlobalConstants.kVoltCompensation); // Enable voltage compensation so
                                                                                // feedforward and gains scale with bus
                                                                                // voltage
-    m_driveMotor.setInverted(false); // Motor direction is not inverted
+    m_driveMotor.setInverted(true); // Motor direction is not inverted
     m_driveEncoder = m_driveMotor.getEncoder(); // Obtain the driveEncoder from the drive SparkMAX
     m_driveEncoder.setVelocityConversionFactor(ModuleConstants.kVelocityFactor);
+    m_driveEncoder.setPositionConversionFactor(ModuleConstants.kVelocityFactor*60.0);
+    m_driveEncoder.setAverageDepth(4);
+    m_driveEncoder.setMeasurementPeriod(16);
     m_driveMotor.setIdleMode(IdleMode.kBrake); // Set velocity conversion factor so that encoder and PID control is in
                                                // terms of velocity in m/s
+    m_transPID = m_driveMotor.getPIDController();
+    m_transPID.setP(tuningVals[2]);
     m_driveMotor.burnFlash(); // Write these parameters to the SparkMAX so we can be sure the values are
                               // correct
 
@@ -100,6 +115,13 @@ public class SwerveModule {
                                                                                  // scale with bus voltage
     m_turningMotor.setInverted(false);
     m_turningMotor.setIdleMode(IdleMode.kBrake); // Motor direction is not inverted
+    m_turnEncoder = m_turningMotor.getEncoder();
+    m_turnEncoder.setVelocityConversionFactor(1/(ModuleConstants.kRotationGearRatio)*2*Math.PI/60.0);
+    m_turnEncoder.setPositionConversionFactor(1/(ModuleConstants.kRotationGearRatio)*2*Math.PI);
+    m_turnEncoder.setAverageDepth(4);
+    m_turnEncoder.setMeasurementPeriod(16);
+    m_turnPID = m_turningMotor.getPIDController();
+    m_turnPID.setP(ModuleConstants.kNEOSteerP);
     m_turningMotor.burnFlash(); // Write these parameters to the SparkMAX so we can be sure the values are
                                 // correct
 
@@ -122,6 +144,8 @@ public class SwerveModule {
 
     // Sets the moduleID to the value stored in the tuningVals array
     moduleID = tuningVals[3];
+
+    m_useNEO = useNEO;
   }
 
   /**
@@ -154,15 +178,29 @@ public class SwerveModule {
     // Calculates the desired feedForward motor % from the current desired velocity
     // and the static and feedforward gains
     final double driveFF = driveFeedForward.calculate(state.speedMetersPerSecond);
+   
+    if(m_useNEO){
+      SmartDashboard.putNumber("Speed"+moduleID, driveFF);
+      m_transPID.setReference(state.speedMetersPerSecond, ControlType.kVelocity,0,driveFF*GlobalConstants.kVoltCompensation);
+    } else{
     // Set the drive motor to the sum of the feedforward calculation and PID
     // calculation
-    final double finalDriveOutput = driveOutput + driveFF;
-    m_driveMotor.set(finalDriveOutput);
+      final double finalDriveOutput = driveOutput + driveFF;
+      m_driveMotor.set(finalDriveOutput);
+   }
+   
+   
+   
+    if(m_useNEO){
+      setReferenceAngle(state.angle.getRadians());
+    }
+    else{
     // Calculate the turning motor output from the turning PID controller.
     final double turnOutput = m_turningPIDController.calculate(getTurnEncoder(), state.angle.getRadians());
     // Set the turning motor to this output value
     m_turningMotor.set(turnOutput);
     // SmartDashboard.putNumber("TurnMotor"+moduleID, turnOutput);
+    }
   }
 
   public void stop() {
@@ -178,6 +216,49 @@ public class SwerveModule {
    * @return the modified absolute encoder value.
    */
   public double getTurnEncoder() {
-    return -1.0 * m_turningEncoder.get();
+    if(m_useNEO){
+      return getStateAngle();
+    }
+    else{
+      return -1.0 * m_turningEncoder.get();
+    }
   }
+
+  public void setReferenceAngle(double referenceAngleRadians) {
+      double currentAngleRadians = m_turnEncoder.getPosition();
+
+      double currentAngleRadiansMod = currentAngleRadians % (2.0 * Math.PI);
+      if (currentAngleRadiansMod < 0.0) {
+          currentAngleRadiansMod += 2.0 * Math.PI;
+      }
+
+      // The reference angle has the range [0, 2pi) but the Neo's encoder can go above that
+      double adjustedReferenceAngleRadians = referenceAngleRadians + currentAngleRadians - currentAngleRadiansMod;
+      if (referenceAngleRadians - currentAngleRadiansMod > Math.PI) {
+          adjustedReferenceAngleRadians -= 2.0 * Math.PI;
+      } else if (referenceAngleRadians - currentAngleRadiansMod < -Math.PI) {
+          adjustedReferenceAngleRadians += 2.0 * Math.PI;
+      }
+
+      this.referenceAngleRadians = referenceAngleRadians;
+
+      SmartDashboard.putNumber("ADJRot "+moduleID, adjustedReferenceAngleRadians);
+
+      m_turnPID.setReference(adjustedReferenceAngleRadians, CANSparkMax.ControlType.kPosition);
+  }
+
+  public double getReferenceAngle() {
+      return referenceAngleRadians;
+  }
+
+  public double getStateAngle() {
+      double motorAngleRadians = m_turnEncoder.getPosition();
+      motorAngleRadians %= 2.0 * Math.PI;
+      if (motorAngleRadians < 0.0) {
+          motorAngleRadians += 2.0 * Math.PI;
+      }
+
+      return motorAngleRadians;
+  }
+
 }

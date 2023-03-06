@@ -38,7 +38,7 @@ public class AutoAlign extends CommandBase {
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
     private final PIDController m_rotPID 
-    = new PIDController(0.12, 0.05, 0.00);
+    = new PIDController(0.1, 0.04, 0.00);
 
     public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision){
         m_drive = drive;
@@ -85,7 +85,7 @@ public class AutoAlign extends CommandBase {
     @Override
     public void execute() {
   
-      double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond;
+      double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond*0.5;
       double desiredX = -inputTransform(1.0*m_controller.getLeftY())*maxLinear;
       double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
 
@@ -123,7 +123,7 @@ public class AutoAlign extends CommandBase {
         }
 
       if(low){
-        m_state = StateConstants.kLow;
+        m_state = StateConstants.kHome;
         visionLock = false;
         gyroLock = true;
       }
@@ -193,17 +193,19 @@ public class AutoAlign extends CommandBase {
         else{
             m_controller.setRumble(RumbleType.kBothRumble, 0.0);
         }
-
+        SmartDashboard.putBoolean("rotatingViaVision", true);
         desiredRot = m_rotPID.calculate(angle,0.0);
-        if((-Math.abs(m_drive.getGyro().getDegrees())+180.0)>15.0){
-            desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
-        }
+        // if((-Math.abs(m_drive.getGyro().getDegrees())+180.0)>15.0){
+        //     desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
+        // }
 
       }
       else if(gyroLock && gyroLock180){
+        SmartDashboard.putBoolean("rotatingViaVision", false);
         desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 0.0);
       }
       else{
+        SmartDashboard.putBoolean("rotatingViaVision", false);
         desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
       }
 
@@ -211,15 +213,19 @@ public class AutoAlign extends CommandBase {
         desiredTranslation = desiredTranslation.times(maxLinear/desiredMag);
       }
   
-      if(Math.abs(desiredRot) > 1.5){
-        desiredRot = Math.signum(desiredRot)*1.50;
+      if(Math.abs(desiredRot) > 2.0){
+        desiredRot = Math.signum(desiredRot)*2.0;
+      }
+
+      if(Math.abs(desiredRot) < 0.05){
+        desiredRot = 0.0;
       }
 
       //Translation2d rotAdj= desiredTranslation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(desiredRot*0.05);
   
       //desiredTranslation = desiredTranslation.plus(rotAdj);
-  
-      m_drive.drive(desiredTranslation.getX(), desiredTranslation.getY(),desiredRot,true,true);
+      SmartDashboard.putNumber("AutoAlignROT", desiredRot);
+      m_drive.drive(desiredTranslation.getX(), desiredTranslation.getY(),desiredRot,true,false);
   
   /*     m_robotDrive.drive(m_slewX.calculate(
           -inputTransform(m_controller.getLeftY()))

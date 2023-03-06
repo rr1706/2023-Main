@@ -42,41 +42,44 @@ public final class Constants {
   }
 
   public static final class StateConstants{
-    public static final double armAdj = +0.25;
-    public static final MotionControlState kHome = new MotionControlState(-18+armAdj, 0.0, -18.25, 11.2*1.1111, 0.0);
-    public static final MotionControlState kGrab = new MotionControlState(63.8+armAdj, 0.0, -12.3, 54.08*1.1111, 0.0);
-    public static final MotionControlState kShoot = new MotionControlState(62.8+armAdj, 0, -1.5, 44.2*1.1111, 0.0);
-    public static final MotionControlState kMidShoot = new MotionControlState(44.8+armAdj, 0, -5.0, 34.2*1.1111, 0.0);
-    public static final MotionControlState kFloor = new MotionControlState(23.2+armAdj, 0, -28.2, 32.7*1.1111, 0.0);
-    public static final MotionControlState kCube = new MotionControlState(24+armAdj, 22, -10.0, 57*1.1111, 0.0);
-    public static final MotionControlState kConeIntake = new MotionControlState(-19.5+armAdj, 0, -21.0, -21.5*1.1111, 38.0);
-    public static final MotionControlState kLow = new MotionControlState(23.8+armAdj, 0, -25.0, 29.2*1.1111, 0.0);
-    public static final MotionControlState kConeMid = new MotionControlState(46+armAdj, 0, -5.0, 34.2*1.1111, 0.0);
-    public static final MotionControlState kConeHigh =  new MotionControlState(65+armAdj, 0, -1.5, 44.2*1.1111, 0.0);
-    public static final MotionControlState kCubeMid = new MotionControlState(9+armAdj, 0, -7.5, 16*1.1111, 0.0);
-    public static final MotionControlState kCubeHigh =  new MotionControlState(43+armAdj, 0, -5.0, 33*1.1111, 0.0);
-    public static final MotionControlState kRevCubeMidInt = new MotionControlState(27+armAdj, 0, -1.5, 10.0*1.1111, 0.0);
-    public static final MotionControlState kRevCubeMidMid = new MotionControlState(27+armAdj, 0, -1.5, -20*1.1111, 0.0);
-    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-22.5+armAdj, 0, -1.5, -20*1.1111, 0.0);
-
+    public static final double armAdj = 0.0;
+    public static final MotionControlState kHome = new MotionControlState(-18+armAdj, 0.0, -18.25, 12.5, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(65.4+armAdj, 0.0, -12.3, 62.5, 0.0);
+    //public static final MotionControlState kShoot = new MotionControlState(62.8+armAdj, 0, -1.5, 44.2*1.1111, 0.0);
+    //public static final MotionControlState kMidShoot = new MotionControlState(44.8+armAdj, 0, -5.0, 34.2*1.1111, 0.0);
+    public static final MotionControlState kFloor = new MotionControlState(24.0+armAdj, 0, -28.2, 38.5, 0.0);
+    public static final MotionControlState kCube = new MotionControlState(24+armAdj, 22, -10.0, 64, 0.0);
+    public static final MotionControlState kConeIntake = new MotionControlState(-19.5+armAdj, 0, -21.0, -24, 38.0);
+    public static final MotionControlState kLow = new MotionControlState(23.8+armAdj, 0, -25.0, 33, 0.0);
+    public static final MotionControlState kConeMid = new MotionControlState(45+armAdj, 0, -5.0, 38, 0.0);
+    public static final MotionControlState kConeHigh =  new MotionControlState(61+armAdj, 0, -1.5,50, 0.0);
+    public static final MotionControlState kCubeMid = new MotionControlState(9+armAdj, 0, -7.5, 18, 0.0);
+    public static final MotionControlState kCubeHigh =  new MotionControlState(42+armAdj, 0, -5.0,37, 0.0);
+    public static final MotionControlState kRevCubeMidInt = new MotionControlState(27+armAdj, 0, -1.5, 11, 0.0);
+    public static final MotionControlState kRevCubeMidMid = new MotionControlState(27+armAdj, 0, -1.5, -22, 0.0);
+    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-22.5+armAdj, 0, -1.5, -22, 0.0);
 
 
   }
 
+
   public static final class ModuleConstants {
-    private static final double kTranslationGearRatio = 5.1923; // Overall gear ratio of the swerve module
+    private static final double kTranslationGearRatio = 5.6933; // Overall gear ratio of the swerve module
+    public static final double kRotationGearRatio = 18.0;
     private static final double kWheelDiameter = 0.09645; // Wheel Diameter in meters, may need to be
                                                                          // experimentally determined due to compliance
                                                                          // of floor/tread material
 
     public static final double kVelocityFactor = (1.0 / kTranslationGearRatio / 60.0) * kWheelDiameter * Math.PI; 
-
+    public static final double kNEOSteerP = 0.800;
     public static final double[] kTurnPID = { 0.800, 0, 0 }; // Defines the PID values for rotation of the serve
                                                              // modules, should show some minor oscillation when no
                                                              // weight is loaded on the modules
   }
 
   public static final class DriveConstants {
+    public static final boolean kUseNEO = true;
+
   public static final int kFrontLeftDriveMotorPort = 1; // CANID of the Translation SparkMAX
     public static final int kFrontRightDriveMotorPort = 3; // CANID of the Translation SparkMAX
     public static final int kBackLeftDriveMotorPort = 5; // CANID of the Translation SparkMAX
@@ -92,21 +95,21 @@ public final class Constants {
     public static final int kBackLeftTurningEncoderPort = 2; // Analog Port of the Module Absolute Encoder
     public static final int kBackRightTurningEncoderPort = 3; // Analog Port of the Module Absolute Encoder
 
-    public static final double kFrontLeftOffset = -0.8914+0.0546; // Encoder Offset in Radians
-    public static final double kFrontRightOffset = -3.8591+Math.PI; // Encoder Offset in Radians
-    public static final double kBackLeftOffset = -1.991+0.7833; // Encoder Offset in Radians
-    public static final double kBackRightOffset = -3.7096+Math.PI; // Encoder Offset in Radians
+    public static final double kFrontLeftOffset = -0.022856-3.0682; // Encoder Offset in Radians
+    public static final double kFrontRightOffset = -3.26395+Math.PI; // Encoder Offset in Radians
+    public static final double kBackLeftOffset = -1.19008; // Encoder Offset in Radians
+    public static final double kBackRightOffset = -0.15847+Math.PI/2; // Encoder Offset in Radians
 
-    public static final double[] kFrontLeftTuningVals = { 0.0075, 0.169, 0.15, 0 }; // {Static Gain, FeedForward,
+    public static final double[] kFrontLeftTuningVals = { 0.01, 0.188, 0.2, 0 }; // {Static Gain, FeedForward,
                                                                                      // Proportional Gain, ModuleID for
                                                                                      // Tuning}
-    public static final double[] kFrontRightTuningVals = { 0.0075, 0.169, 0.15, 1 }; // {Static Gain, FeedForward,
+    public static final double[] kFrontRightTuningVals = { 0.01, 0.188, 0.2, 1 }; // {Static Gain, FeedForward,
                                                                                       // Proportional Gain, ModuleID for
                                                                                       // Tuning}
-    public static final double[] kBackLeftTuningVals = { 0.0075, 0.169, 0.15, 2 }; // {Static Gain, FeedForward,
+    public static final double[] kBackLeftTuningVals = { 0.01, 0.188, 0.2, 2 }; // {Static Gain, FeedForward,
                                                                                     // Proportional Gain, ModuleID for
                                                                                     // Tuning}
-    public static final double[] kBackRightTuningVals = { 0.0075, 0.169, 0.15, 3 }; // {Static Gain, FeedForward,
+    public static final double[] kBackRightTuningVals = { 0.01, 0.188, 0.2, 3 }; // {Static Gain, FeedForward,
                                                                                      // Proportional Gain, ModuleID for
                                                                                      // Tuning}
 
@@ -126,7 +129,7 @@ public final class Constants {
         new Translation2d(-kWheelBaseLength / 2, -kWheelBaseWidth / 2));
 
     public static final double kMaxAcceleration = 3.0;
-    public static final double kMaxSpeedMetersPerSecond = 5.0; // Maximum Sustainable Drivetrain Speed under Normal
+    public static final double kMaxSpeedMetersPerSecond = 4.5; // Maximum Sustainable Drivetrain Speed under Normal
                                                                 // Conditions & Battery, Robot will not exceed this
                                                                 // speed in closed loop control
     public static final double kTestMaxAcceleration = 3.0;
@@ -154,6 +157,18 @@ public final class Constants {
       new SwerveModuleState(0.0, kLockedWheelsHelper[2].angle.rotateBy(new Rotation2d(Math.PI/2))),
       new SwerveModuleState(0.0, kLockedWheelsHelper[3].angle.rotateBy(new Rotation2d(Math.PI/2)))
     };
+
+
+    // Minimum allowable rotation command (in radians/s) assuming user input is
+    // squared using quadraticTransform, this value is always positive and should be
+    // compared agaisnt the absolute value of the drive command
+    public static final double kMinRotationCommand = DriveConstants.kMaxAngularSpeed
+        * Math.pow(DriveConstants.kInnerDeadband, 2);
+    // Minimum allowable tranlsation command (in m/s) assuming user input is squared
+    // using quadraticTransform, this value is always positive and should be
+    // compared agaisnt the absolute value of the drive command
+    public static final double kMinTranslationCommand = DriveConstants.kMaxSpeedMetersPerSecond
+        * Math.pow(DriveConstants.kInnerDeadband, 2);
 
   }
 
