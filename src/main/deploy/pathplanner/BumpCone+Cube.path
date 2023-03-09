@@ -3,12 +3,12 @@
     {
       "anchorPoint": {
         "x": 1.8549646229107004,
-        "y": 4.962988756220023
+        "y": 0.503160150400186
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8549646229106997,
-        "y": 4.962988756220023
+        "x": 2.2895120255290435,
+        "y": 0.8919657211639663
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -16,27 +16,29 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
+        "names": [
+          "ShootConeHighStationary"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "before",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.234745022985052,
-        "y": 4.91724692436546
+        "x": 6.749340631348881,
+        "y": 0.8919657211639663
       },
       "prevControl": {
-        "x": 6.108075125571056,
-        "y": 5.0536606600420715
+        "x": 5.159811974402836,
+        "y": 0.34306373890921843
       },
       "nextControl": {
-        "x": 6.38340597651238,
-        "y": 4.7571505128744915
+        "x": 5.159811974402836,
+        "y": 0.34306373890921843
       },
-      "holonomicAngle": 0.0,
-      "isReversal": false,
+      "holonomicAngle": 1.8476102659944804,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -49,12 +51,12 @@
     },
     {
       "anchorPoint": {
-        "x": 6.3147932287305375,
-        "y": 2.149866097164433
+        "x": 2.461043894983652,
+        "y": 1.040626674691294
       },
       "prevControl": {
-        "x": 6.3147932287305375,
-        "y": 3.1498660971644354
+        "x": 2.6783175962928243,
+        "y": 0.4116764866910612
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -64,13 +66,28 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
+          "StopDrive",
+          "ShootCubeHigh",
           "UpdateKeepAngle"
         ],
-        "executionBehavior": "parallel",
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.4654545454545108,
+      "names": [
+        "CubeIntake"
+      ]
+    },
+    {
+      "position": 1.3090909090908593,
+      "names": [
+        "StopCubeIntake"
+      ]
+    }
+  ]
 }

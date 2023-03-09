@@ -32,8 +32,7 @@ public class Dock extends CommandBase {
         if (direction) {
             directionFactor *= -1;
         }
-
-        addRequirements(m_drive);
+            addRequirements(m_drive);
     }
 
     @Override
@@ -43,29 +42,29 @@ public class Dock extends CommandBase {
         m_climbPID.setSetpoint(-13.5*directionFactor);
         m_finished = false;
         m_initialHump = false;
-        m_drive.drive(directionFactor*1.0, 0.0, 0.0, true, true);
+        m_drive.drive(directionFactor*1.0, 0.0, 0.0, true, false);
     }
 
     @Override
     public void execute() {
         SmartDashboard.putBoolean("climbing", m_climbing);
-        if (m_climbPID.atSetpoint()) {
+        if (Math.abs(Math.abs(m_drive.getTilt()) - 13.5) <= 1.0) {
             m_climbing = false;
         }
         if (m_climbing) {
             m_climbPID.calculate(m_drive.getTilt());
-            m_drive.drive(directionFactor * 1.0, 0.0, 0.0, true, true);
+            m_drive.drive(directionFactor * 1.0, 0.0, 0.0, true, false);
         } else {
             m_climbPID.calculate(m_drive.getTilt());
-            if (((directionFactor == 1 &&  m_drive.getTiltVel() <= -7.0) || (directionFactor == -1 &&  m_drive.getTiltVel() >= 7.0)) && !m_finished) {
+            if (((Math.abs(m_drive.getTiltVel()) >= 7.0)) && !m_finished) {
                 m_levelingPID.calculate(m_drive.getTilt());
                 if (!m_finished) {
                     if (!m_initialHump) {
                         m_levelEpoch = Timer.getFPGATimestamp();
                     }
-                    m_drive.drive(directionFactor*  1.0, 0, 0, true, true);
+                    m_drive.drive(directionFactor*  1.0, 0, 0, true, false);
                     m_initialHump = true;
-                    if (Timer.getFPGATimestamp() - m_levelEpoch >= 1.0) {
+                    if (Timer.getFPGATimestamp() - m_levelEpoch >= 1.8) {
                         m_finished = true;
                         m_drive.setModuleStates(DriveConstants.kLockedWheels);
                     }
@@ -78,7 +77,7 @@ public class Dock extends CommandBase {
                 if (!m_finished) {
 
                     m_levelingPID.calculate(m_drive.getTilt());
-                    m_drive.drive(directionFactor * 0.5, 0.0, 0.0, true, true);
+                    m_drive.drive(directionFactor * 0.5, 0.0, 0.0, true, false);
                 }
             }
         }

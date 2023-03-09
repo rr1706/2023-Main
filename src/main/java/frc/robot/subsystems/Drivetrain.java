@@ -121,11 +121,15 @@ public class Drivetrain extends SubsystemBase {
     ySpeed = m_slewY.calculate(ySpeed);
 
     SmartDashboard.putNumber("Desired Drivetrain Speed", MathUtils.pythagorean(xSpeed, ySpeed));
+    
+    rot = m_slewRot.calculate(rot);
 
-    rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
+
+    if(keepAngle){
+      rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
+    }
                                                  // depending on driver input
 
-    rot = m_slewRot.calculate(rot);
 
     // SmartDashboard.putNumber("xSpeed Commanded", xSpeed);
     // SmartDashboard.putNumber("ySpeed Commanded", ySpeed);
@@ -133,8 +137,8 @@ public class Drivetrain extends SubsystemBase {
     // creates an array of the desired swerve module states based on driver command
     // and if the commands are field relative or not
     var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, ahrs.getRotation2d())
-            : new ChassisSpeeds(xSpeed, ySpeed, rot));
+        fieldRelative ? secondOrderKinematics(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, ahrs.getRotation2d()))
+            : secondOrderKinematics(new ChassisSpeeds(xSpeed, ySpeed, rot)));
 
     // normalize wheel speeds so all individual states are scaled to achievable
     // velocities
@@ -167,8 +171,6 @@ public class Drivetrain extends SubsystemBase {
      SmartDashboard.putNumber("Front Right Speed",m_frontRight.getState().speedMetersPerSecond);
      SmartDashboard.putNumber("Back Left Speed", m_backLeft.getState().speedMetersPerSecond);
      SmartDashboard.putNumber("Back Right Speed", m_backRight.getState().speedMetersPerSecond);
-
-     SmartDashboard.putNumber("RIO 5v",RobotController.getVoltage5V());
     // Update swerve drive odometry periodically so robot pose can be tracked
     updateOdometry();
 
@@ -191,19 +193,21 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setModuleStates(ChassisSpeeds chassisSpeeds) {
-    ChassisSpeeds newChassisSpeeds;
-    if (chassisSpeeds.omegaRadiansPerSecond > DriveConstants.kMaxAngularSpeed) {
-      // Fix for extremely fast auto rotation speeds
-      newChassisSpeeds = new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, DriveConstants.kMaxAngularSpeed);
-    } else {
-      newChassisSpeeds = chassisSpeeds;
-    }
-    SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(newChassisSpeeds);
+    SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(secondOrderKinematics(chassisSpeeds));
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
     m_backLeft.setDesiredState(desiredStates[2]);
     m_backRight.setDesiredState(desiredStates[3]);
+  }
+
+  public ChassisSpeeds secondOrderKinematics(ChassisSpeeds chassisSpeeds){
+    Translation2d translation = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+    Translation2d rotAdj= translation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(chassisSpeeds.omegaRadiansPerSecond*0.055);
+
+    translation = translation.plus(rotAdj);
+
+    return new ChassisSpeeds(translation.getX(),translation.getY(),chassisSpeeds.omegaRadiansPerSecond);
   }
 
   public void stop() {
@@ -296,6 +300,7 @@ public class Drivetrain extends SubsystemBase {
   public void resetOdometry(Pose2d pose) {
     ahrs.reset();
     ahrs.setAngleAdjustment(pose.getRotation().getDegrees());
+    updateKeepAngle();
     m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
     m_autoOdometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
@@ -303,6 +308,7 @@ public class Drivetrain extends SubsystemBase {
   public void setPose(Pose2d pose){
     m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
+
 
 
     /**
@@ -314,6 +320,7 @@ public class Drivetrain extends SubsystemBase {
     ahrs.reset();
     ahrs.setAngleAdjustment(angle.getDegrees());
     Pose2d pose = new Pose2d(getPose().getTranslation(), angle);
+    updateKeepAngle();
     m_odometry.resetPosition(ahrs.getRotation2d().times(-1.0), getModulePositions(), pose);  }
 
   /**

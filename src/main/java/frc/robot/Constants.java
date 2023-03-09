@@ -43,8 +43,12 @@ public final class Constants {
 
   public static final class StateConstants{
     public static final double armAdj = 0.0;
+    public static final double armAdjRed = 0.0;
+    public static final double armAdjBlue = 0.0;
     public static final MotionControlState kHome = new MotionControlState(-18+armAdj, 0.0, -18.25, 12.5, 0.0);
     public static final MotionControlState kGrab = new MotionControlState(65.4+armAdj, 0.0, -12.3, 62.5, 0.0);
+    public static final MotionControlState kGrabRed = new MotionControlState(65.4+armAdjRed, 0.0, -12.3, 62.5, 0.0);
+    public static final MotionControlState kGrabBlue = new MotionControlState(65.4+armAdjBlue, 0.0, -12.3, 62.5, 0.0);
     //public static final MotionControlState kShoot = new MotionControlState(62.8+armAdj, 0, -1.5, 44.2*1.1111, 0.0);
     //public static final MotionControlState kMidShoot = new MotionControlState(44.8+armAdj, 0, -5.0, 34.2*1.1111, 0.0);
     public static final MotionControlState kFloor = new MotionControlState(24.0+armAdj, 0, -28.2, 38.5, 0.0);
@@ -58,8 +62,8 @@ public final class Constants {
     public static final MotionControlState kRevCubeMidInt = new MotionControlState(27+armAdj, 0, -1.5, 11, 0.0);
     public static final MotionControlState kRevCubeMidMid = new MotionControlState(27+armAdj, 0, -1.5, -22, 0.0);
     public static final MotionControlState kRevCubeMidFin = new MotionControlState(-22.5+armAdj, 0, -1.5, -22, 0.0);
-
-
+    public static final MotionControlState kStart = new MotionControlState(0, 0, -1.5, 0, 0);
+    public static final MotionControlState kCoolThing = new MotionControlState(65.4,22,-12.3,62.5,38);
   }
 
 
@@ -71,7 +75,7 @@ public final class Constants {
                                                                          // of floor/tread material
 
     public static final double kVelocityFactor = (1.0 / kTranslationGearRatio / 60.0) * kWheelDiameter * Math.PI; 
-    public static final double kNEOSteerP = 0.800;
+    public static final double kNEOSteerP = 3.0;
     public static final double[] kTurnPID = { 0.800, 0, 0 }; // Defines the PID values for rotation of the serve
                                                              // modules, should show some minor oscillation when no
                                                              // weight is loaded on the modules
@@ -100,16 +104,16 @@ public final class Constants {
     public static final double kBackLeftOffset = -1.19008; // Encoder Offset in Radians
     public static final double kBackRightOffset = -0.15847+Math.PI/2; // Encoder Offset in Radians
 
-    public static final double[] kFrontLeftTuningVals = { 0.01, 0.188, 0.2, 0 }; // {Static Gain, FeedForward,
+    public static final double[] kFrontLeftTuningVals = { 0.015, 0.19, 0.15, 0 }; // {Static Gain, FeedForward,
                                                                                      // Proportional Gain, ModuleID for
                                                                                      // Tuning}
-    public static final double[] kFrontRightTuningVals = { 0.01, 0.188, 0.2, 1 }; // {Static Gain, FeedForward,
+    public static final double[] kFrontRightTuningVals = { 0.015, 0.19, 0.15, 1 }; // {Static Gain, FeedForward,
                                                                                       // Proportional Gain, ModuleID for
                                                                                       // Tuning}
-    public static final double[] kBackLeftTuningVals = { 0.01, 0.188, 0.2, 2 }; // {Static Gain, FeedForward,
+    public static final double[] kBackLeftTuningVals = { 0.015, 0.19, 0.15, 2 }; // {Static Gain, FeedForward,
                                                                                     // Proportional Gain, ModuleID for
                                                                                     // Tuning}
-    public static final double[] kBackRightTuningVals = { 0.01, 0.188, 0.2, 3 }; // {Static Gain, FeedForward,
+    public static final double[] kBackRightTuningVals = { 0.015, 0.19, 0.15, 3 }; // {Static Gain, FeedForward,
                                                                                      // Proportional Gain, ModuleID for
                                                                                      // Tuning}
 
@@ -132,8 +136,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 4.5; // Maximum Sustainable Drivetrain Speed under Normal
                                                                 // Conditions & Battery, Robot will not exceed this
                                                                 // speed in closed loop control
-    public static final double kTestMaxAcceleration = 3.0;
-    public static final double kTestMaxSpeedMetersPerSecond = 2.0;
+    public static final double kTestMaxAcceleration = 1.0;
+    public static final double kTestMaxSpeedMetersPerSecond = 1.0;
      
     public static final double kMaxAngularSpeed = Math.PI*1.5; // Maximum Angular Speed desired. NOTE: Robot can exceed this
                                                            // but spinning fast is not particularly useful or driver

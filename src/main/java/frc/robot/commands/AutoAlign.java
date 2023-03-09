@@ -40,6 +40,8 @@ public class AutoAlign extends CommandBase {
     private final PIDController m_rotPID 
     = new PIDController(0.1, 0.04, 0.00);
 
+    private final double m_autoSpeed;
+
     public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision){
         m_drive = drive;
         m_controller = controller;
@@ -49,13 +51,15 @@ public class AutoAlign extends CommandBase {
         lockedPosition = -1;
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.2, 0.2);
+        m_autoSpeed = 0.0;
         addRequirements(m_drive);
     }
-    public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, int scorePosition){
+    public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, int scorePosition, double autoSpeed){
         m_drive = drive;
         m_controller = controller;
         m_operatorBoard = operatorBoard;
         useLockedPosition = true;
+        m_autoSpeed = autoSpeed;
         lockedPosition = scorePosition;
         m_controlSystem = motionSystem;
         m_vision = vision;
@@ -90,7 +94,7 @@ public class AutoAlign extends CommandBase {
       double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
 
       if(useLockedPosition){
-        desiredX = -0.25;
+        desiredX = -m_autoSpeed;
         desiredY = 0.0;
       }
 
@@ -187,7 +191,7 @@ public class AutoAlign extends CommandBase {
             atAngle = 0.8;
         }
 
-        if(Math.abs(angle) <= atAngle && m_vision.getTA()>0.165){
+        if(Math.abs(angle) <= atAngle && m_vision.getTY()<=-1.40){
             m_controller.setRumble(RumbleType.kBothRumble, 1.0);
         }
         else{
