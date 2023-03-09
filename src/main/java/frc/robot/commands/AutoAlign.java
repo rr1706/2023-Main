@@ -127,7 +127,7 @@ public class AutoAlign extends CommandBase {
         }
 
       if(low){
-        m_state = StateConstants.kHome;
+        m_state = StateConstants.kLow;
         visionLock = false;
         gyroLock = true;
       }
