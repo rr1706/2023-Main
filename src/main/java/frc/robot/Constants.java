@@ -46,12 +46,12 @@ public final class Constants {
     public static final double armAdjRed = 0.0;
     public static final double armAdjBlue = 0.0;
     public static final MotionControlState kHome = new MotionControlState(-18+armAdj, 0.0, -18.25, 12.5, 0.0);
-    public static final MotionControlState kGrab = new MotionControlState(65.4+armAdj, 0.0, -12.3, 62.5, 0.0);
-    public static final MotionControlState kGrabRed = new MotionControlState(65.4+armAdjRed, 0.0, -12.3, 62.5, 0.0);
-    public static final MotionControlState kGrabBlue = new MotionControlState(65.4+armAdjBlue, 0.0, -12.3, 62.5, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(65.4+armAdj, 0.0, -13.7, 62.5, 0.0);
+    public static final MotionControlState kGrabRed = new MotionControlState(65.4+armAdjRed, 0.0, -13.7, 62.5, 0.0);
+    public static final MotionControlState kGrabBlue = new MotionControlState(65.4+armAdjBlue, 0.0, -13.7, 62.5, 0.0);
     //public static final MotionControlState kShoot = new MotionControlState(62.8+armAdj, 0, -1.5, 44.2*1.1111, 0.0);
     //public static final MotionControlState kMidShoot = new MotionControlState(44.8+armAdj, 0, -5.0, 34.2*1.1111, 0.0);
-    public static final MotionControlState kFloor = new MotionControlState(24.0+armAdj, 0, -28.2, 38.5, 0.0);
+    public static final MotionControlState kFloor = new MotionControlState(24.0+armAdj, 0, -28.6, 38.5, 0.0);
     public static final MotionControlState kCube = new MotionControlState(24+armAdj, 22, -10.0, 64, 0.0);
     public static final MotionControlState kConeIntake = new MotionControlState(-19.5+armAdj, 0, -21.0, -24, 38.0);
     public static final MotionControlState kLow = new MotionControlState(23.8+armAdj, 0, -25.0, 33, 0.0);
