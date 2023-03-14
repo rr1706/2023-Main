@@ -17,7 +17,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "ShootConeHighStationary"
+          "ShootConeMidStationary"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "before",
@@ -26,16 +26,16 @@
     },
     {
       "anchorPoint": {
-        "x": 7.138146202112662,
-        "y": 4.471264063783477
+        "x": 7.092404370258099,
+        "y": 4.368344942110712
       },
       "prevControl": {
-        "x": 5.434262965530211,
-        "y": 4.597054101383524
+        "x": 5.388521133675648,
+        "y": 4.494134979710759
       },
       "nextControl": {
-        "x": 5.434262965530211,
-        "y": 4.597054101383524
+        "x": 5.388521133675648,
+        "y": 4.494134979710759
       },
       "holonomicAngle": -3.468229258917221,
       "isReversal": true,

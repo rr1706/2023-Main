@@ -142,13 +142,17 @@ public class RobotContainer {
       .andThen(new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision, 3,0.25)
         .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard, m_claw,3)))
         .withTimeout(2.0)));
-    events.put("ShootConeHighStationary", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)).alongWith(new WaitCommand(1.0))
+    events.put("ShootConeHighStationary", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)).alongWith(new WaitCommand(1.5))
         .andThen(new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision, 3,0.0)
-          .alongWith(new WaitCommand(0.5).andThen(new RunClaw(m_operatorBoard, m_claw,3)))
-          .withTimeout(1.0)));
+          .alongWith(new WaitCommand(0.75).andThen(new RunClaw(m_operatorBoard, m_claw,3)))
+          .withTimeout(1.25)));
+    events.put("ShootConeMidStationary", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeMid)).alongWith(new WaitCommand(1.5))
+        .andThen(new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision, 2,0.0)
+          .alongWith(new WaitCommand(0.75).andThen(new RunClaw(m_operatorBoard, m_claw,2)))
+          .withTimeout(1.25)));
     events.put("GoToCubeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeHigh)));
     events.put("ShootCubeHigh", new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision, 5,0.25)
-    .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard, m_claw,5)))
+    .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard, m_claw,4)))
     .withTimeout(2.0));  
     events.put("ShootCubeMid", new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision, 4,0.25)
     .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard, m_claw,4)))

@@ -29,8 +29,8 @@ public final class Constants {
     public static final int kOperatorBoardPort = 1;  }
 
   public static final class CurrentLimit {
-    public static final int kTranslation = 65;
-    public static final int kRotation = 30;
+    public static final int kTranslation = 60;
+    public static final int kRotation = 25;
     public static final int kCubeExt = 25;
     public static final int kConeExt = 25;
     public static final int kCube = 25;
@@ -42,28 +42,28 @@ public final class Constants {
   }
 
   public static final class StateConstants{
-    public static final double armAdj = 0.0;
-    public static final double armAdjRed = 0.0;
-    public static final double armAdjBlue = 0.0;
-    public static final MotionControlState kHome = new MotionControlState(-13+armAdj, 0.0, -17, 10.0, 0.0);
-    public static final MotionControlState kGrab = new MotionControlState(65.4+armAdj, 0.0, -13.4, 63.8, 0.0);
-    public static final MotionControlState kGrabRed = new MotionControlState(65.4+armAdjRed, 0.0, -13.4, 63.8, 0.0);
-    public static final MotionControlState kGrabBlue = new MotionControlState(65.4+armAdjBlue, 0.0, -13.4, 63.8, 0.0);
+    public static final double armAdj = -0.9;
+    public static final double armAdjRed = armAdj;
+    public static final double armAdjBlue = armAdj;
+    public static final MotionControlState kHome = new MotionControlState(-13+armAdj, 0.0, -17, 10.0*.7, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(65.4+armAdj, 0.0, -13.05, 63.8*.7, 0.0);
+    public static final MotionControlState kGrabRed = new MotionControlState(65.4+armAdjRed, 0.0, -13.05, 63.8*.7, 0.0);
+    public static final MotionControlState kGrabBlue = new MotionControlState(65.4+armAdjBlue, 0.0, -13.05, 63.8*.7, 0.0);
     //public static final MotionControlState kShoot = new MotionControlState(62.8+armAdj, 0, -1.5, 44.2*1.1111, 0.0);
     //public static final MotionControlState kMidShoot = new MotionControlState(44.8+armAdj, 0, -5.0, 34.2*1.1111, 0.0);
-    public static final MotionControlState kFloor = new MotionControlState(23.0+armAdj, 0, -28.7, 38.75, 0.0);
-    public static final MotionControlState kCube = new MotionControlState(23+armAdj, 22, -10.5, 64, 0.0);
-    public static final MotionControlState kConeIntake = new MotionControlState(-19.5+armAdj, 0, -21.0, -24, 38.0);
-    public static final MotionControlState kLow = new MotionControlState(-18+armAdj, 0.0, -12, 12.5, 0.0);
-    public static final MotionControlState kConeMid = new MotionControlState(45+armAdj, 0, -5.0, 38, 0.0);
-    public static final MotionControlState kConeHigh =  new MotionControlState(61+armAdj, 0, -1.5,50, 0.0);
-    public static final MotionControlState kCubeMid = new MotionControlState(9+armAdj, 0, -7.5, 18, 0.0);
-    public static final MotionControlState kCubeHigh =  new MotionControlState(42+armAdj, 0, -5.0,37, 0.0);
-    public static final MotionControlState kRevCubeMidInt = new MotionControlState(27+armAdj, 0, -1.5, 11, 0.0);
-    public static final MotionControlState kRevCubeMidMid = new MotionControlState(27+armAdj, 0, -1.5, -22, 0.0);
-    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-22.5+armAdj, 0, -1.5, -22, 0.0);
+    public static final MotionControlState kFloor = new MotionControlState(22.2+armAdj, 0, -28.45, 38.75*.7, 0.0);
+    public static final MotionControlState kCube = new MotionControlState(23+armAdj, 22, -10.5, 64*.7, 0.0);
+    public static final MotionControlState kConeIntake = new MotionControlState(-19.5+armAdj, 0, -21.0, -24*.7, 38.0);
+    public static final MotionControlState kLow = new MotionControlState(-18+armAdj, 0.0, -12, 12.5*.7, 0.0);
+    public static final MotionControlState kConeMid = new MotionControlState(45+armAdj, 0, -5.0, 38*.7, 0.0);
+    public static final MotionControlState kConeHigh =  new MotionControlState(61+armAdj, 0, -1.5,50*.7, 0.0);
+    public static final MotionControlState kCubeMid = new MotionControlState(9+armAdj, 0, -7.5, 18*.7, 0.0);
+    public static final MotionControlState kCubeHigh =  new MotionControlState(42+armAdj, 0, -5.0,37*.7, 0.0);
+    public static final MotionControlState kRevCubeMidInt = new MotionControlState(27+armAdj, 0, -1.5, 11*.7, 0.0);
+    public static final MotionControlState kRevCubeMidMid = new MotionControlState(27+armAdj, 0, -1.5, -22*.7, 0.0);
+    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-22.5+armAdj, 0, -1.5, -22*.7, 0.0);
     public static final MotionControlState kStart = new MotionControlState(0, 0, -1.5, 0, 0);
-    public static final MotionControlState kCoolThing = new MotionControlState(65.4,22,-12.3,62.5,38);
+    public static final MotionControlState kCoolThing = new MotionControlState(65.4,22,-12.3,62.5*.7,38);
   }
 
 

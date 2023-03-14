@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,7 +54,7 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
        SmartDashboard.putNumber("Elevator Setpoint", m_setpoint.position);
-        m_PID.setReference(m_setpoint.position,ControlType.kSmartMotion,0,0.0);
+        m_PID.setReference(m_setpoint.position,ControlType.kSmartMotion,0,0.00); //0.25 without spring
     }
 
     public void resetEncoder() {
