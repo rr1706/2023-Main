@@ -15,7 +15,6 @@ import frc.robot.commands.Dock;
 import frc.robot.commands.DriveByController;
 import frc.robot.commands.Grab;
 import frc.robot.commands.RunClaw;
-import frc.robot.commands.Score;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
@@ -74,7 +73,6 @@ public class RobotContainer {
   private final Claw m_claw = new Claw();
 
   private final AutoAlign m_align = new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision);
-  private Score m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, 0, 0);
   private final RunClaw m_runClaw = new RunClaw(m_operatorBoard, m_claw);
   private final ConeIntake m_coneIntake = new ConeIntake(m_motionControl, m_claw);
   private final Command m_ConeTransfer = new WaitCommand(1.25).andThen(new ConeTransfer(m_motionControl, m_claw));
