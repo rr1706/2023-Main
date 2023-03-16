@@ -215,7 +215,6 @@ public class AutoShoot extends CommandBase {
         }
 
         if(Math.abs(angle) <= atAngle && (m_vision.getTY()<=-1.40 + m_timeTable.getOutput(m_vision.getTY()) * (robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) && m_vision.getTY()>=-1.40 + m_timeTable.getOutput(m_vision.getTY()) + (robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) - 0.02)){
-          m_claw.setSpeed(-1250);
           if(cubeMid){
             m_claw.setSpeed(2500);
           }
