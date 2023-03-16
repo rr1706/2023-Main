@@ -5,7 +5,6 @@
 package frc.robot;
 
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.commands.AutoAlign;
@@ -18,7 +17,6 @@ import frc.robot.commands.RunClaw;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
-import frc.robot.subsystems.PoseEstimator;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.utilities.JoystickLeftTrigger;
 import frc.robot.utilities.JoystickRightTrigger;
@@ -27,7 +25,6 @@ import java.io.File;
 import java.util.HashMap;
 
 import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
@@ -36,15 +33,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -67,7 +61,6 @@ public class RobotContainer {
 
   private final Drivetrain m_drive = new Drivetrain();
   private final Limelight m_vision = new Limelight("limelight-new");
-  private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
@@ -192,7 +185,7 @@ public class RobotContainer {
     return m_chooser.getSelected();
   }
 
-  public Command onEnable(){
+  public Command onEnable() {
     return new InstantCommand(()->m_motionControl.setState(StateConstants.kHome));
   }
 }

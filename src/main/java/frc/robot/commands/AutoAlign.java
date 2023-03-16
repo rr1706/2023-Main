@@ -19,12 +19,11 @@ import frc.robot.utilities.MotionControlState;
 
 public class AutoAlign extends CommandBase {
     private final Drivetrain m_drive;
+    private final Limelight m_vision;
 
     private final XboxController m_controller;
     private final GenericHID m_operatorBoard;
     private final MotionControlSystem m_controlSystem;
-
-    private final Limelight m_vision;
 
     private boolean fieldOrient = true;
     private boolean useLockedPosition = false;
@@ -37,8 +36,7 @@ public class AutoAlign extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID 
-    = new PIDController(0.1, 0.04, 0.00);
+    private final PIDController m_rotPID = new PIDController(0.1, 0.04, 0.00);
 
     private final double m_autoSpeed;
 
@@ -54,6 +52,7 @@ public class AutoAlign extends CommandBase {
         m_autoSpeed = 0.0;
         addRequirements(m_drive);
     }
+
     public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, int scorePosition, double autoSpeed){
         m_drive = drive;
         m_controller = controller;
