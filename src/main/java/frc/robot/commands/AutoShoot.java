@@ -21,8 +21,6 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
 import frc.robot.subsystems.Arm.Claw;
-import frc.robot.utilities.FieldRelativeAccel;
-import frc.robot.utilities.FieldRelativeSpeed;
 import frc.robot.utilities.LinearInterpolationTable;
 import frc.robot.utilities.MathUtils;
 import frc.robot.utilities.MotionControlState;
@@ -217,7 +215,22 @@ public class AutoShoot extends CommandBase {
         }
 
         if(Math.abs(angle) <= atAngle && (m_vision.getTY()<=-1.40 + m_timeTable.getOutput(m_vision.getTY()) * (robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) && m_vision.getTY()>=-1.40 + m_timeTable.getOutput(m_vision.getTY()) + (robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) - 0.02)){
-            m_claw.setSpeed(-1250);
+          m_claw.setSpeed(-1250);
+          if(cubeMid){
+            m_claw.setSpeed(2500);
+          }
+          else if(cubeHigh){
+            m_claw.setSpeed(2500);
+           }
+          else if(coneMid){
+            m_claw.setSpeed(1200);
+          }
+          else if(coneHigh){
+            m_claw.setSpeed(2950);
+          }
+          else {
+            m_claw.setSpeed(2000);
+          }
         }
         else {
             m_claw.setSpeed(0.0);
