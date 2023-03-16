@@ -22,7 +22,6 @@ import frc.robot.subsystems.PoseEstimator;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.utilities.JoystickLeftTrigger;
 import frc.robot.utilities.JoystickRightTrigger;
-import frc.robot.utilities.OperatorBoard;
 
 import java.io.File;
 import java.util.HashMap;

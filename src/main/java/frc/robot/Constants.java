@@ -184,6 +184,9 @@ public final class Constants {
      * Valid y-positions for scoring
      */
     public static final double[] kScoringPositions = {4.94, 4.38, 3.82, 3.26, 2.70, 2.13, 1.58, 1.01, 0.46};
+    public static final double kHighPosition = 0.24;
+    public static final double kMidPosition = 0.67;
+    public static final double kLowPosition = 0.96;
     public static final double kScoringTolerance = 0.04;
 
     public static final Translation2d[] kScoringZone = {new Translation2d(1.83, 0.00), new Translation2d(1.87, 5.00)};
@@ -222,6 +225,8 @@ public final class Constants {
     public static final int[] kArmMotors = {16, 17};
     public static final int[] kElevatorMotors = {12, 13};
     public static final int kWristMotor = 15;
+
+    public static final double kShotAccelComp = 0.02;
 
     public static final int kArmAbsEncoder = 4;
 

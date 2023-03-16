@@ -1,7 +1,11 @@
 package frc.robot.commands;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
@@ -9,15 +13,21 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.ArmsConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
+import frc.robot.subsystems.Arm.Claw;
+import frc.robot.utilities.FieldRelativeAccel;
+import frc.robot.utilities.FieldRelativeSpeed;
+import frc.robot.utilities.LinearInterpolationTable;
 import frc.robot.utilities.MathUtils;
 import frc.robot.utilities.MotionControlState;
 
-public class MoveAndAlign extends CommandBase {
+public class AutoShoot extends CommandBase {
     private final Drivetrain m_drive;
 
     private final XboxController m_controller;
@@ -25,6 +35,8 @@ public class MoveAndAlign extends CommandBase {
     private final MotionControlSystem m_controlSystem;
 
     private final Limelight m_vision;
+    private final Claw m_claw;
+    private final LinearInterpolationTable m_timeTable;
 
     private boolean fieldOrient = true;
     private boolean useLockedPosition = false;
@@ -41,23 +53,29 @@ public class MoveAndAlign extends CommandBase {
     = new PIDController(0.1, 0.04, 0.00);
 
     private final double m_autoSpeed;
+    private double m_prevRobotSpeed;
 
-    public MoveAndAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision){
+    public AutoShoot(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, Claw claw){
         m_drive = drive;
         m_controller = controller;
         m_operatorBoard = operatorBoard;
         m_controlSystem = motionSystem;
+        m_claw = claw;
         m_vision = vision;
         lockedPosition = -1;
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.2, 0.2);
         m_autoSpeed = 0.0;
+        m_timeTable = new LinearInterpolationTable(
+          
+        );
         addRequirements(m_drive);
     }
-    public MoveAndAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, int scorePosition, double autoSpeed){
+    public AutoShoot(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, Claw claw, int scorePosition, double autoSpeed){
         m_drive = drive;
         m_controller = controller;
         m_operatorBoard = operatorBoard;
+        m_claw = claw;
         useLockedPosition = true;
         m_autoSpeed = autoSpeed;
         lockedPosition = scorePosition;
@@ -65,6 +83,9 @@ public class MoveAndAlign extends CommandBase {
         m_vision = vision;
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.01, 0.01);
+        m_timeTable = new LinearInterpolationTable(
+          
+        );
         addRequirements(m_drive);
     }
     
@@ -78,6 +99,7 @@ public class MoveAndAlign extends CommandBase {
       timeForCube = false;
       m_timer.reset();
       m_timer.start();
+      m_prevRobotSpeed = m_drive.getChassisSpeed().vxMetersPerSecond;
       if(Math.abs(MathUtil.inputModulus(m_drive.getGyro().getDegrees(),-180,180)) <= 45.0){
         gyroLock180 = true;
       }
@@ -92,6 +114,9 @@ public class MoveAndAlign extends CommandBase {
       double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond*0.5;
       double desiredX = -inputTransform(1.0*m_controller.getLeftY())*maxLinear;
       double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
+
+      double robotSpeed = m_drive.getChassisSpeed().vxMetersPerSecond;
+      double robotAccel = (m_prevRobotSpeed - robotSpeed) / 0.016;
 
       if(useLockedPosition){
         desiredX = -m_autoSpeed;
@@ -125,7 +150,7 @@ public class MoveAndAlign extends CommandBase {
             cubeMid = m_operatorBoard.getRawButton(8);
             cubeHigh = m_operatorBoard.getRawButton(11); 
         }
-
+      
       if(low){
         m_state = StateConstants.kHome;
         visionLock = false;
@@ -191,11 +216,11 @@ public class MoveAndAlign extends CommandBase {
             atAngle = 0.8;
         }
 
-        if(Math.abs(angle) <= atAngle && m_vision.getTY()<=-1.40){
-            m_controller.setRumble(RumbleType.kBothRumble, 1.0);
+        if(Math.abs(angle) <= atAngle && (m_vision.getTY()<=-1.40 + m_timeTable.getOutput(m_vision.getTY()) * (robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) && m_vision.getTY()>=-1.40 + m_timeTable.getOutput(m_vision.getTY()) + (robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) - 0.02)){
+            m_claw.setSpeed(-1250);
         }
-        else{
-            m_controller.setRumble(RumbleType.kBothRumble, 0.0);
+        else {
+            m_claw.setSpeed(0.0);
         }
         SmartDashboard.putBoolean("rotatingViaVision", true);
         desiredRot = m_rotPID.calculate(angle,0.0);
@@ -251,7 +276,7 @@ public class MoveAndAlign extends CommandBase {
       m_vision.setLights(0);
       m_vision.setPipeline(0);
       m_controller.setRumble(RumbleType.kBothRumble, 0.0);
-
+      m_claw.setSpeed(0.0);
     }
   
     /**
@@ -267,6 +292,22 @@ public class MoveAndAlign extends CommandBase {
       } else {
         fieldOrient = true;
       }
+    }
+
+    private Translation2d getTarget(int height) {
+      Pose2d currentPose = m_drive.getPose();
+      ArrayList<Pose2d> targetPoses =  new ArrayList<>();
+      for (double y : FieldConstants.kScoringPositions) {
+        if (height == 0) {
+          targetPoses.add(new Pose2d(FieldConstants.kLowPosition, y, new Rotation2d()));
+        } else if (height == 1) {
+          targetPoses.add(new Pose2d(FieldConstants.kMidPosition, y, new Rotation2d()));
+        } else {
+          targetPoses.add(new Pose2d(FieldConstants.kHighPosition, y, new Rotation2d()));
+        }
+      }
+
+      return currentPose.nearest(targetPoses).getTranslation();
     }
   
     private double inputTransform(double input){
