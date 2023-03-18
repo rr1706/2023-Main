@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -47,6 +48,8 @@ public class Cone extends SubsystemBase {
         
         m_PID.setSmartMotionMaxAccel(25000, 0);
         m_PID.setSmartMotionMaxVelocity(11000, 0);
+
+        m_motor.setIdleMode(IdleMode.kCoast);
 
         m_motor.burnFlash();
         m_motorExt.burnFlash();

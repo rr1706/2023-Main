@@ -118,7 +118,7 @@ public class RobotContainer {
 
   new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
 
-  new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-1250))).onFalse(new InstantCommand(()->m_claw.stop()));
+  new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-2000))).onFalse(new InstantCommand(()->m_claw.stop()));
   
   new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
   

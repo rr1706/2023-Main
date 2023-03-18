@@ -26,8 +26,8 @@ public class ConeTransfer extends CommandBase{
         m_timeReached2 = false;
         m_timer.reset();
         m_timer.start();
-        m_claw.setSpeed(-750);  
-        m_motionSystem.runCone(-0.075,true); 
+        m_claw.setSpeed(-2000);  
+        m_motionSystem.runCone(0.00,true); 
 
     }
 
@@ -35,15 +35,15 @@ public class ConeTransfer extends CommandBase{
     public void execute(){
         if(m_timer.get() > 0.10 && !m_timeReached1){
             m_timeReached1 = true;
-            m_motionSystem.runElevatorUp(11.0);
-            m_motionSystem.runCone(-0.2,true); 
+            m_motionSystem.runElevatorUp(9.0);
+            m_motionSystem.runCone(0.0,true); 
         }
         if(m_timer.get() > 0.4 && !m_timeReached2){
             m_timeReached2 = true;
-            m_claw.setSpeed(-1000);
+            m_claw.setSpeed(-2000);
 
         }
-        else if(m_timer.get() > 0.85){
+        else if(m_timer.get() > 0.75){
             m_motionSystem.runCone(0.0,false);
             m_claw.stop();
             m_finished = true;
