@@ -51,7 +51,7 @@ public class ArmKinematics {
         Translation2d[] newJointPositions = jointPositions;
         Translation2d target = endEffectorTarget;
         for (int i = 0; i < jointPositions.length - 1; i++) {
-            boolean validPoint = jointPositions[i].minus(target).getAngle().getRadians() < jointConstraints[2 * i] && jointPositions[i].minus(target).getAngle().getRadians() > jointConstraints[2 * i + 1];
+            boolean validPoint = jointPositions[i].minus(target).getAngle().getRadians() <= jointConstraints[2 * i] && jointPositions[i].minus(target).getAngle().getRadians() >= jointConstraints[2 * i + 1];
             Translation2d[] r = reach(
                 validPoint ? newJointPositions[i] : null, // not finished
                 newJointPositions[i + 1],
