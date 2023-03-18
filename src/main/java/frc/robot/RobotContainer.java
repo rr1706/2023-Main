@@ -118,7 +118,6 @@ public class RobotContainer {
 
   private void configureAutoEvents() {
     events.put("Low", new InstantCommand(() -> m_motionControl.setState(StateConstants.kLow)));
-    events.put("ConeIntake", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeIntake)));
     events.put("Floor", new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
     events.put("Grab", new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     events.put("ConeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)));
