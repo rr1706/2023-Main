@@ -1,5 +1,6 @@
 package frc.robot.utilities;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.DriveConstants;
 
 public class MathUtils {
@@ -29,6 +30,20 @@ public class MathUtils {
 
     public static double pythagorean(double a, double b) {
       return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+    }
+
+    /** Return an angle normalized within 0 to 2pi */
+    public static double normalizeAngle(double angle) {
+      return angle - (2 * Math.PI * Math.floor(angle / (2 * Math.PI)));
+    }
+
+    /** Return an angle normalized within the same range as the reference angle */
+    public static double normalizeAngle(double angle, double reference) {
+      return angle + (2 * Math.PI * Math.floor(reference / (2 * Math.PI)));
+    }
+
+    public static Translation2d getIntersection() {
+      return new Translation2d(); // not finished
     }
 
 }

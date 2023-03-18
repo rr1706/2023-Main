@@ -4,6 +4,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -21,7 +22,7 @@ public class PoseEstimator extends SubsystemBase {
         m_vision = limelight;
         //SmartDashboard.putData("Field", m_field);
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.2, 0.2, 0.1), VecBuilder.fill(0.8, 0.8, 0.95));
+        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(1.0)), VecBuilder.fill(0.8, 0.8, Units.degreesToRadians(10.0)));
     }
 
     @Override
