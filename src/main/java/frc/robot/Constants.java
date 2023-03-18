@@ -219,12 +219,14 @@ public final class Constants {
     public static final double kWristToRadians = 0.0;
     public static final double kWristLength = 0.0;
 
+    public static final double kSmartMotionTolerance = 100; // The higher the value, the lower the tolerance
+    public static final double kShotAccelComp = 0.0;
+
     public static final int[] kArmMotors = {16, 17};
     public static final int[] kElevatorMotors = {12, 13};
     public static final int kWristMotor = 15;
 
     public static final int kArmAbsEncoder = 4;
-
   }
 
   public static final class IntakeConstants {

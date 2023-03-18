@@ -31,6 +31,7 @@ public class Wrist extends SubsystemBase {
 
         m_PID.setSmartMotionMaxAccel(12500, 0);
         m_PID.setSmartMotionMaxVelocity(4000, 0);
+        m_PID.setSmartMotionAllowedClosedLoopError(Math.abs(ArmsConstants.kMinWrist - ArmsConstants.kMaxWrist) / ArmsConstants.kSmartMotionTolerance, 0);
 
         m_motor.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxWrist);
         m_motor.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinWrist);

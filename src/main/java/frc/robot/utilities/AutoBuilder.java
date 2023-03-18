@@ -10,7 +10,6 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -26,7 +25,7 @@ public class AutoBuilder {
     public AutoBuilder(Drivetrain drivetrain, PoseEstimator poseEstimator, PIDConstants translationConstants, PIDConstants rotationConstants, HashMap<String, Command> events) {
         m_drivetrain = drivetrain;
         m_poseEstimator = poseEstimator;
-        m_defaultBuilder = new SwerveAutoBuilder(m_drivetrain::getPose, m_poseEstimator::resetOdometry, DriveConstants.kDriveKinematics, translationConstants, rotationConstants, m_drivetrain::setModuleStates, events, m_drivetrain);
+        m_defaultBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, DriveConstants.kDriveKinematics, translationConstants, rotationConstants, m_drivetrain::setModuleStates, events, true, m_drivetrain);
     }
 
     public CommandBase fullAuto(String name) {

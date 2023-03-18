@@ -21,6 +21,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
 import frc.robot.subsystems.PoseEstimator;
 import frc.robot.subsystems.Arm.Claw;
+import frc.robot.utilities.AutoBuilder;
 import frc.robot.utilities.JoystickLeftTrigger;
 import frc.robot.utilities.JoystickRightTrigger;
 import frc.robot.utilities.OperatorBoard;
@@ -86,7 +87,8 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  //private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  private final AutoBuilder autoBuilder = new AutoBuilder(m_drive, m_poseEstimator, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), events);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -173,7 +175,7 @@ public class RobotContainer {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
           auto.getName(), 
-          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.5, 2.0))
+          autoBuilder.fullAuto(auto.getName().replace(".path", ""))
           );
       }
     }
@@ -182,7 +184,7 @@ public class RobotContainer {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
           "Slow " + auto.getName(), 
-          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration))
+          autoBuilder.fullAuto(auto.getName().replace(".path", ""))
         );
       }
     }
