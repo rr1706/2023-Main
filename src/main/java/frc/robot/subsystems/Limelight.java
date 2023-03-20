@@ -1,17 +1,18 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import java.util.ArrayList;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Limelight extends SubsystemBase {
     private final NetworkTable m_lime;
     private final String m_name;
+    private final ArrayList<double[]> m_poses = new ArrayList<>();
 
     private Alliance m_alliance = Alliance.Invalid;
 
@@ -26,6 +27,7 @@ public class Limelight extends SubsystemBase {
         if (m_alliance == Alliance.Invalid) {
             m_alliance = DriverStation.getAlliance();
         }
+        storePose(getPoseWithTimestamp());
     }
 
     public String getName() {
@@ -73,26 +75,34 @@ public class Limelight extends SubsystemBase {
      * 
      * @return The robot's 3D pose according to the limelight
      */
-    public Pose3d getPose3d() {
+    private double[] getPoseWithTimestamp() {
+        double[] pose;
+        double timestamp = Timer.getFPGATimestamp() - getTotalLatency() / 1000;
+        double[] poseWithTimestamp = new double[7];
         if (m_alliance == Alliance.Blue) {
-            double[] poseArray = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
-            return new Pose3d(
-                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
-                new Rotation3d(poseArray[3], poseArray[4], poseArray[5]*Math.PI/180.0)
-            );
+            pose = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
         } else if (m_alliance == Alliance.Red) {
-            double[] poseArray = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[6]);
-            return new Pose3d(
-                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
-                new Rotation3d(poseArray[3], poseArray[4], poseArray[5]*Math.PI/180.0)
-            );
+            pose = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[6]);
         } else {
-            double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[6]);
-            return new Pose3d(
-                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
-                new Rotation3d(poseArray[3], poseArray[4], poseArray[5]*Math.PI/180.0)
-            );
+            pose = m_lime.getEntry("botpose").getDoubleArray(new double[6]);
         }
+        for (int i = 0; i < 6; i++) {
+            poseWithTimestamp[i] = pose[i];
+        }
+        if (poseWithTimestamp != new double[7]) {
+            poseWithTimestamp[6] = timestamp;
+        }
+        return poseWithTimestamp;
+    }
+
+    private void storePose(double[] pose) {
+        if (pose != new double[7]) {
+            m_poses.add(pose);
+        }
+    }
+
+    public double[] getLatestPose3d() {
+        return m_poses.size() == 0 ? new double[7] : m_poses.remove(0);
     }
 
     /**

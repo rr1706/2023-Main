@@ -16,15 +16,13 @@ import frc.robot.commands.Dock;
 import frc.robot.commands.DriveByController;
 import frc.robot.commands.Grab;
 import frc.robot.commands.RunClaw;
-import frc.robot.commands.Score;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
-import frc.robot.subsystems.PoseEstimator;
 import frc.robot.subsystems.Arm.Claw;
+import frc.robot.utilities.AutoBuilder;
 import frc.robot.utilities.JoystickLeftTrigger;
 import frc.robot.utilities.JoystickRightTrigger;
-import frc.robot.utilities.OperatorBoard;
 
 import java.io.File;
 import java.util.HashMap;
@@ -85,8 +83,9 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
-  
+  // private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  private final AutoBuilder autoBuilder = new AutoBuilder(m_drive, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), events);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     configureAutoEvents();
@@ -98,6 +97,7 @@ public class RobotContainer {
 
   private void configureBindings() {
     new POVButton(m_driverController, 0)
+
     .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
   new POVButton(m_driverController, 180)
     .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)))));
@@ -167,7 +167,7 @@ public class RobotContainer {
 
   private void configureAutoChooser() {
     m_chooser.setDefaultOption("Do Nothin", doNothin);
-/*
+
     for (File auto : m_autoPathFiles) {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
@@ -176,16 +176,6 @@ public class RobotContainer {
           );
       }
     }
-
-    for (File auto : m_autoPathFiles) {
-      if (auto.getName().contains(".path")) {
-        m_chooser.addOption(
-          "Slow " + auto.getName(), 
-          autoBuilder.fullAuto(auto.getName().replace(".path", ""))
-        );
-      }
-    }
-*/
 
     SmartDashboard.putData(m_chooser);
   }
