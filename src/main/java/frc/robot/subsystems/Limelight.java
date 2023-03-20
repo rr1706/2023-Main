@@ -7,6 +7,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Limelight extends SubsystemBase {
@@ -28,6 +29,8 @@ public class Limelight extends SubsystemBase {
             m_alliance = DriverStation.getAlliance();
         }
         storePose(getPoseWithTimestamp());
+        SmartDashboard.putNumber("Vision X", m_poses.get(m_poses.size() - 1)[0]);
+        SmartDashboard.putNumber("Vision Y", m_poses.get(m_poses.size() - 1)[1]);
     }
 
     public String getName() {

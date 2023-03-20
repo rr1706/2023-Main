@@ -28,10 +28,14 @@ public class AutoBuilder {
         List<PathPlannerTrajectory> defaultTrajectories = PathPlanner.loadPathGroup(name, new PathConstraints(DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration));
         PathConstraints firstConstraints = new PathConstraints(Math.min(Math.max(defaultTrajectories.get(0).getInitialState().velocityMetersPerSecond, defaultTrajectories.get(0).getEndState().velocityMetersPerSecond), DriveConstants.kMaxSpeedMetersPerSecond), DriveConstants.kMaxAcceleration);
         PathConstraints[] correctedConstraints = new PathConstraints[defaultTrajectories.size() - 1];
-        for (int i = 1; i < defaultTrajectories.size(); i++) {
+        for (int i = 1; i < defaultTrajectories.size() - 1; i++) {
             correctedConstraints[i] = new PathConstraints(Math.min(Math.max(defaultTrajectories.get(i).getInitialState().velocityMetersPerSecond, defaultTrajectories.get(i).getEndState().velocityMetersPerSecond), DriveConstants.kMaxSpeedMetersPerSecond), DriveConstants.kMaxAcceleration);
         }
-        return m_defaultBuilder.fullAuto(PathPlanner.loadPathGroup(name, firstConstraints, correctedConstraints));
+        try {
+            return m_defaultBuilder.fullAuto(PathPlanner.loadPathGroup(name, firstConstraints, correctedConstraints));
+        } catch (NullPointerException e) {
+            return m_defaultBuilder.fullAuto(PathPlanner.loadPathGroup(name, firstConstraints));
+        }
     }
 
 }
