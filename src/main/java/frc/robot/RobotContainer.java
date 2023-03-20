@@ -9,6 +9,7 @@ import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.commands.AutoAlign;
+import frc.robot.commands.AutoShoot;
 import frc.robot.commands.ConeIntake;
 import frc.robot.commands.ConeTransfer;
 import frc.robot.commands.Dock;
@@ -21,7 +22,6 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
 import frc.robot.subsystems.PoseEstimator;
 import frc.robot.subsystems.Arm.Claw;
-import frc.robot.utilities.AutoBuilder;
 import frc.robot.utilities.JoystickLeftTrigger;
 import frc.robot.utilities.JoystickRightTrigger;
 import frc.robot.utilities.OperatorBoard;
@@ -70,12 +70,10 @@ public class RobotContainer {
 
   private final Drivetrain m_drive = new Drivetrain();
   private final Limelight m_vision = new Limelight("limelight-new");
-  private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
   private final AutoAlign m_align = new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision);
-  private Score m_score = new Score(m_drive, m_poseEstimator, m_vision, m_motionControl, m_claw, 0, 0);
   private final RunClaw m_runClaw = new RunClaw(m_operatorBoard, m_claw);
   private final ConeIntake m_coneIntake = new ConeIntake(m_motionControl, m_claw);
   private final Command m_ConeTransfer = new WaitCommand(1.25).andThen(new ConeTransfer(m_motionControl, m_claw));
@@ -87,9 +85,8 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  //private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
-  private final AutoBuilder autoBuilder = new AutoBuilder(m_drive, m_poseEstimator, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), events);
-
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     configureAutoEvents();
@@ -170,7 +167,7 @@ public class RobotContainer {
 
   private void configureAutoChooser() {
     m_chooser.setDefaultOption("Do Nothin", doNothin);
-
+/*
     for (File auto : m_autoPathFiles) {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
@@ -188,6 +185,7 @@ public class RobotContainer {
         );
       }
     }
+*/
 
     SmartDashboard.putData(m_chooser);
   }

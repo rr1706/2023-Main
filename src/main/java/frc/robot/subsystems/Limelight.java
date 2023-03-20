@@ -44,6 +44,10 @@ public class Limelight extends SubsystemBase {
         return m_lime.getEntry("ty").getDouble(999999);
     }
 
+    public double getAltTY() {
+        return Math.min(m_lime.getEntry("cy0").getDouble(999999), m_lime.getEntry("cy1").getDouble(999999));
+    }
+
     /**
      * Singifies if the limelight currently has an accetable target, defaulting to
      * false if no value is provided in the Network Table.

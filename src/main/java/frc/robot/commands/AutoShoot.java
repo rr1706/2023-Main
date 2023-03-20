@@ -1,12 +1,14 @@
 package frc.robot.commands;
 
 import java.util.ArrayList;
+import java.awt.geom.Point2D;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -31,10 +33,9 @@ public class AutoShoot extends CommandBase {
     private final XboxController m_controller;
     private final GenericHID m_operatorBoard;
     private final MotionControlSystem m_controlSystem;
-
+    private final InterpolatingTreeMap m_interpolation = new InterpolatingTreeMap<>();
     private final Limelight m_vision;
     private final Claw m_claw;
-    private final LinearInterpolationTable m_timeTable;
 
     private boolean fieldOrient = true;
     private boolean useLockedPosition = false;
@@ -64,9 +65,9 @@ public class AutoShoot extends CommandBase {
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.2, 0.2);
         m_autoSpeed = 0.0;
-        m_timeTable = new LinearInterpolationTable(
-          
-        );
+        m_interpolation.put(0.0, -0.25);
+        m_interpolation.put(0.5, 1.5);
+
         addRequirements(m_drive);
     }
     public AutoShoot(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, Claw claw, int scorePosition, double autoSpeed){
@@ -81,9 +82,8 @@ public class AutoShoot extends CommandBase {
         m_vision = vision;
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.01, 0.01);
-        m_timeTable = new LinearInterpolationTable(
-          
-        );
+        
+
         addRequirements(m_drive);
     }
     
@@ -97,7 +97,7 @@ public class AutoShoot extends CommandBase {
       timeForCube = false;
       m_timer.reset();
       m_timer.start();
-      m_prevRobotSpeed = m_drive.getChassisSpeed().vxMetersPerSecond;
+      m_prevRobotSpeed = -m_drive.getChassisSpeed().vxMetersPerSecond;
       if(Math.abs(MathUtil.inputModulus(m_drive.getGyro().getDegrees(),-180,180)) <= 45.0){
         gyroLock180 = true;
       }
@@ -108,12 +108,14 @@ public class AutoShoot extends CommandBase {
 
     @Override
     public void execute() {
+
+      SmartDashboard.putNumber("Alt ty", m_vision.getAltTY());
   
       double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond*0.5;
       double desiredX = -inputTransform(1.0*m_controller.getLeftY())*maxLinear;
       double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
 
-      double robotSpeed = m_drive.getChassisSpeed().vxMetersPerSecond;
+      double robotSpeed = -m_drive.getChassisSpeed().vxMetersPerSecond;
       double robotAccel = (m_prevRobotSpeed - robotSpeed) / 0.016;
 
       if(useLockedPosition){
@@ -209,12 +211,12 @@ public class AutoShoot extends CommandBase {
 
       if(m_controlSystem.atSetpoint() && visionLock){
         double angle = m_vision.getTX();
-        double atAngle = 0.4;
+        double atAngle = 0.5;
         if(coneMid){
             atAngle = 0.8;
         }
 
-        if(Math.abs(angle) <= atAngle && (m_vision.getTY()<=-1.40 + m_timeTable.getOutput(m_vision.getTY()) * (robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) && m_vision.getTY()>=-1.40 + m_timeTable.getOutput(m_vision.getTY()) + (robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) - 0.08)){
+        if(Math.abs(angle) <= atAngle && (m_vision.getAltTY()<=m_interpolation.get(robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) + 0.25 && m_vision.getAltTY()>=m_interpolation.get(robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) - 0.25)){
           if(cubeMid){
             m_claw.setSpeed(2500);
           }
@@ -231,9 +233,7 @@ public class AutoShoot extends CommandBase {
             m_claw.setSpeed(2000);
           }
         }
-        else {
-            m_claw.setSpeed(0.0);
-        }
+
         SmartDashboard.putBoolean("rotatingViaVision", true);
         desiredRot = m_rotPID.calculate(angle,0.0);
         // if((-Math.abs(m_drive.getGyro().getDegrees())+180.0)>15.0){
