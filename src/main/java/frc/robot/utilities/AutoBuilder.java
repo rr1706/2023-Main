@@ -1,6 +1,5 @@
 package frc.robot.utilities;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,29 +14,24 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.PoseEstimator;
 
 public class AutoBuilder {
     private final Drivetrain m_drivetrain;
-    private final PoseEstimator m_poseEstimator;
     private final SwerveAutoBuilder m_defaultBuilder;
 
-    public AutoBuilder(Drivetrain drivetrain, PoseEstimator poseEstimator, PIDConstants translationConstants, PIDConstants rotationConstants, HashMap<String, Command> events) {
+    public AutoBuilder(Drivetrain drivetrain, PIDConstants translationConstants, PIDConstants rotationConstants, HashMap<String, Command> events) {
         m_drivetrain = drivetrain;
-        m_poseEstimator = poseEstimator;
-        m_defaultBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, DriveConstants.kDriveKinematics, translationConstants, rotationConstants, m_drivetrain::setModuleStates, events, true, m_drivetrain);
+        m_defaultBuilder = new SwerveAutoBuilder(m_drivetrain::getPose, m_drivetrain::resetOdometry, DriveConstants.kDriveKinematics, translationConstants, rotationConstants, m_drivetrain::setModuleStates, events, true, m_drivetrain);
     }
 
     public CommandBase fullAuto(String name) {
         List<PathPlannerTrajectory> defaultTrajectories = PathPlanner.loadPathGroup(name, new PathConstraints(DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration));
-        ArrayList<PathConstraints> correctedSpeeds = new ArrayList<PathConstraints>();
-        for (PathPlannerTrajectory traj : defaultTrajectories) {
-            double correctedSpeed = Math.min(Math.max(traj.getInitialState().velocityMetersPerSecond, traj.getEndState().velocityMetersPerSecond), DriveConstants.kMaxSpeedMetersPerSecond);
-            correctedSpeeds.add(new PathConstraints(correctedSpeed, DriveConstants.kMaxAcceleration));
+        PathConstraints firstConstraints = new PathConstraints(Math.min(Math.max(defaultTrajectories.get(0).getInitialState().velocityMetersPerSecond, defaultTrajectories.get(0).getEndState().velocityMetersPerSecond), DriveConstants.kMaxSpeedMetersPerSecond), DriveConstants.kMaxAcceleration);
+        PathConstraints[] correctedConstraints = new PathConstraints[defaultTrajectories.size() - 1];
+        for (int i = 1; i < defaultTrajectories.size(); i++) {
+            correctedConstraints[i] = new PathConstraints(Math.min(Math.max(defaultTrajectories.get(i).getInitialState().velocityMetersPerSecond, defaultTrajectories.get(i).getEndState().velocityMetersPerSecond), DriveConstants.kMaxSpeedMetersPerSecond), DriveConstants.kMaxAcceleration);
         }
-        PathConstraints firstConstraints = correctedSpeeds.get(0);
-        correctedSpeeds.remove(0);
-        return m_defaultBuilder.fullAuto(PathPlanner.loadPathGroup(name, firstConstraints,(PathConstraints[]) correctedSpeeds.toArray()));
+        return m_defaultBuilder.fullAuto(PathPlanner.loadPathGroup(name, firstConstraints, correctedConstraints));
     }
 
 }

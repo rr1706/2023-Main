@@ -1,19 +1,15 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.utilities.MathUtils;
 
 public class PoseEstimator extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
@@ -25,7 +21,7 @@ public class PoseEstimator extends SubsystemBase {
         m_vision = limelight;
         //SmartDashboard.putData("Field", m_field);
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose);
+        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.1, 0.1, 0.05), VecBuilder.fill(20, 20, 100));
     }
 
     @Override
@@ -35,12 +31,16 @@ public class PoseEstimator extends SubsystemBase {
     }
 
     private void updatePoseEstimator() {
-        double timestamp = Timer.getFPGATimestamp() - (m_vision.getTotalLatency() / 1000.0);
-        Pose2d currentPose = m_poseEstimator.getEstimatedPosition();
-        Pose2d visionPose = getVisionPose();
+        double[] visionMeasurement = m_vision.getLatestPose3d();
+        double timestamp = visionMeasurement[6];
+        Pose2d currentPose = getPose();
+        Pose2d visionPose = new Pose2d(
+            new Translation2d(visionMeasurement[0], visionMeasurement[1]),
+            new Rotation2d(visionMeasurement[5])
+        );
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if (Math.abs(MathUtils.pythagorean(currentPose.getX(), currentPose.getY()) - MathUtils.pythagorean(visionPose.getX(), visionPose.getY())) <= VisionConstants.kPoseErrorAcceptance) {
-            m_poseEstimator.addVisionMeasurement(visionPose, timestamp);
+        if (currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance) {
+            m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(currentPose.getX() / 3, currentPose.getX() / 3, 100.0));
         }
     }
 
@@ -75,12 +75,8 @@ public class PoseEstimator extends SubsystemBase {
         );
     }
 
-    private Pose2d getVisionPose() {
-        return m_vision.getPose3d().toPose2d();
-    }
-
     public void resetOdometry(Pose2d pose) {
-        m_drive.resetOdometry(pose);
+        m_drive.resetOdometry(new Pose2d(pose.getTranslation(), getPose().getRotation()));
         m_poseEstimator.resetPosition(m_drive.getGyro().times(-1.0), m_drive.getModulePositions(), pose);
     }
 
