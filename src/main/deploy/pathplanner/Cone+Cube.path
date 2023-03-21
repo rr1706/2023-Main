@@ -17,11 +17,13 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "ShootConeHighStationary"
+          "ConeMid",
+          "WaitForArmMove",
+          "RunClawConeMid"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "before",
-        "waitTime": 0
+        "waitBehavior": "deadline",
+        "waitTime": 1.0
       }
     },
     {
@@ -51,15 +53,15 @@
     },
     {
       "anchorPoint": {
-        "x": 2.2666411096017622,
+        "x": 2.346689315347246,
         "y": 4.242554904510665
       },
       "prevControl": {
-        "x": 2.987074961311121,
+        "x": 3.067123167056605,
         "y": 4.802892344729055
       },
       "nextControl": {
-        "x": 2.987074961311121,
+        "x": 3.067123167056605,
         "y": 4.802892344729055
       },
       "holonomicAngle": 180.0,
@@ -70,12 +72,11 @@
       "stopEvent": {
         "names": [
           "StopDrive",
-          "ShootCubeHigh",
-          "UpdateKeepAngle"
+          "RunClawCubeHigh"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "deadline",
+        "waitTime": 0.2
       }
     },
     {
@@ -107,12 +108,12 @@
     },
     {
       "anchorPoint": {
-        "x": 2.6668821383291834,
-        "y": 3.9452329974560087
+        "x": 2.358124773310887,
+        "y": 4.116764866910618
       },
       "prevControl": {
-        "x": 3.1929132046566515,
-        "y": 4.562747727492601
+        "x": 2.884155839638355,
+        "y": 4.73427959694721
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -123,12 +124,12 @@
       "stopEvent": {
         "names": [
           "StopDrive",
-          "ShootCubeMid",
-          "UpdateKeepAngle"
+          "UpdateKeepAngle",
+          "RunClawCubeMid"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "deadline",
+        "waitTime": 0.2
       }
     }
   ],
@@ -145,7 +146,8 @@
     {
       "position": 1.3381818181818006,
       "names": [
-        "StopCubeIntake"
+        "StopCubeIntake",
+        "CubeHigh"
       ]
     },
     {
@@ -157,7 +159,14 @@
     {
       "position": 3.4618181818180056,
       "names": [
-        "StopCubeIntake"
+        "StopCubeIntake",
+        "CubeMid"
+      ]
+    },
+    {
+      "position": 0.01,
+      "names": [
+        "Home"
       ]
     }
   ]

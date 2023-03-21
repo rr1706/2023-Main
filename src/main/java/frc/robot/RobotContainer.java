@@ -48,6 +48,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 
@@ -83,7 +84,7 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(0.5,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(8.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -153,7 +154,14 @@ public class RobotContainer {
     .withTimeout(2.0));  
     events.put("ShootCubeMid", new AutoAlign(m_drive, m_motionControl, m_driverController, m_operatorBoard, m_vision, 4,0.25)
     .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard, m_claw,4)))
-    .withTimeout(2.0)); 
+    .withTimeout(2.0));
+    events.put("WaitForArmMove", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.05)));
+    events.put("RunClawConeHigh", new RunClaw(m_operatorBoard, m_claw, 3));
+    events.put("RunClawConeMid", new RunClaw(m_operatorBoard, m_claw, 2));
+    events.put("RunClawCubeMid", new RunClaw(m_operatorBoard, m_claw, 4));
+    events.put("RunClawCubeHigh", new RunClaw(m_operatorBoard, m_claw, 5));
+    events.put("RunClaw", new InstantCommand(() -> m_claw.setSpeed(2000)));
+    events.put("StopClaw", new InstantCommand(() -> m_claw.setSpeed(0)));
     events.put("ConeIntake", m_coneIntake);
     events.put("StopConeIntake",new InstantCommand(() -> m_coneIntake.forceCancel()));
     events.put("ConeTransfer", m_ConeTransfer);
