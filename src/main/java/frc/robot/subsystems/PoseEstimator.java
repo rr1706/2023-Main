@@ -18,12 +18,15 @@ public class PoseEstimator extends SubsystemBase {
     private final Drivetrain m_drive;
     private final Limelight m_vision;
     private final Field2d m_field = new Field2d();
+
+    private boolean m_initializedPose = false;
+
     public PoseEstimator(Drivetrain drive, Limelight limelight, Pose2d intialPose) {
         m_drive = drive;
         m_vision = limelight;
         //SmartDashboard.putData("Field", m_field);
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.1, 0.1, 0.05), VecBuilder.fill(20, 20, 100));
+        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.035), VecBuilder.fill(0.127, 0.127, 999999));
     }
 
     @Override
@@ -40,9 +43,11 @@ public class PoseEstimator extends SubsystemBase {
             new Translation2d(visionMeasurement[0], visionMeasurement[1]),
             new Rotation2d(visionMeasurement[5])
         );
+        double visionTrust = 0.00379625 * Math.pow(1.88207, currentPose.getX()) + 0.0119529;
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if (currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance) {
-            m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(currentPose.getX() / 3, currentPose.getX() / 3, 100.0));
+        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || m_initializedPose == false) && visionMeasurement != new double[7]) {
+            m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(visionTrust, visionTrust, 999999));
+            m_initializedPose = true;
         }
     }
 

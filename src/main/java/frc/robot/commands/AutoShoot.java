@@ -33,7 +33,8 @@ public class AutoShoot extends CommandBase {
     private final XboxController m_controller;
     private final GenericHID m_operatorBoard;
     private final MotionControlSystem m_controlSystem;
-    private final InterpolatingTreeMap m_interpolation = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double, Double> m_interpolateTranslation = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double, Double> m_interpolateRotation = new InterpolatingTreeMap<>();
     private final Limelight m_vision;
     private final Claw m_claw;
 
@@ -65,8 +66,7 @@ public class AutoShoot extends CommandBase {
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.2, 0.2);
         m_autoSpeed = 0.0;
-        m_interpolation.put(0.0, -0.25);
-        m_interpolation.put(0.5, 1.5);
+        initializeInterpolationTables();
 
         addRequirements(m_drive);
     }
@@ -82,9 +82,19 @@ public class AutoShoot extends CommandBase {
         m_vision = vision;
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.01, 0.01);
-        
+        initializeInterpolationTables();
 
         addRequirements(m_drive);
+    }
+
+    private void initializeInterpolationTables() {
+      /* (translation speed, limelight ty) */
+      m_interpolateTranslation.put(0.0, 0.0);
+      m_interpolateTranslation.put(0.5, 1.75);
+
+      /* (rotation speed, limelight tx) */
+      m_interpolateRotation.put(0.0, 0.0);
+      m_interpolateRotation.put(Math.PI / 2, 5.0);
     }
     
     @Override
@@ -117,6 +127,7 @@ public class AutoShoot extends CommandBase {
 
       double robotSpeed = -m_drive.getChassisSpeed().vxMetersPerSecond;
       double robotAccel = (m_prevRobotSpeed - robotSpeed) / 0.016;
+      double rotSpeed = m_drive.getChassisSpeed().omegaRadiansPerSecond;
 
       if(useLockedPosition){
         desiredX = -m_autoSpeed;
@@ -215,8 +226,11 @@ public class AutoShoot extends CommandBase {
         if(coneMid){
             atAngle = 0.8;
         }
+        double distance = m_vision.getTY();
+        double atDistance = 0.3;
+        double zeroedDistance = -0.25;
 
-        if(Math.abs(angle) <= atAngle && (m_vision.getAltTY()<=m_interpolation.get(robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) + 0.25 && m_vision.getAltTY()>=m_interpolation.get(robotSpeed + ArmsConstants.kShotAccelComp * robotAccel) - 0.25)){
+        if(Math.abs(angle + m_interpolateRotation.get(rotSpeed)) <= atAngle && Math.abs(zeroedDistance - distance + m_interpolateTranslation.get(robotSpeed + ArmsConstants.kShotAccelComp * robotAccel)) <= atDistance){
           if(cubeMid){
             m_claw.setSpeed(2500);
           }
