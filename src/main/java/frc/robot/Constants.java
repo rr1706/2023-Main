@@ -29,16 +29,16 @@ public final class Constants {
     public static final int kOperatorBoardPort = 1;  }
 
   public static final class CurrentLimit {
-    public static final int kTranslation = 60;
+    public static final int kTranslation = 57;
     public static final int kRotation = 25;
-    public static final int kCubeExt = 25;
-    public static final int kConeExt = 25;
+    public static final int kCubeExt = 20;
+    public static final int kConeExt = 20;
     public static final int kCube = 25;
-    public static final int kCone = 25;
+    public static final int kCone = 20;
     public static final int kClaw = 30;
-    public static final int kElevator = 25;
-    public static final int kWrist = 25;
-    public static final int kArm = 25;
+    public static final int kElevator = 20;
+    public static final int kWrist = 20;
+    public static final int kArm = 20;
   }
 
   public static final class StateConstants{
@@ -46,9 +46,9 @@ public final class Constants {
     public static final double armAdjRed = armAdj;
     public static final double armAdjBlue = armAdj;
     public static final MotionControlState kHome = new MotionControlState(-13+armAdj, 0.0, -16.2, 10.0*.7, 0.0);
-    public static final MotionControlState kGrab = new MotionControlState(65.4+armAdj, 0.0, -13.05+0.4, 63.8*.7, 0.0);
-    public static final MotionControlState kGrabRed = new MotionControlState(65.4+armAdjRed, 0.0, -13.05+0.4, 63.8*.7, 0.0);
-    public static final MotionControlState kGrabBlue = new MotionControlState(65.4+armAdjBlue, 0.0, -13.05+0.4, 63.8*.7, 0.0);
+    public static final MotionControlState kGrab = new MotionControlState(65.4+armAdj, 0.0, -13.05+0.75, 63.8*.7, 0.0);
+    public static final MotionControlState kGrabRed = new MotionControlState(65.4+armAdjRed, 0.0, -13.05+0.75, 63.8*.7, 0.0);
+    public static final MotionControlState kGrabBlue = new MotionControlState(65.4+armAdjBlue, 0.0, -13.05+0.75, 63.8*.7, 0.0);
     //public static final MotionControlState kShoot = new MotionControlState(62.8+armAdj, 0, -1.5, 44.2*1.1111, 0.0);
     //public static final MotionControlState kMidShoot = new MotionControlState(44.8+armAdj, 0, -5.0, 34.2*1.1111, 0.0);
     public static final MotionControlState kFloor = new MotionControlState(22.2+armAdj, 0, -28.35, 38.75*.7, 0.0);
