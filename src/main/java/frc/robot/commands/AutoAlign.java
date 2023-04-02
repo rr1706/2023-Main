@@ -37,8 +37,7 @@ public class AutoAlign extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID 
-    = new PIDController(0.1, 0.04, 0.00);
+    private final PIDController m_rotPID = new PIDController(0.1, 0.04, 0.00);
 
     private final double m_autoSpeed;
 

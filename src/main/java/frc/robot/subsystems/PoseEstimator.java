@@ -26,7 +26,7 @@ public class PoseEstimator extends SubsystemBase {
         m_vision = limelight;
         //SmartDashboard.putData("Field", m_field);
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.035), VecBuilder.fill(0.127, 0.127, 999999));
+        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.0), VecBuilder.fill(0.127, 0.127, 999999));
     }
 
     @Override
@@ -43,10 +43,14 @@ public class PoseEstimator extends SubsystemBase {
             new Translation2d(visionMeasurement[0], visionMeasurement[1]),
             new Rotation2d(visionMeasurement[5])
         );
-        double visionTrust = 0.00379625 * Math.pow(1.88207, currentPose.getX()) + 0.0119529;
+        double visionTrust = 0.00379625 * Math.pow(1.88207, (currentPose.getX() + visionPose.getX()) / 2 < 0.0 ? 0.0 : (currentPose.getX() + visionPose.getX()) / 2) + 0.0119529;
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || m_initializedPose == false) && visionMeasurement != new double[7]) {
-            m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(visionTrust, visionTrust, 999999));
+        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7]) {
+            if (m_initializedPose) {
+                m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(visionTrust, visionTrust, 999999));
+            } else {
+                m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(0.0, 0.0, 999999));
+            }
             m_initializedPose = true;
         }
     }
@@ -83,7 +87,7 @@ public class PoseEstimator extends SubsystemBase {
     }
 
     public void resetOdometry(Pose2d pose) {
-        m_drive.resetOdometry(new Pose2d(pose.getTranslation(), getPose().getRotation()));
+        m_drive.resetOdometry(new Pose2d(pose.getTranslation(), m_drive.getGyro().times(-1.0)));
         m_poseEstimator.resetPosition(m_drive.getGyro().times(-1.0), m_drive.getModulePositions(), pose);
     }
 

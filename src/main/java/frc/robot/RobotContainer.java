@@ -69,6 +69,7 @@ public class RobotContainer {
 
   private final Drivetrain m_drive = new Drivetrain();
   private final Limelight m_vision = new Limelight("limelight-new");
+  private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
@@ -84,7 +85,7 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(8.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(5.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -116,7 +117,7 @@ public class RobotContainer {
 
   new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
 
-  new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-1250))).onFalse(new InstantCommand(()->m_claw.stop()));
+  new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-1500))).onFalse(new InstantCommand(()->m_claw.stop()));
   
   new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
   
