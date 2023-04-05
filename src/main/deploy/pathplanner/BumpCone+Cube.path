@@ -175,6 +175,7 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
+          "WaitForArmMove",
           "RunClawCubeHigh"
         ],
         "executionBehavior": "sequential",
@@ -324,6 +325,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
+          "WaitForArmMove",
           "RunClawCubeMid"
         ],
         "executionBehavior": "sequential",
@@ -355,6 +357,42 @@
       "position": 10.78,
       "names": [
         "StopCubeIntake"
+      ]
+    },
+    {
+      "position": 4.538181818181808,
+      "names": [
+        "Home"
+      ]
+    },
+    {
+      "position": 10.559999999999388,
+      "names": [
+        "Home"
+      ]
+    },
+    {
+      "position": 5.55,
+      "names": [
+        "CubeHigh"
+      ]
+    },
+    {
+      "position": 11.69454545454478,
+      "names": [
+        "CubeMid"
+      ]
+    },
+    {
+      "position": 6.01,
+      "names": [
+        "Home"
+      ]
+    },
+    {
+      "position": 0.01,
+      "names": [
+        "Home"
       ]
     }
   ]

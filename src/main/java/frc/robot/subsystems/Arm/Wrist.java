@@ -26,11 +26,11 @@ public class Wrist extends SubsystemBase {
         m_PID = m_motor.getPIDController();
         m_encoder = m_motor.getEncoder();
 
-        m_PID.setP(0.00001);
+        m_PID.setP(0.0001);
         m_PID.setFF(0.00009);
 
-        m_PID.setSmartMotionMaxAccel(12500, 0);
-        m_PID.setSmartMotionMaxVelocity(4000, 0);
+        m_PID.setSmartMotionMaxAccel(15000, 0);
+        m_PID.setSmartMotionMaxVelocity(10000, 0);
         m_PID.setSmartMotionAllowedClosedLoopError(0.0, 0);
 
         m_motor.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxWrist);
@@ -70,7 +70,7 @@ public class Wrist extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 4.0;
+        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 5.0;
     }
     
 }

@@ -56,7 +56,7 @@ public class Dock extends CommandBase {
             m_drive.drive(directionFactor * 1.0, 0.0, 0.0, true, false);
         } else {
             m_climbPID.calculate(m_drive.getTilt());
-            if (((Math.abs(m_drive.getTiltVel()) >= 10.0)) && !m_finished) {
+            if (((Math.abs(m_drive.getTiltVel()) >= 12.0)) && !m_finished) {
                 m_levelingPID.calculate(m_drive.getTilt());
                 if (!m_finished) {
                     if (!m_initialHump) {
@@ -64,7 +64,7 @@ public class Dock extends CommandBase {
                     }
                     m_drive.drive(directionFactor*  0.85, 0, 0, true, false);
                     m_initialHump = true;
-                    if (Timer.getFPGATimestamp() - m_levelEpoch >= 1.6) {
+                    if (Timer.getFPGATimestamp() - m_levelEpoch >= 1.7) {
                         m_finished = true;
                         m_drive.setModuleStates(DriveConstants.kLockedWheels);
                     }

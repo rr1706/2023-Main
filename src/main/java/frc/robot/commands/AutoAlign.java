@@ -37,7 +37,7 @@ public class AutoAlign extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID = new PIDController(0.1, 0.04, 0.00);
+    private final PIDController m_rotPID = new PIDController(0.1, 0.00, 0.00);
 
     private final double m_autoSpeed;
 
@@ -142,14 +142,14 @@ public class AutoAlign extends CommandBase {
         gyroLock = false;
         m_vision.setPipeline(2);
       }
-      else if(cubeMid){
+      else if(cubeMid || (cubeHigh && gyroLock180)){
         visionLock = false;
         gyroLock = true;
         double time = m_timer.get();
-        if(gyroLock180 && time<0.80){
+        if(gyroLock180 && time<0.6){
             m_state = StateConstants.kRevCubeMidInt;
         }
-        else if(gyroLock180 && time < 1.20){
+        else if(gyroLock180 && time < 0.8){
             m_state = StateConstants.kRevCubeMidMid;
         }
         else if(gyroLock180){
@@ -190,7 +190,7 @@ public class AutoAlign extends CommandBase {
             atAngle = 0.8;
         }
 
-        if(Math.abs(angle) <= atAngle && m_vision.getTY()<=-1.40){
+        if(Math.abs(angle) <= atAngle && m_vision.getTY()<=0.40){
             m_controller.setRumble(RumbleType.kBothRumble, 1.0);
         }
         else{

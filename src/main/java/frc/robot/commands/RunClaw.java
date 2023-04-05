@@ -30,10 +30,11 @@ public class RunClaw extends CommandBase{
         boolean coneHigh = false;
         boolean cubeMid = false;
         boolean cubeHigh = false;
+        boolean low = false;
         if(useLockedPosition){
             switch(lockedPosition){
                 case 0: break;
-                case 1: break;
+                case 1: low = true;
                 case 2: coneMid = true; break;
                 case 3: coneHigh = true; break;
                 case 4: cubeMid = true; break;
@@ -42,6 +43,7 @@ public class RunClaw extends CommandBase{
             }
         }
         else{
+            low = m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
             coneMid = m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
             coneHigh = m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
             cubeMid = m_operatorBoard.getRawButton(8);
@@ -49,19 +51,22 @@ public class RunClaw extends CommandBase{
         }
     
         if(cubeMid){
-            m_claw.setSpeed(2500);
+            m_claw.setSpeed(1500);
         }
         else if(cubeHigh){
-            m_claw.setSpeed(2500);
+            m_claw.setSpeed(2000);
         }
         else if(coneMid){
             m_claw.setSpeed(1100);
         }
         else if(coneHigh){
-            m_claw.setSpeed(3050);
+            m_claw.setSpeed(2850);
+        }
+        else if(low){
+            m_claw.setSpeed(1000);
         }
         else{
-            m_claw.setSpeed(2000);
+            m_claw.setSpeed(4500);
         }
     }
 

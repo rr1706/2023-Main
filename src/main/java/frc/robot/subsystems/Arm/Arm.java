@@ -25,8 +25,8 @@ public class Arm extends SubsystemBase {
     private final SparkMaxPIDController m_PID;
     private final RelativeEncoder m_encoder;
     private final AnalogPotentiometer m_absEncoder;
-    private final ProfiledPIDController m_rioPID = new ProfiledPIDController(0.0125,0.1
-    ,0.00, new Constraints(300, 350));
+    private final ProfiledPIDController m_rioPID = new ProfiledPIDController(0.015,0.1
+    ,0.00, new Constraints(450, 350));
     private final ArmFeedforward m_ff = new ArmFeedforward(0.00,0.045,0.0045);
 
     private boolean m_useABSEnc = true;
@@ -40,15 +40,15 @@ public class Arm extends SubsystemBase {
         m_PID = m_motor1.getPIDController();
         m_encoder = m_motor1.getEncoder();
 
-        m_absEncoder = new AnalogPotentiometer(ArmsConstants.kArmAbsEncoder, 112.6482,-36.5);
+        m_absEncoder = new AnalogPotentiometer(ArmsConstants.kArmAbsEncoder, 126.166,-40.88);
 
         m_motor2.follow(m_motor1, true);
 
         m_PID.setP(0.00001);
         m_PID.setFF(0.00009);
 
-        m_PID.setSmartMotionMaxAccel(12500, 0);
-        m_PID.setSmartMotionMaxVelocity(8000, 0);
+        m_PID.setSmartMotionMaxAccel(20000, 0);
+        m_PID.setSmartMotionMaxVelocity(10000, 0);
         m_PID.setSmartMotionAllowedClosedLoopError(0.0, 0);
 
         m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
@@ -94,7 +94,7 @@ public class Arm extends SubsystemBase {
         if(m_useABSEnc){
             return m_absEncoder.get();
         }else{
-            return m_encoder.getPosition();
+            return m_encoder.getPosition()-2.0;
         }
     }
 
@@ -108,7 +108,7 @@ public class Arm extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(m_setpoint.position-getPose()) <= 4.0;
+        return Math.abs(m_setpoint.position-getPose()) <= 5.0;
     }
     
 }
