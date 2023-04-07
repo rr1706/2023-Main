@@ -173,6 +173,18 @@ public class SwerveModule {
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
     SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnEncoder()));
+
+    if(m_useNEO){
+      setReferenceAngle(state.angle.getRadians());
+    }
+    else{
+    // Calculate the turning motor output from the turning PID controller.
+    final double turnOutput = m_turningPIDController.calculate(getTurnEncoder(), state.angle.getRadians());
+    // Set the turning motor to this output value
+    m_turningMotor.set(turnOutput);
+    // SmartDashboard.putNumber("TurnMotor"+moduleID, turnOutput);
+    }
+
     // Calculate the drive output from the drive PID controller.
     final double driveOutput = m_drivePIDController.calculate(m_driveEncoder.getVelocity(), state.speedMetersPerSecond);
     // Calculates the desired feedForward motor % from the current desired velocity
@@ -186,21 +198,8 @@ public class SwerveModule {
     // Set the drive motor to the sum of the feedforward calculation and PID
     // calculation
       final double finalDriveOutput = driveOutput + driveFF;
-      m_driveMotor.set(finalDriveOutput);
+      m_driveMotor.set(finalDriveOutput - (m_turningMotor.getEncoder().getVelocity() * ModuleConstants.kAngularVelocityFactor * ModuleConstants.kTranslationCompensation * (42 / 14) * ModuleConstants.kVelocityFactor));
    }
-   
-   
-   
-    if(m_useNEO){
-      setReferenceAngle(state.angle.getRadians());
-    }
-    else{
-    // Calculate the turning motor output from the turning PID controller.
-    final double turnOutput = m_turningPIDController.calculate(getTurnEncoder(), state.angle.getRadians());
-    // Set the turning motor to this output value
-    m_turningMotor.set(turnOutput);
-    // SmartDashboard.putNumber("TurnMotor"+moduleID, turnOutput);
-    }
   }
 
   public void stop() {

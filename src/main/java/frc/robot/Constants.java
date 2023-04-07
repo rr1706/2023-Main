@@ -75,10 +75,14 @@ public final class Constants {
                                                                          // of floor/tread material
 
     public static final double kVelocityFactor = (1.0 / kTranslationGearRatio / 60.0) * kWheelDiameter * Math.PI; 
+    public static final double kAngularVelocityFactor = (1.0 / kRotationGearRatio / 60);
     public static final double kNEOSteerP = 3.0;
     public static final double[] kTurnPID = { 0.800, 0, 0 }; // Defines the PID values for rotation of the serve
                                                              // modules, should show some minor oscillation when no
                                                              // weight is loaded on the modules
+
+    public static final double kTranslationCompensation = 31 / 13; // Compensation factor for the small translation that occurs
+                                                                   // when the module rotates
   }
 
   public static final class DriveConstants {
