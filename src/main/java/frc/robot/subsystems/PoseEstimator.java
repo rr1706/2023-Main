@@ -1,13 +1,11 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -19,7 +17,6 @@ public class PoseEstimator extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Drivetrain m_drive;
     private final Limelight m_vision;
-    private final Field2d m_field = new Field2d();
 
     private boolean m_initializedPose = false;
 
@@ -91,8 +88,8 @@ public class PoseEstimator extends SubsystemBase {
     }
 
     public void resetOdometry(Pose2d pose) {
-        m_drive.resetOdometry(new Pose2d(pose.getTranslation(), m_drive.getGyro().times(-1.0)));
-        m_poseEstimator.resetPosition(m_drive.getGyro().times(-1.0), m_drive.getModulePositions(), pose);
+        m_drive.resetOdometry(new Pose2d(pose.getTranslation(), m_drive.getGyro()));
+        m_poseEstimator.resetPosition(m_drive.getGyro(), m_drive.getModulePositions(), pose);
     }
 
 }
