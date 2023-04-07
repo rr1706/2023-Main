@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.utilities.MathUtils;
 
 public class PoseEstimator extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
@@ -38,6 +40,8 @@ public class PoseEstimator extends SubsystemBase {
     private void updatePoseEstimator() {
         double[] visionMeasurement = m_vision.getLatestPose3d();
         double timestamp = visionMeasurement[6];
+        double velocity = MathUtils.pythagorean(m_drive.getChassisSpeed().vxMetersPerSecond, m_drive.getChassisSpeed().vyMetersPerSecond);
+        double angularVelocity = m_drive.getChassisSpeed().omegaRadiansPerSecond;
         Pose2d currentPose = getPose();
         Pose2d visionPose = new Pose2d(
             new Translation2d(visionMeasurement[0], visionMeasurement[1]),
@@ -45,11 +49,11 @@ public class PoseEstimator extends SubsystemBase {
         );
         double visionTrust = 0.00379625 * Math.pow(1.88207, (currentPose.getX() + visionPose.getX()) / 2 < 0.0 ? 0.0 : (currentPose.getX() + visionPose.getX()) / 2) + 0.0119529;
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7]) {
+        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7] && visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.12 && velocity <= 1.0 && angularVelocity <= 0.2 * Math.PI) {
             if (m_initializedPose) {
                 m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(visionTrust, visionTrust, 999999));
             } else {
-                m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(0.0, 0.0, 999999));
+                m_poseEstimator.resetPosition(m_drive.getGyro(), m_drive.getModulePositions(), visionPose);
             }
             m_initializedPose = true;
         }
