@@ -28,7 +28,7 @@ public class PoseEstimator extends SubsystemBase {
         m_vision = limelight;
         //SmartDashboard.putData("Field", m_field);
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.0), VecBuilder.fill(0.127, 0.127, 999999));
+        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.001), VecBuilder.fill(0.127, 0.127, 999999));
     }
 
     @Override
@@ -53,7 +53,7 @@ public class PoseEstimator extends SubsystemBase {
             if (m_initializedPose) {
                 m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(visionTrust, visionTrust, 999999));
             } else {
-                m_poseEstimator.resetPosition(m_drive.getGyro(), m_drive.getModulePositions(), visionPose);
+                m_poseEstimator.resetPosition(m_drive.getGyro(), m_drive.getModulePositions(), new Pose2d(visionPose.getTranslation(), m_drive.getGyro()));
             }
             m_initializedPose = true;
         }
