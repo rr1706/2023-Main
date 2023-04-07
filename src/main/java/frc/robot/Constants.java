@@ -35,7 +35,7 @@ public final class Constants {
     public static final int kConeExt = 20;
     public static final int kCube = 20;
     public static final int kCone = 20;
-    public static final int kClaw = 25;
+    public static final int kClaw = 40;
     public static final int kElevator = 20;
     public static final int kWrist = 20;
     public static final int kArm = 20;
@@ -51,7 +51,7 @@ public final class Constants {
     public static final MotionControlState kGrabBlue = new MotionControlState(76.5, 0.0, -13.45, 64.0*1.40, 0.0);
     public static final MotionControlState kFloor = new MotionControlState(32.4, 0, -28.35, 40.0*1.40, 0.0);
     public static final MotionControlState kCube = new MotionControlState(16.8, 18, -6.7, 59.0*1.40, 0.0);
-    public static final MotionControlState kConeIntake = new MotionControlState(-17.6, 0, -16.0, -24.0*1.40, 38.0);
+    public static final MotionControlState kConeIntake = new MotionControlState(-14.0, 0, -16.0, -24.0*1.40, 38.0);
     public static final MotionControlState kLow = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 0.0);
     public static final MotionControlState kConeMid = new MotionControlState(58.0, 0, -9.5, 43.0*1.40, 0.0);
     public static final MotionControlState kConeHigh =  new MotionControlState(73.6, 0, -1.5, 52.0*1.40, 0.0);
@@ -59,7 +59,7 @@ public final class Constants {
     public static final MotionControlState kCubeHigh =  new MotionControlState(46.0, 0, -4.2,40.0*1.40, 0.0);
     public static final MotionControlState kRevCubeMidInt = new MotionControlState(10.24, 0, -1.5, 11.0*1.40, 0.0);
     public static final MotionControlState kRevCubeMidMid = new MotionControlState(10.24, 0, -1.5, -22.0*1.40, 0.0);
-    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-17.6, 0, -1.5, -18.0*1.40, 0.0);
+    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-14.0, 0, -1.5, -18.0*1.40, 0.0);
     public static final MotionControlState kStart = new MotionControlState(0, 0, -1.5, 0, 0);
     public static final MotionControlState kCoolThing = new MotionControlState(73.28,18,-11.5,62.5*1.40,38);
   }
@@ -205,7 +205,7 @@ public final class Constants {
 
     public static final double kDefaultArm = 0.0;
     public static final TrapezoidProfile.Constraints kArmConstraints = new TrapezoidProfile.Constraints(250, 50);
-    public static final double kMinArm = -18.4;
+    public static final double kMinArm = -15.0;
     public static final double kMaxArm = 78.4;
     public static final double kArmToRadians = 0.0;
     public static final double kArmLength = 0.0;

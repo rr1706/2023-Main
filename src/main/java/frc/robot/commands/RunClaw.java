@@ -1,25 +1,37 @@
 package frc.robot.commands;
 
+import edu.wpi.first.util.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Arm.Claw;
 
 public class RunClaw extends CommandBase{
     private final GenericHID m_operatorBoard;
     private final Claw m_claw;
+    private final Limelight m_limelight;
+    private final InterpolatingTreeMap<Double,Double> m_table = new InterpolatingTreeMap<>();
 
     private boolean useLockedPosition = false;
     private final int lockedPosition;
 
-    public RunClaw(GenericHID operatorBoard, Claw claw){
+    public RunClaw(GenericHID operatorBoard, Limelight limelight, Claw claw){
         m_operatorBoard = operatorBoard;
         m_claw = claw;
+        m_limelight = limelight;
         lockedPosition = -1;
+
+        m_table.put(52.0, 2750.0);
+        m_table.put(56.5, 2950.0);
+        m_table.put(63.0, 3500.0);
+
+
     }
-    public RunClaw(GenericHID operatorBoard, Claw claw, int scorePosition){
+    public RunClaw(GenericHID operatorBoard, Limelight limelight, Claw claw, int scorePosition){
         m_operatorBoard = operatorBoard;
         m_claw = claw;
         lockedPosition = scorePosition;
+        m_limelight = limelight;
         useLockedPosition = true;
     }
 
@@ -60,7 +72,7 @@ public class RunClaw extends CommandBase{
             m_claw.setSpeed(1100);
         }
         else if(coneHigh){
-            m_claw.setSpeed(2850);
+            m_claw.setSpeed(m_table.get(m_limelight.getDist()));
         }
         else if(low){
             m_claw.setSpeed(1000);

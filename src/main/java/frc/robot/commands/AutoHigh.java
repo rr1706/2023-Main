@@ -1,12 +1,7 @@
 package frc.robot.commands;
 
-import java.util.ArrayList;
-import java.awt.geom.Point2D;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -15,33 +10,32 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.ArmsConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
 import frc.robot.subsystems.Arm.Claw;
-import frc.robot.utilities.LinearInterpolationTable;
 import frc.robot.utilities.MathUtils;
 import frc.robot.utilities.MotionControlState;
 
-public class AutoShoot extends CommandBase {
+public class AutoHigh extends CommandBase {
     private final Drivetrain m_drive;
 
     private final XboxController m_controller;
     private final GenericHID m_operatorBoard;
     private final MotionControlSystem m_controlSystem;
-    private final InterpolatingTreeMap<Double, Double> m_interpolateTranslation = new InterpolatingTreeMap<>();
-    private final InterpolatingTreeMap<Double, Double> m_interpolateRotation = new InterpolatingTreeMap<>();
-    private final Limelight m_vision;
     private final Claw m_claw;
+
+    private final Limelight m_vision;
 
     private boolean fieldOrient = true;
     private boolean useLockedPosition = false;
     private final int lockedPosition;
     private final Timer m_timer = new Timer();
+
+    private final InterpolatingTreeMap<Double,Double> m_table = new InterpolatingTreeMap<>();
+
 
     private boolean visionLock = false;
     private boolean gyroLock = false;
@@ -49,52 +43,46 @@ public class AutoShoot extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID 
-    = new PIDController(0.1, 0.04, 0.00);
+    private final PIDController m_rotPID = new PIDController(0.15, 0.00, 0.00);
 
     private final double m_autoSpeed;
-    private double m_prevRobotSpeed;
 
-    public AutoShoot(Drivetrain drive, MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, Claw claw){
+    public AutoHigh(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, Claw claw){
         m_drive = drive;
         m_controller = controller;
         m_operatorBoard = operatorBoard;
         m_controlSystem = motionSystem;
-        m_claw = claw;
         m_vision = vision;
         lockedPosition = -1;
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.2, 0.2);
         m_autoSpeed = 0.0;
-        initializeInterpolationTables();
+        m_claw = claw;
+
+        m_table.put(52.0, 2750.0);
+        m_table.put(56.5, 2950.0);
+        m_table.put(63.0, 3400.0);
 
         addRequirements(m_drive);
     }
-    public AutoShoot(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, Claw claw, int scorePosition, double autoSpeed){
+    public AutoHigh(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, Claw claw, int scorePosition, double autoSpeed){
         m_drive = drive;
         m_controller = controller;
         m_operatorBoard = operatorBoard;
-        m_claw = claw;
         useLockedPosition = true;
         m_autoSpeed = autoSpeed;
         lockedPosition = scorePosition;
         m_controlSystem = motionSystem;
         m_vision = vision;
+        m_claw = claw;
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.01, 0.01);
-        initializeInterpolationTables();
+
+        m_table.put(52.0, 2750.0);
+        m_table.put(56.5, 2900.0);
+        m_table.put(63.0, 3350.0);
 
         addRequirements(m_drive);
-    }
-
-    private void initializeInterpolationTables() {
-      /* (translation speed, limelight ty) */
-      m_interpolateTranslation.put(0.0, 0.0);
-      m_interpolateTranslation.put(0.5, 1.75);
-
-      /* (rotation speed, limelight tx) */
-      m_interpolateRotation.put(0.0, 0.0);
-      m_interpolateRotation.put(Math.PI / 2, 5.0);
     }
     
     @Override
@@ -107,7 +95,6 @@ public class AutoShoot extends CommandBase {
       timeForCube = false;
       m_timer.reset();
       m_timer.start();
-      m_prevRobotSpeed = -m_drive.getChassisSpeed().vxMetersPerSecond;
       if(Math.abs(MathUtil.inputModulus(m_drive.getGyro().getDegrees(),-180,180)) <= 45.0){
         gyroLock180 = true;
       }
@@ -118,16 +105,10 @@ public class AutoShoot extends CommandBase {
 
     @Override
     public void execute() {
-
-      SmartDashboard.putNumber("Alt ty", m_vision.getAltTY());
   
       double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond*0.5;
       double desiredX = -inputTransform(1.0*m_controller.getLeftY())*maxLinear;
       double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
-
-      double robotSpeed = -m_drive.getChassisSpeed().vxMetersPerSecond;
-      double robotAccel = (m_prevRobotSpeed - robotSpeed) / 0.016;
-      double rotSpeed = m_drive.getChassisSpeed().omegaRadiansPerSecond;
 
       if(useLockedPosition){
         desiredX = -m_autoSpeed;
@@ -137,75 +118,9 @@ public class AutoShoot extends CommandBase {
       Translation2d desiredTranslation = new Translation2d(desiredX, desiredY);
       double desiredMag = desiredTranslation.getDistance(new Translation2d());
 
-    
-      boolean low = false;//m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
-      boolean coneMid = false;//m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
-      boolean coneHigh = false;//m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
-      boolean cubeMid = false;//m_operatorBoard.getRawButton(8);
-      boolean cubeHigh = false;
-
-        if(useLockedPosition){
-            switch(lockedPosition){
-                case 1: low = true; break;
-                case 2: coneMid = true; break;
-                case 3: coneHigh = true; break;
-                case 4: cubeMid = true; break;
-                case 5: cubeHigh = true; break;
-                default: break;
-            }
-        }
-        else{
-            low = m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
-            coneMid = m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
-            coneHigh = m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
-            cubeMid = m_operatorBoard.getRawButton(8);
-            cubeHigh = m_operatorBoard.getRawButton(11); 
-        }
-      
-      if(low){
-        m_state = StateConstants.kHome;
-        visionLock = false;
-        gyroLock = true;
-      }
-      else if(coneMid){
-        m_state = StateConstants.kConeMid;
-        visionLock = true;
-        gyroLock = false;
-        m_vision.setPipeline(1);
-      }
-      else if(coneHigh){
         m_state = StateConstants.kConeHigh;
         visionLock = true;
-        gyroLock = false;
         m_vision.setPipeline(2);
-      }
-      else if(cubeMid){
-        visionLock = false;
-        gyroLock = true;
-        double time = m_timer.get();
-        if(gyroLock180 && time<0.80){
-            m_state = StateConstants.kRevCubeMidInt;
-        }
-        else if(gyroLock180 && time < 1.20){
-            m_state = StateConstants.kRevCubeMidMid;
-        }
-        else if(gyroLock180){
-            m_state = StateConstants.kRevCubeMidFin;
-        }
-        else{
-            m_state = StateConstants.kCubeMid;
-        }
-      }
-      else if(cubeHigh){
-        visionLock = false;
-        gyroLock = true;
-        m_state = StateConstants.kCubeHigh;
-      }
-      else{
-        visionLock = false;
-        gyroLock = false;
-        m_state = StateConstants.kHome;
-      }
 
       if(!m_state.equals(m_lastState)){
         m_controlSystem.setState(m_state);
@@ -214,54 +129,41 @@ public class AutoShoot extends CommandBase {
       }
       SmartDashboard.putBoolean("State Change", false);
 
-      double desiredRot = 0.0;// m_rotPID.calculate(m_drive.getGyro().getDegrees(),0.0);
+      double desiredRot = 0.0;
       
       if(!m_controlSystem.atSetpoint()){
         m_controller.setRumble(RumbleType.kBothRumble, 0.0);
       }
 
-      if(m_controlSystem.atSetpoint() && visionLock){
-        double angle = m_vision.getTX();
-        double atAngle = 0.5;
-        if(coneMid){
-            atAngle = 0.8;
-        }
-        double distance = m_vision.getTY();
-        double atDistance = 0.3;
-        double zeroedDistance = -0.25;
-
-        if(Math.abs(angle + m_interpolateRotation.get(rotSpeed)) <= atAngle && Math.abs(zeroedDistance - distance + m_interpolateTranslation.get(robotSpeed + ArmsConstants.kShotAccelComp * robotAccel)) <= atDistance){
-          if(cubeMid){
-            m_claw.setSpeed(2500);
-          }
-          else if(cubeHigh){
-            m_claw.setSpeed(2500);
-           }
-          else if(coneMid){
-            m_claw.setSpeed(1200);
-          }
-          else if(coneHigh){
-            m_claw.setSpeed(2950);
-          }
-          else {
-            m_claw.setSpeed(2000);
-          }
-        }
+      if(m_controlSystem.atSetpoint() && visionLock && m_vision.valid()){
+        double angle = m_vision.getAlign();
+        SmartDashboard.putNumber("Angle Error", angle);
+        double atAngle = 0.25;
 
         SmartDashboard.putBoolean("rotatingViaVision", true);
         desiredRot = m_rotPID.calculate(angle,0.0);
-        // if((-Math.abs(m_drive.getGyro().getDegrees())+180.0)>15.0){
-        //     desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
-        // }
+
+        double speedX = m_drive.getChassisSpeed().vxMetersPerSecond;
+        double accelX = m_drive.getChassisAccel().ax;
+
+        double speedY = m_drive.getChassisSpeed().vyMetersPerSecond;
+        double accelY = m_drive.getChassisAccel().ay;
+
+        speedX = (speedX+accelX*0.024)*39.37;
+        speedY = (speedY+accelY*0.024)*39.37;
+
+        double virtualDist = -(speedX*0.460)+m_vision.getDist();
+
+        SmartDashboard.putNumber("Virtual Dist", virtualDist);
+
+        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= 60.0 && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
+          m_claw.setSpeed(m_table.get(virtualDist));
+        }
+
 
       }
-      else if(gyroLock && gyroLock180){
-        SmartDashboard.putBoolean("rotatingViaVision", false);
-        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 0.0);
-      }
-      else{
-        SmartDashboard.putBoolean("rotatingViaVision", false);
-        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
+      else if(!m_vision.valid()){
+        m_claw.setSpeed(-500);
       }
 
       if(desiredMag >= maxLinear){
@@ -302,7 +204,7 @@ public class AutoShoot extends CommandBase {
       m_vision.setLights(0);
       m_vision.setPipeline(0);
       m_controller.setRumble(RumbleType.kBothRumble, 0.0);
-      m_claw.setSpeed(0.0);
+      m_claw.stop();
     }
   
     /**

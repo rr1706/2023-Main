@@ -184,7 +184,7 @@ public class AutoAlign extends CommandBase {
       }
 
       if(m_controlSystem.atSetpoint() && visionLock){
-        double angle = m_vision.getTX();
+        double angle = m_vision.getAlign();
         double atAngle = 0.4;
         if(coneMid){
             atAngle = 0.8;

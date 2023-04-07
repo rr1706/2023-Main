@@ -35,6 +35,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import frc.robot.RobotContainer;
 import frc.robot.Constants.*;
+import frc.robot.utilities.ChassisAccel;
 import frc.robot.utilities.MathUtils;
 
 /**
@@ -92,6 +93,8 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveDriveOdometry m_autoOdometry 
     = new SwerveDriveOdometry(DriveConstants.kDriveKinematics, ahrs.getRotation2d(), getModulePositions());
 
+  private ChassisSpeeds m_lastDriveSpeed = new ChassisSpeeds();
+  private ChassisAccel m_driveAccel = new ChassisAccel();
 
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
@@ -149,6 +152,10 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    m_driveAccel = new ChassisAccel(getChassisSpeed(),m_lastDriveSpeed,GlobalConstants.kLoopTime);
+
+    m_lastDriveSpeed = getChassisSpeed();
 
     double xSpeed = getChassisSpeed().vxMetersPerSecond;
     double ySpeed = getChassisSpeed().vyMetersPerSecond;
@@ -334,6 +341,10 @@ public class Drivetrain extends SubsystemBase {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(m_frontLeft.getState(), m_frontRight.getState(),
         m_backLeft.getState(),
         m_backRight.getState());
+  }
+
+  public ChassisAccel getChassisAccel(){
+    return m_driveAccel;
   }
 
   public SwerveModulePosition[] getModulePositions(){
