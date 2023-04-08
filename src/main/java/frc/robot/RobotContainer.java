@@ -188,7 +188,7 @@ public class RobotContainer {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
           auto.getName(), 
-          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.5, 4.0))
+          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.0, 3.0))
           );
       }
     }

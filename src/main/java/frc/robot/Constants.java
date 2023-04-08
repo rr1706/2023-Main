@@ -249,7 +249,7 @@ public final class Constants {
   }
 
   public static final class VisionConstants {
-    public static final double kPoseErrorAcceptance = 8.0; // How much error there can be between current stimated pose and vision pose in meters
+    public static final double kPoseErrorAcceptance = 2.0; // How much error there can be between current stimated pose and vision pose in meters
   }
 
   public static final class GlobalConstants {
