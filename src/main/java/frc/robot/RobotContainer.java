@@ -123,8 +123,6 @@ public class RobotContainer {
   new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-2500))).onFalse(new InstantCommand(()->m_claw.setSpeed(-500)));
   
   new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
-  
-  //new JoystickRightTrigger(m_driverController).whileTrue(m_runClaw);
   }
 
   private void configureAutoEvents() {
