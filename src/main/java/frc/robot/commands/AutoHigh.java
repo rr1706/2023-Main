@@ -156,7 +156,7 @@ public class AutoHigh extends CommandBase {
 
         SmartDashboard.putNumber("Virtual Dist", virtualDist);
 
-        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= 60.0 && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
+        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= 60.0 && speedX >= 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
           m_claw.setSpeed(m_table.get(virtualDist));
         }
 
