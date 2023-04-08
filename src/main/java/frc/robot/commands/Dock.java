@@ -47,7 +47,7 @@ public class Dock extends CommandBase {
 
     @Override
     public void execute() {
-        //SmartDashboard.putBoolean("climbing", m_climbing);
+        SmartDashboard.putBoolean("climbing", m_climbing);
         if (Math.abs(Math.abs(m_drive.getTilt()) - 13.5) <= 1.0) {
             m_climbing = false;
         }

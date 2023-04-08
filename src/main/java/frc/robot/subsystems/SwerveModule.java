@@ -180,7 +180,7 @@ public class SwerveModule {
     final double driveFF = driveFeedForward.calculate(state.speedMetersPerSecond);
    
     if(m_useNEO){
-      //SmartDashboard.putNumber("Speed"+moduleID, driveFF);
+      SmartDashboard.putNumber("Speed"+moduleID, driveFF);
       m_transPID.setReference(state.speedMetersPerSecond, ControlType.kVelocity,0,driveFF*GlobalConstants.kVoltCompensation);
     } else{
     // Set the drive motor to the sum of the feedforward calculation and PID

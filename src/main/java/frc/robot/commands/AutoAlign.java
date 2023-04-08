@@ -217,9 +217,9 @@ public class AutoAlign extends CommandBase {
       if(!m_state.equals(m_lastState)){
         m_controlSystem.setState(m_state);
         m_lastState = m_state;
-        //SmartDashboard.putBoolean("State Change", true);
+        SmartDashboard.putBoolean("State Change", true);
       }
-      //SmartDashboard.putBoolean("State Change", false);
+      SmartDashboard.putBoolean("State Change", false);
 
       double desiredRot = 0.0;
       
@@ -285,12 +285,12 @@ public class AutoAlign extends CommandBase {
               * DriveConstants.kMaxAngularSpeed,
           fieldOrient); */
   
-          //SmartDashboard.putBoolean("DrivingByController", true);
+          SmartDashboard.putBoolean("DrivingByController", true);
     }
   
     @Override
     public void end(boolean interrupted){
-      //SmartDashboard.putBoolean("DrivingByController", false);
+      SmartDashboard.putBoolean("DrivingByController", false);
       m_controlSystem.setState(StateConstants.kHome);
       m_visionBottom.setLights(1);
       m_visionTop.setPipeline(0);
