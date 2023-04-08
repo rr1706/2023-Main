@@ -1,13 +1,8 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.Constants.ArmsConstants;
-import frc.robot.Constants.StateConstants;
 import frc.robot.utilities.MotionControlState;
 
 import frc.robot.subsystems.Arm.Arm;
@@ -47,7 +42,7 @@ public final class MotionControlSystem extends SubsystemBase {
 
     @Override
     public void periodic(){
-        MotionControlState currentState = new MotionControlState(m_arm.getPose(),m_cube.getPose(),m_elevator.getPose(),m_wrist.getPose(),m_cone.getPose());
+        MotionControlState currentState = getMotionState();
 
         if(m_forceCube){
             m_desiredState.setCube(22.0);
@@ -66,13 +61,14 @@ public final class MotionControlSystem extends SubsystemBase {
         
 
         double clearHeight = -9.0;
-        if(m_desiredState.m_cube > 20.0 && m_cube.getPose() <= 20.0 || m_desiredState.m_cube < 5.0 && m_cube.getPose() >= 5.0 || m_forceCube){
+        if(m_desiredState.m_cubeFront > 20.0 && m_cube.getPose() <= 20.0 || m_desiredState.m_cubeFront < 5.0 && m_cube.getPose() >= 5.0 || m_forceCube){
             clearHeight = -2.0;
         }
 
 
         if(!m_elevatorClear){
             if(m_desiredState.m_elevator < clearHeight){
+                if (!currentState.m_elevatorHigh)
                 m_elevator.setPose(clearHeight);
             }
             else{
@@ -84,13 +80,8 @@ public final class MotionControlSystem extends SubsystemBase {
             m_elevatorClear = true;
             m_arm.setPose(m_desiredState.m_arm+m_offset);
             m_wrist.setPose(m_desiredState.m_wrist);
-<<<<<<< HEAD
             m_cone.setPose(m_desiredState.m_cubeBack);
             m_cube.setPose(m_desiredState.m_cubeFront);
-=======
-            m_cone.setPose(m_desiredState.m_cone);
-            m_cube.setPose(m_desiredState.m_cube);
->>>>>>> parent of f60b0fd (Merge branch '4/4' of https://github.com/rr1706/2023-Main into 4/4)
         }
 
         boolean atSetpoint = m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
@@ -111,8 +102,8 @@ public final class MotionControlSystem extends SubsystemBase {
         SmartDashboard.putNumber("Arm Desired", m_desiredState.m_arm+m_offset);
 
         SmartDashboard.putNumber("Wrist Desired", m_desiredState.m_wrist);
-        SmartDashboard.putNumber("Cone Desired", m_desiredState.m_cone);
-        SmartDashboard.putNumber("Cube Desired", m_desiredState.m_cube);
+        SmartDashboard.putNumber("Cone Desired", m_desiredState.m_cubeFront);
+        SmartDashboard.putNumber("Cube Desired", m_desiredState.m_cubeFront);
 
 
         SmartDashboard.putNumber("Current Elevator", m_elevator.getPose());
