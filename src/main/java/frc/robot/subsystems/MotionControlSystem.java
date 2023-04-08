@@ -80,7 +80,7 @@ public final class MotionControlSystem extends SubsystemBase {
             m_elevatorClear = true;
             m_arm.setPose(m_desiredState.m_arm+m_offset);
             m_wrist.setPose(m_desiredState.m_wrist);
-            m_cone.setPose(m_desiredState.m_cubeFront);
+            m_cone.setPose(m_desiredState.m_cubeBack);
             m_cube.setPose(m_desiredState.m_cubeFront);
         }
 
@@ -119,7 +119,7 @@ public final class MotionControlSystem extends SubsystemBase {
     }
 
     public void coneIn(){
-        m_cone.setPose(0.0);
+        m_cone.setPose(8.0);
         m_cone.set(0.0);
     }
 
