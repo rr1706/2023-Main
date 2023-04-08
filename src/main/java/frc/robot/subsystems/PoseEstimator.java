@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.utilities.MathUtils;
 
 public class PoseEstimator extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
@@ -25,7 +26,7 @@ public class PoseEstimator extends SubsystemBase {
         m_vision = limelight;
         //SmartDashboard.putData("Field", m_field);
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.0), VecBuilder.fill(0.127, 0.127, 999999));
+        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.0), VecBuilder.fill(10, 10, 10));
     }
 
     @Override
@@ -37,17 +38,18 @@ public class PoseEstimator extends SubsystemBase {
     private void updatePoseEstimator() {
         double[] visionMeasurement = m_vision.getLatestPose3d();
         double timestamp = visionMeasurement[6];
+        double velocity = MathUtils.pythagorean(m_drive.getChassisSpeed().vxMetersPerSecond, m_drive.getChassisSpeed().vyMetersPerSecond);
+        double angularVelocity = m_drive.getChassisSpeed().omegaRadiansPerSecond;
         Pose2d currentPose = getPose();
         Pose2d visionPose = new Pose2d(
             new Translation2d(visionMeasurement[0], visionMeasurement[1]),
             new Rotation2d(visionMeasurement[5])
         );
-        double visionTrust = 0.00379625 * Math.pow(1.88207, (currentPose.getX() + visionPose.getX()) / 2 < 0.0 ? 0.0 : (currentPose.getX() + visionPose.getX()) / 2) + 0.0119529;
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7]) {
+        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7]&& visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.1 && velocity <= 3.0 && angularVelocity <= 0.33 * Math.PI) {
             if (m_initializedPose) {
                 if(m_vision.valid()){
-                    m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(10, 10, 10));
+                    m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(10.0, 10.0, 10.0));
                 }
             } else {
                 m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(0.0, 0.0, 999999));
