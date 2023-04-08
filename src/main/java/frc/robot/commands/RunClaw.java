@@ -10,7 +10,8 @@ public class RunClaw extends CommandBase{
     private final GenericHID m_operatorBoard;
     private final Claw m_claw;
     private final Limelight m_limelight;
-    private final InterpolatingTreeMap<Double,Double> m_table = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double,Double> m_rpmHigh = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double,Double> m_distHigh = new InterpolatingTreeMap<>();
 
     private boolean useLockedPosition = false;
     private final int lockedPosition;
@@ -21,11 +22,17 @@ public class RunClaw extends CommandBase{
         m_limelight = limelight;
         lockedPosition = -1;
 
-        m_table.put(52.0, 2750.0);
-        m_table.put(56.5, 2950.0);
-        m_table.put(63.0, 3500.0);
+        m_rpmHigh.put(52.0, 2750.0);
+        m_rpmHigh.put(56.5, 2950.0);
+        m_rpmHigh.put(63.0, 3500.0);
 
-
+        m_distHigh.put(2.0, 52.25);
+        m_distHigh.put(0.0, 56.5);
+        m_distHigh.put(-2.09, 62.5);
+        m_distHigh.put(-3.96, 68.0);
+        m_distHigh.put(-6.02, 74.75);
+        m_distHigh.put(-8.00, 83.25);
+        m_distHigh.put(-10.02, 96.25);
     }
     public RunClaw(GenericHID operatorBoard, Limelight limelight, Claw claw, int scorePosition){
         m_operatorBoard = operatorBoard;
@@ -72,7 +79,7 @@ public class RunClaw extends CommandBase{
             m_claw.setSpeed(1100);
         }
         else if(coneHigh){
-            m_claw.setSpeed(m_table.get(m_limelight.getDist()));
+            m_claw.setSpeed(m_rpmHigh.get(m_distHigh.get(m_limelight.getTY())));
         }
         else if(low){
             m_claw.setSpeed(1000);

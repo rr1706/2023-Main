@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -46,7 +45,7 @@ public class PoseEstimator extends SubsystemBase {
             new Rotation2d(visionMeasurement[5])
         );
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7]&& visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.1 && velocity <= 3.0 && angularVelocity <= 0.33 * Math.PI) {
+        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7] && visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.1 && velocity <= 3.0 && angularVelocity <= 0.5 * Math.PI) {
             if (m_initializedPose) {
                 if(m_vision.valid()){
                     m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(10.0, 10.0, 10.0));

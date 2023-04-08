@@ -16,22 +16,12 @@ public class Limelight extends SubsystemBase {
     private final String m_name;
     private final ArrayList<double[]> m_poses = new ArrayList<>();
 
-    private final InterpolatingTreeMap<Double, Double> m_table = new InterpolatingTreeMap<>();
-
     private Alliance m_alliance = Alliance.Invalid;
 
     public Limelight(String name) {
         m_lime = NetworkTableInstance.getDefault().getTable(name);
         m_lime.getEntry("ledMode").setDouble(1.0);
         m_name =  name;
-
-        m_table.put(2.0, 52.25);
-        m_table.put(0.0, 56.5);
-        m_table.put(-2.09, 62.5);
-        m_table.put(-3.96, 68.0);
-        m_table.put(-6.02, 74.75);
-        m_table.put(-8.00, 83.25);
-        m_table.put(-10.02, 96.25);
     }
 
     @Override
@@ -42,9 +32,6 @@ public class Limelight extends SubsystemBase {
         storePose(getPoseWithTimestamp());
         //SmartDashboard.putNumber("Vision X", m_poses.get(m_poses.size() - 1)[0]);
         //SmartDashboard.putNumber("Vision Y", m_poses.get(m_poses.size() - 1)[1]);
-
-        SmartDashboard.putNumber("Limelight Dist", getDist());
-        SmartDashboard.putNumber("TargetTx", getAlign());
     }
 
     public String getName() {
@@ -61,14 +48,6 @@ public class Limelight extends SubsystemBase {
 
     public double getTY() {
         return m_lime.getEntry("ty").getDouble(999999);
-    }
-
-    public double getDist(){
-        return m_table.get(getTY());
-    }
-
-    public double getAlign(){
-        return getTX()-(Math.toDegrees(Math.asin(8.0/getDist()))-8.102);
     }
 
     public double getAltTY() {

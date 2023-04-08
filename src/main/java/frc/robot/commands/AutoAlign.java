@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -14,6 +15,7 @@ import frc.robot.Constants.StateConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.MotionControlSystem;
+import frc.robot.subsystems.Arm.Claw;
 import frc.robot.utilities.MathUtils;
 import frc.robot.utilities.MotionControlState;
 
@@ -23,11 +25,13 @@ public class AutoAlign extends CommandBase {
     private final XboxController m_controller;
     private final GenericHID m_operatorBoard;
     private final MotionControlSystem m_controlSystem;
+    private final Claw m_claw;
 
-    private final Limelight m_vision;
+    private final Limelight m_visionTop;
+    private final Limelight m_visionBottom;
 
     private boolean fieldOrient = true;
-    private boolean useLockedPosition = false;
+    private final boolean useLockedPosition;
     private final int lockedPosition;
     private final Timer m_timer = new Timer();
 
@@ -39,39 +43,66 @@ public class AutoAlign extends CommandBase {
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
     private final PIDController m_rotPID = new PIDController(0.1, 0.00, 0.00);
 
+    private final InterpolatingTreeMap<Double,Double> m_rpmHigh = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double, Double> m_distHigh = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double, Double> m_rpmMid = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double, Double> m_distMid = new InterpolatingTreeMap<>();
+
     private final double m_autoSpeed;
 
-    public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision){
-        m_drive = drive;
-        m_controller = controller;
-        m_operatorBoard = operatorBoard;
-        m_controlSystem = motionSystem;
-        m_vision = vision;
-        lockedPosition = -1;
-        m_rotPID.enableContinuousInput(-180, 180);
-        m_rotPID.setIntegratorRange(-0.2, 0.2);
-        m_autoSpeed = 0.0;
-        addRequirements(m_drive);
+    // Top and Bottom refers to the position of limelight
+    
+    public AutoAlign(Drivetrain drive, MotionControlSystem motionSystem, Claw claw, XboxController controller, GenericHID operatorBoard, Limelight limelightTop, Limelight limelightBottom, int scorePosition, double autoSpeed){
+      m_drive = drive;
+      m_controller = controller;
+      m_operatorBoard = operatorBoard;
+      useLockedPosition = scorePosition != -1;
+      m_autoSpeed = autoSpeed;
+      lockedPosition = scorePosition;
+      m_controlSystem = motionSystem;
+      m_claw = claw;
+      m_visionTop = limelightTop;
+      m_visionBottom = limelightBottom;
+      m_rotPID.enableContinuousInput(-180, 180);
+      m_rotPID.setIntegratorRange(-0.02, 0.02);
+
+      m_rpmHigh.put(52.0, 2750.0);
+      m_rpmHigh.put(56.5, 2950.0);
+      m_rpmHigh.put(63.0, 3400.0);
+
+      m_distHigh.put(2.0, 52.25);
+      m_distHigh.put(0.0, 56.5);
+      m_distHigh.put(-2.09, 62.5);
+      m_distHigh.put(-3.96, 68.0);
+      m_distHigh.put(-6.02, 74.75);
+      m_distHigh.put(-8.00, 83.25);
+      m_distHigh.put(-10.02, 96.25);
+
+      addRequirements(m_drive);
     }
-    public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, int scorePosition, double autoSpeed){
-        m_drive = drive;
-        m_controller = controller;
-        m_operatorBoard = operatorBoard;
-        useLockedPosition = true;
-        m_autoSpeed = autoSpeed;
-        lockedPosition = scorePosition;
-        m_controlSystem = motionSystem;
-        m_vision = vision;
-        m_rotPID.enableContinuousInput(-180, 180);
-        m_rotPID.setIntegratorRange(-0.01, 0.01);
-        addRequirements(m_drive);
+
+    public AutoAlign(Drivetrain drive, MotionControlSystem motionSystem, Claw claw, XboxController controller, GenericHID operatorBoard, Limelight limelightTop, Limelight limelightBottom){
+      this(
+        drive,
+        motionSystem,
+        claw,
+        controller,
+        operatorBoard,
+        limelightTop,
+        limelightBottom,
+        -1,
+        0.0
+      );
     }
     
     @Override
     public void initialize(){
       m_state = StateConstants.kHome;
       m_lastState = StateConstants.kHome;
-      m_vision.setLights(0);
+      m_visionBottom.setLights(1);
+      m_visionBottom.setPipeline(0);
+      m_visionTop.setLights(0);
+      m_visionTop.setPipeline(0);
       visionLock = false;
       gyroLock = false;
       timeForCube = false;
@@ -134,13 +165,13 @@ public class AutoAlign extends CommandBase {
         m_state = StateConstants.kConeMid;
         visionLock = true;
         gyroLock = false;
-        m_vision.setPipeline(1);
+        m_visionTop.setPipeline(1);
       }
       else if(coneHigh){
         m_state = StateConstants.kConeHigh;
         visionLock = true;
         gyroLock = false;
-        m_vision.setPipeline(2);
+        m_visionBottom.setLights(2);
       }
       else if(cubeMid || (cubeHigh && gyroLock180)){
         visionLock = false;
@@ -168,6 +199,8 @@ public class AutoAlign extends CommandBase {
         visionLock = false;
         gyroLock = false;
         m_state = StateConstants.kHome;
+        m_visionBottom.setLights(1);
+        m_visionTop.setPipeline(0);
       }
 
       if(!m_state.equals(m_lastState)){
@@ -177,39 +210,41 @@ public class AutoAlign extends CommandBase {
       }
       SmartDashboard.putBoolean("State Change", false);
 
-      double desiredRot = 0.0;// m_rotPID.calculate(m_drive.getGyro().getDegrees(),0.0);
+      double desiredRot = 0.0;
       
       if(!m_controlSystem.atSetpoint()){
         m_controller.setRumble(RumbleType.kBothRumble, 0.0);
       }
 
-      if(m_controlSystem.atSetpoint() && visionLock){
-        double angle = m_vision.getAlign();
-        double atAngle = 0.4;
-        if(coneMid){
-            atAngle = 0.8;
-        }
+      if(m_controlSystem.atSetpoint() && visionLock && ((m_visionTop.valid() && coneHigh) || (m_visionBottom.valid() && coneMid))){
+        double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : m_visionTop.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionTop.getTY())))-8.102);
+        SmartDashboard.putNumber("Angle Error", angle);
+        double atAngle = 0.25;
 
-        if(Math.abs(angle) <= atAngle && m_vision.getTY()<=0.40){
-            m_controller.setRumble(RumbleType.kBothRumble, 1.0);
-        }
-        else{
-            m_controller.setRumble(RumbleType.kBothRumble, 0.0);
-        }
         SmartDashboard.putBoolean("rotatingViaVision", true);
         desiredRot = m_rotPID.calculate(angle,0.0);
-        // if((-Math.abs(m_drive.getGyro().getDegrees())+180.0)>15.0){
-        //     desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
-        // }
+
+        double speedX = m_drive.getChassisSpeed().vxMetersPerSecond;
+        double accelX = m_drive.getChassisAccel().ax;
+
+        double speedY = m_drive.getChassisSpeed().vyMetersPerSecond;
+        double accelY = m_drive.getChassisAccel().ay;
+
+        speedX = (speedX+accelX*0.024)*39.37;
+        speedY = (speedY+accelY*0.024)*39.37;
+
+        double virtualDist = -(speedX*0.460) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMid.get(m_visionTop.getTY()));
+
+        SmartDashboard.putNumber("Virtual Dist", virtualDist);
+
+        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= 60.0 && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
+          m_claw.setSpeed(m_rpmHigh.get(virtualDist));
+        }
+
 
       }
-      else if(gyroLock && gyroLock180){
-        SmartDashboard.putBoolean("rotatingViaVision", false);
-        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 0.0);
-      }
-      else{
-        SmartDashboard.putBoolean("rotatingViaVision", false);
-        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
+      else if(coneMid ? !m_visionTop.valid() : !m_visionBottom.valid()) {
+        m_claw.setSpeed(-500);
       }
 
       if(desiredMag >= maxLinear){
@@ -220,9 +255,7 @@ public class AutoAlign extends CommandBase {
         desiredRot = Math.signum(desiredRot)*2.0;
       }
 
-      if(Math.abs(desiredRot) < 0.05){
-        desiredRot = 0.0;
-      }
+      desiredRot += Math.signum(desiredRot)*Math.abs(m_drive.getChassisSpeed().vxMetersPerSecond)/45.0;
 
       //Translation2d rotAdj= desiredTranslation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(desiredRot*0.05);
   
@@ -247,8 +280,8 @@ public class AutoAlign extends CommandBase {
     public void end(boolean interrupted){
       SmartDashboard.putBoolean("DrivingByController", false);
       m_controlSystem.setState(StateConstants.kHome);
-      m_vision.setLights(0);
-      m_vision.setPipeline(0);
+      m_visionBottom.setLights(1);
+      m_visionTop.setPipeline(0);
       m_controller.setRumble(RumbleType.kBothRumble, 0.0);
 
     }
