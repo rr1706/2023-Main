@@ -78,6 +78,14 @@ public class AutoAlign extends CommandBase {
       m_distHigh.put(-8.00, 83.25);
       m_distHigh.put(-10.02, 96.25);
 
+      m_distMid.put(-3.03, 30.75);
+      m_distMid.put(0.05, 27.5);
+      m_distMid.put(2.99, 34.25);
+      m_distMid.put(6.00, 38.75);
+      m_distMid.put(9.02, 44.0);
+      m_distMid.put(12.02, 50.5);
+      m_distMid.put(14.99, 58.5);
+
       addRequirements(m_drive);
     }
 
