@@ -174,9 +174,7 @@ public class AutoHigh extends CommandBase {
         desiredRot = Math.signum(desiredRot)*2.0;
       }
 
-      if(Math.abs(desiredRot) < 0.05){
-        desiredRot = 0.0;
-      }
+      desiredRot += Math.signum(desiredRot)*Math.abs(m_drive.getChassisSpeed().vxMetersPerSecond)/45.0;
 
       //Translation2d rotAdj= desiredTranslation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(desiredRot*0.05);
   

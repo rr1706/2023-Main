@@ -70,7 +70,8 @@ public class RobotContainer {
 
   private final Drivetrain m_drive = new Drivetrain();
   private final Limelight m_vision = new Limelight("limelight-new");
-  // private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_vision, new Pose2d());
+  private final Limelight m_topVision = new Limelight("limelight-top");
+  private final PoseEstimator m_poseEstimator = new PoseEstimator(m_drive, m_topVision, new Pose2d());
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
@@ -87,7 +88,7 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(0.0, 0, 0), new PIDConstants(0.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(5.0, 0, 0), new PIDConstants(2.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -103,6 +104,8 @@ public class RobotContainer {
     .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d())));
   new POVButton(m_driverController, 180)
     .onTrue(new InstantCommand(() -> m_drive.resetOdometry(new Pose2d(new Translation2d(), new Rotation2d(Math.PI)))));
+  new POVButton(m_driverController, 90)
+    .onTrue(new InstantCommand(() -> m_poseEstimator.resetOdometry(new Pose2d(new Translation2d(1.85,3.08),new Rotation2d(Math.PI)))));
 
   new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCoolThing))).onFalse(new InstantCommand(()->m_motionControl.setState(StateConstants.kHome)));
 
@@ -185,7 +188,7 @@ public class RobotContainer {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
           auto.getName(), 
-          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.5, 2.0))
+          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.5, 4.0))
           );
       }
     }

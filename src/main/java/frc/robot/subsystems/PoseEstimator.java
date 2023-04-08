@@ -17,7 +17,6 @@ public class PoseEstimator extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Drivetrain m_drive;
     private final Limelight m_vision;
-    private final Field2d m_field = new Field2d();
 
     private boolean m_initializedPose = false;
 
@@ -47,11 +46,13 @@ public class PoseEstimator extends SubsystemBase {
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
         if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7]) {
             if (m_initializedPose) {
-                m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(visionTrust, visionTrust, 999999));
+                if(m_vision.valid()){
+                    m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(10, 10, 10));
+                }
             } else {
                 m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(0.0, 0.0, 999999));
+                m_initializedPose = true;
             }
-            m_initializedPose = true;
         }
     }
 
@@ -59,9 +60,9 @@ public class PoseEstimator extends SubsystemBase {
         Pose2d pose = getPose();
         double[] poseArray = {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
         //SmartDashboard.putNumberArray("Robot Pose", poseArray);
-        SmartDashboard.putNumber("Robot X", poseArray[0]);
-        SmartDashboard.putNumber("Robot Y",  poseArray[1]);
-        SmartDashboard.putNumber("Robot Gyro",  poseArray[2]);
+        SmartDashboard.putNumber("PoseEst X", poseArray[0]);
+        SmartDashboard.putNumber("PoseEst Y",  poseArray[1]);
+        SmartDashboard.putNumber("PoseEst Gyro",  poseArray[2]);
         //m_field.setRobotPose(pose);
      }
 
@@ -87,7 +88,7 @@ public class PoseEstimator extends SubsystemBase {
     }
 
     public void resetOdometry(Pose2d pose) {
-        m_drive.resetOdometry(new Pose2d(pose.getTranslation(), m_drive.getGyro()));
+        m_drive.resetOdometry(new Pose2d(pose.getTranslation(), pose.getRotation()));
         m_poseEstimator.resetPosition(m_drive.getGyro().times(-1.0), m_drive.getModulePositions(), pose);
     }
 
