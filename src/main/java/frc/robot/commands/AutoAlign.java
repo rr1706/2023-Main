@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.util.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -23,6 +24,8 @@ public class AutoAlign extends CommandBase {
     private final XboxController m_controller;
     private final GenericHID m_operatorBoard;
     private final MotionControlSystem m_controlSystem;
+
+    private final InterpolatingTreeMap<Double, Double> m_midDistance = new InterpolatingTreeMap<>();
 
     private final Limelight m_vision;
 
@@ -51,6 +54,16 @@ public class AutoAlign extends CommandBase {
         m_rotPID.enableContinuousInput(-180, 180);
         m_rotPID.setIntegratorRange(-0.2, 0.2);
         m_autoSpeed = 0.0;
+
+        m_midDistance.put(-3.03, 30.75);
+        m_midDistance.put(0.05, 27.5);
+        m_midDistance.put(2.99, 34.25);
+        m_midDistance.put(6.00, 38.75);
+        m_midDistance.put(9.02, 44.0);
+        m_midDistance.put(12.02, 50.5);
+        m_midDistance.put(14.99, 58.5);
+
+
         addRequirements(m_drive);
     }
     public AutoAlign(Drivetrain drive,MotionControlSystem motionSystem, XboxController controller, GenericHID operatorBoard, Limelight vision, int scorePosition, double autoSpeed){
