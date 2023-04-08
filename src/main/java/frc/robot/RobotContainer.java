@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -74,7 +75,7 @@ public class RobotContainer {
   private final MotionControlSystem m_motionControl = new MotionControlSystem();
   private final Claw m_claw = new Claw();
 
-  private final AutoAlign m_align = new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision);
+  private final AutoAlign m_align = new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_topVision, m_vision);
   //private final RunClaw m_runClaw = new RunClaw(m_operatorBoard,m_vision, m_claw);
   private final ConeIntake m_coneIntake = new ConeIntake(m_motionControl, m_claw);
   private final Command m_ConeTransfer = new WaitCommand(1.25).andThen(new ConeTransfer(m_motionControl, m_claw));
@@ -120,11 +121,11 @@ public class RobotContainer {
 
   new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
 
-  new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-2500))).onFalse(new InstantCommand(()->m_claw.setSpeed(-500)));
+  new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-2500))).onFalse(new InstantCommand(()->m_claw.setSpeed(-50.0)));
   
   new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
   
-  //new JoystickRightTrigger(m_driverController).whileTrue(m_runClaw);
+  new JoystickRightTrigger(m_driverController).whileTrue(new ConditionalCommand(new WaitCommand(15.0),new InstantCommand(()->m_claw.setSpeed(2500)),()->m_align.isScheduled()));
   }
 
   private void configureAutoEvents() {

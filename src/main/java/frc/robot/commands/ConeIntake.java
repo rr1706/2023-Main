@@ -22,7 +22,7 @@ public class ConeIntake extends CommandBase{
         m_finished = false;
         SmartDashboard.putBoolean("ConeIntake", true);
         m_motionSystem.setState(StateConstants.kConeIntake);
-        m_motionSystem.runCone(0.85,false);
+        m_motionSystem.runCone(0.40,false);
     }
 
     @Override

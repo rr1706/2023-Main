@@ -41,7 +41,7 @@ public class AutoAlign extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID = new PIDController(0.1, 0.00, 0.00);
+    private final PIDController m_rotPID = new PIDController(0.15, 0.00, 0.00);
 
     private final InterpolatingTreeMap<Double,Double> m_rpmHigh = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_distHigh = new InterpolatingTreeMap<>();
@@ -66,9 +66,9 @@ public class AutoAlign extends CommandBase {
       m_rotPID.enableContinuousInput(-180, 180);
       m_rotPID.setIntegratorRange(-0.02, 0.02);
 
-      m_rpmHigh.put(52.0, 2750.0);
-      m_rpmHigh.put(56.5, 2950.0);
-      m_rpmHigh.put(63.0, 3400.0);
+      m_rpmHigh.put(52.0, 2500.0);
+      m_rpmHigh.put(56.5, 2650.0);
+      m_rpmHigh.put(63.0, 3000.0);
 
       m_distHigh.put(2.0, 52.25);
       m_distHigh.put(0.0, 56.5);
@@ -182,7 +182,7 @@ public class AutoAlign extends CommandBase {
         m_state = StateConstants.kConeHigh;
         visionLock = true;
         gyroLock = false;
-        m_visionBottom.setLights(2);
+        m_visionBottom.setLights(3);
       }
       else if(cubeMid || (cubeHigh && gyroLock180)){
         visionLock = false;
@@ -227,10 +227,11 @@ public class AutoAlign extends CommandBase {
         m_controller.setRumble(RumbleType.kBothRumble, 0.0);
       }
 
-      if(m_controlSystem.atSetpoint() && visionLock && ((m_visionTop.valid() && coneHigh) || (m_visionBottom.valid() && coneMid))){
-        double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : m_visionTop.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionTop.getTY())))-8.102);
+      if(m_controlSystem.atSetpoint() && visionLock && ((m_visionBottom.valid() && coneHigh) || (m_visionTop.valid() && coneMid))){
+        double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : m_visionTop.getTX();
         SmartDashboard.putNumber("Angle Error", angle);
         double atAngle = 0.25;
+
 
         SmartDashboard.putBoolean("rotatingViaVision", true);
         desiredRot = m_rotPID.calculate(angle,0.0);
@@ -244,18 +245,18 @@ public class AutoAlign extends CommandBase {
         speedX = (speedX+accelX*0.024)*39.37;
         speedY = (speedY+accelY*0.024)*39.37;
 
-        double virtualDist = -(speedX*0.460) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMid.get(m_visionTop.getTY()));
+        double virtualDist = -(speedX*0.500) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMid.get(m_visionTop.getTY()));
 
         SmartDashboard.putNumber("Virtual Dist", virtualDist);
 
-        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= 60.0 && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
-          m_claw.setSpeed(m_rpmHigh.get(virtualDist));
+        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= 63.0 && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
+          m_claw.setSpeed(coneHigh ? m_rpmHigh.get(virtualDist) : m_rpmMid.get(virtualDist));
         }
 
 
       }
       else if(coneMid ? !m_visionTop.valid() : !m_visionBottom.valid()) {
-        m_claw.setSpeed(-500);
+        m_claw.setSpeed(-50.0);
       }
 
       if(desiredMag >= maxLinear){
@@ -266,7 +267,7 @@ public class AutoAlign extends CommandBase {
         desiredRot = Math.signum(desiredRot)*2.0;
       }
 
-      desiredRot += Math.signum(desiredRot)*Math.abs(m_drive.getChassisSpeed().vxMetersPerSecond)/45.0;
+      desiredRot += Math.signum(desiredRot)*Math.abs(m_drive.getChassisSpeed().vxMetersPerSecond)/40.0;
 
       //Translation2d rotAdj= desiredTranslation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(desiredRot*0.05);
   
@@ -294,7 +295,7 @@ public class AutoAlign extends CommandBase {
       m_visionBottom.setLights(1);
       m_visionTop.setPipeline(0);
       m_controller.setRumble(RumbleType.kBothRumble, 0.0);
-
+      m_claw.stop();
     }
   
     /**

@@ -45,23 +45,23 @@ public final class Constants {
     public static final double armAdj = 0.0;
     public static final double armAdjRed = armAdj;
     public static final double armAdjBlue = armAdj;
-    public static final MotionControlState kHome = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 0.0);
-    public static final MotionControlState kGrab = new MotionControlState(76.5, 0.0, -13.45, 64.0*1.40, 0.0);
-    public static final MotionControlState kGrabRed = new MotionControlState(76.5, 0.0, -13.45, 64.0*1.40, 0.0);
-    public static final MotionControlState kGrabBlue = new MotionControlState(76.5, 0.0, -13.45, 64.0*1.40, 0.0);
-    public static final MotionControlState kFloor = new MotionControlState(32.4, 0, -28.35, 40.0*1.40, 0.0);
-    public static final MotionControlState kCube = new MotionControlState(16.8, 18, -6.7, 59.0*1.40, 0.0);
-    public static final MotionControlState kConeIntake = new MotionControlState(-14.0, 0, -16.0, -24.0*1.40, 38.0);
-    public static final MotionControlState kLow = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 0.0);
-    public static final MotionControlState kConeMid = new MotionControlState(58.0, 0, -9.5, 43.0*1.40, 0.0);
-    public static final MotionControlState kConeHigh =  new MotionControlState(73.6, 0, -1.5, 52.0*1.40, 0.0);
-    public static final MotionControlState kCubeMid = new MotionControlState(9.04, 0, -6.7, 18.0*1.40, 0.0);
-    public static final MotionControlState kCubeHigh =  new MotionControlState(46.0, 0, -4.2,40.0*1.40, 0.0);
-    public static final MotionControlState kRevCubeMidInt = new MotionControlState(10.24, 0, -1.5, 11.0*1.40, 0.0);
-    public static final MotionControlState kRevCubeMidMid = new MotionControlState(10.24, 0, -1.5, -22.0*1.40, 0.0);
-    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-14.0, 0, -1.5, -18.0*1.40, 0.0);
-    public static final MotionControlState kStart = new MotionControlState(0, 0, -1.5, 0, 0);
-    public static final MotionControlState kCoolThing = new MotionControlState(73.28,18,-11.5,62.5*1.40,38);
+    public static final MotionControlState kHome = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 8.0);
+    public static final MotionControlState kGrab = new MotionControlState(76.5, 0.0, -13.45, 64.5*1.40, 8.0);
+    public static final MotionControlState kGrabRed = new MotionControlState(76.5, 0.0, -13.45, 64.5*1.40, 8.0);
+    public static final MotionControlState kGrabBlue = new MotionControlState(76.5, 0.0, -13.45, 64.5*1.40, 8.0);
+    public static final MotionControlState kFloor = new MotionControlState(32.4, 0, -28.35, 40.0*1.40, 8.0);
+    public static final MotionControlState kCube = new MotionControlState(16.8, 18, -6.7, 59.0*1.40, 8.0);
+    public static final MotionControlState kConeIntake = new MotionControlState(-14.0, 0, -1.5, -24.0*1.40, 37.0);
+    public static final MotionControlState kLow = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 8.0);
+    public static final MotionControlState kConeMid = new MotionControlState(58.0, 0, -9.5, 43.0*1.40, 8.0);
+    public static final MotionControlState kConeHigh =  new MotionControlState(73.6, 0, -1.5, 52.0*1.40, 8.0);
+    public static final MotionControlState kCubeMid = new MotionControlState(9.04, 0, -6.7, 18.0*1.40, 8.0);
+    public static final MotionControlState kCubeHigh =  new MotionControlState(46.0, 0, -4.2,40.0*1.40, 8.0);
+    public static final MotionControlState kRevCubeMidInt = new MotionControlState(10.24, 0, -1.5, 11.0*1.40, 8.0);
+    public static final MotionControlState kRevCubeMidMid = new MotionControlState(10.24, 0, -1.5, -22.0*1.40, 8.0);
+    public static final MotionControlState kRevCubeMidFin = new MotionControlState(-14.0, 0, -1.5, -18.0*1.40, 8.0);
+    public static final MotionControlState kStart = new MotionControlState(0, 0, -1.5, 0, 8.0);
+    public static final MotionControlState kCoolThing = new MotionControlState(73.28,18,-11.5,62.5*1.40,37);
   }
 
 
@@ -228,10 +228,10 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final double kDefaultCone = 0.0;
+    public static final double kDefaultCone = 8.0;
     public static final TrapezoidProfile.Constraints kConeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kExtendedCone = 38.0;
-    public static final double kRetractedCone = 0.0;
+    public static final double kExtendedCone = 37.0;
+    public static final double kRetractedCone = 8.0;
     
     public static final double kDefaultCube = 0.0;
     public static final TrapezoidProfile.Constraints kCubeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);

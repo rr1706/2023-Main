@@ -10,7 +10,8 @@ public class ConeTransfer extends CommandBase{
     private final MotionControlSystem m_motionSystem;
     private final Claw m_claw;
     private final Timer m_timer = new Timer();
-    private boolean m_timeReached1 = false;
+    private double m_time = 0.0;
+    private boolean m_metSetpointOnce = false;
     private boolean m_timeReached2 = false;
     private boolean m_finished = false;
 
@@ -22,30 +23,25 @@ public class ConeTransfer extends CommandBase{
     @Override
     public void initialize(){
         m_finished = false;
-        m_timeReached1 = false;
+        m_metSetpointOnce = false;
         m_timeReached2 = false;
         m_timer.reset();
         m_timer.start();
         m_claw.setSpeed(-2000);  
         m_motionSystem.runCone(0.00,true); 
-
+        m_time = 0;
     }
 
     @Override
     public void execute(){
-        if(m_timer.get() > 0.10 && !m_timeReached1){
-            m_timeReached1 = true;
-            m_motionSystem.runElevatorUp(9.0);
-            m_motionSystem.runCone(0.0,true); 
+        if(m_motionSystem.atSetpoint() && !m_metSetpointOnce){
+            m_motionSystem.runCone(-0.40, true);
+            m_time = m_timer.get();
+            m_metSetpointOnce = true;
         }
-        if(m_timer.get() > 0.4 && !m_timeReached2){
-            m_timeReached2 = true;
-            m_claw.setSpeed(-2000);
-
-        }
-        else if(m_timer.get() > 0.75){
+        if(m_timer.get()-m_time > 0.75 && m_metSetpointOnce){
             m_motionSystem.runCone(0.0,false);
-            m_claw.stop();
+            m_claw.setSpeed(-250);
             m_finished = true;
         }
     }
@@ -54,7 +50,7 @@ public class ConeTransfer extends CommandBase{
     public void end(boolean interrupted){
         m_motionSystem.coneIn();
         m_motionSystem.runCone(0.0,false);
-        m_claw.stop();    
+        //m_claw.stop();    
     }
 
     @Override
