@@ -53,7 +53,7 @@ public final class Constants {
     public static final MotionControlState kCube = new MotionControlState(16.8, 18, -6.7, 59.0*1.40, 8.0);
     public static final MotionControlState kConeIntake = new MotionControlState(-14.0, 0, -1.5, -24.0*1.40, 37.0);
     public static final MotionControlState kLow = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 8.0);
-    public static final MotionControlState kConeMid = new MotionControlState(58.0, 0, -9.5, 43.0*1.40, 8.0);
+    public static final MotionControlState kConeMid = new MotionControlState(63.0, 0, -9.5, 48.0*1.40, 8.0);
     public static final MotionControlState kConeHigh =  new MotionControlState(73.6, 0, -1.5, 52.0*1.40, 8.0);
     public static final MotionControlState kCubeMid = new MotionControlState(9.04, 0, -6.7, 18.0*1.40, 8.0);
     public static final MotionControlState kCubeHigh =  new MotionControlState(46.0, 0, -4.2,40.0*1.40, 8.0);
@@ -80,7 +80,7 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-    public static final boolean kUseNEO = true;
+    public static final boolean kUseNEO = false;
 
   public static final int kFrontLeftDriveMotorPort = 1; // CANID of the Translation SparkMAX
     public static final int kFrontRightDriveMotorPort = 3; // CANID of the Translation SparkMAX
@@ -97,10 +97,10 @@ public final class Constants {
     public static final int kBackLeftTurningEncoderPort = 2; // Analog Port of the Module Absolute Encoder
     public static final int kBackRightTurningEncoderPort = 3; // Analog Port of the Module Absolute Encoder
 
-    public static final double kFrontLeftOffset = -0.022856-3.0682; // Encoder Offset in Radians
-    public static final double kFrontRightOffset = -3.26395+Math.PI; // Encoder Offset in Radians
-    public static final double kBackLeftOffset = -1.19008; // Encoder Offset in Radians
-    public static final double kBackRightOffset = -0.15847+Math.PI/2; // Encoder Offset in Radians
+    public static final double kFrontLeftOffset = -0.9832*2*Math.PI+12.335; // Encoder Offset in Radians
+    public static final double kFrontRightOffset = -0.6225*2*Math.PI+7.820; // Encoder Offset in Radians
+    public static final double kBackLeftOffset = -0.1119*2*Math.PI+1.419; // Encoder Offset in Radians
+    public static final double kBackRightOffset = -0.5598*2*Math.PI+7.046; // Encoder Offset in Radians
 
     public static final double[] kFrontLeftTuningVals = { 0.015, 0.19, 0.15, 0 }; // {Static Gain, FeedForward,
                                                                                      // Proportional Gain, ModuleID for

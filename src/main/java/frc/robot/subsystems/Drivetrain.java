@@ -123,7 +123,7 @@ public class Drivetrain extends SubsystemBase {
     xSpeed = m_slewX.calculate(xSpeed);
     ySpeed = m_slewY.calculate(ySpeed);
 
-    SmartDashboard.putNumber("Desired Drivetrain Speed", MathUtils.pythagorean(xSpeed, ySpeed));
+    //SmartDashboard.putNumber("Desired Drivetrain Speed", MathUtils.pythagorean(xSpeed, ySpeed));
     
     rot = m_slewRot.calculate(rot);
 
@@ -162,8 +162,8 @@ public class Drivetrain extends SubsystemBase {
 
     double speed = Math.sqrt(xSpeed*xSpeed+ySpeed*ySpeed);
 
-    SmartDashboard.putNumber("Speed", speed);
-    SmartDashboard.putNumber("Tilt", getTilt());
+    //SmartDashboard.putNumber("Speed", speed);
+    //SmartDashboard.putNumber("Tilt", getTilt());
 
     // SmartDashboard.putNumber("Accel X", m_fieldRelAccel.ax);
     // SmartDashboard.putNumber("Accel Y", m_fieldRelAccel.ay);
@@ -174,10 +174,10 @@ public class Drivetrain extends SubsystemBase {
      SmartDashboard.putNumber("Back Left Encoder", m_backLeft.getTurnEncoder());
      SmartDashboard.putNumber("Back Right Encoder", m_backRight.getTurnEncoder());
 
-     SmartDashboard.putNumber("Front Left Speed", m_frontLeft.getState().speedMetersPerSecond);
-     SmartDashboard.putNumber("Front Right Speed",m_frontRight.getState().speedMetersPerSecond);
-     SmartDashboard.putNumber("Back Left Speed", m_backLeft.getState().speedMetersPerSecond);
-     SmartDashboard.putNumber("Back Right Speed", m_backRight.getState().speedMetersPerSecond);
+     //SmartDashboard.putNumber("Front Left Speed", m_frontLeft.getState().speedMetersPerSecond);
+     //SmartDashboard.putNumber("Front Right Speed",m_frontRight.getState().speedMetersPerSecond);
+     //SmartDashboard.putNumber("Back Left Speed", m_backLeft.getState().speedMetersPerSecond);
+     //SmartDashboard.putNumber("Back Right Speed", m_backRight.getState().speedMetersPerSecond);
     // Update swerve drive odometry periodically so robot pose can be tracked
     updateOdometry();
 
@@ -285,10 +285,10 @@ public class Drivetrain extends SubsystemBase {
     points.add(new PathPoint(initial.getTranslation(), initial.getRotation()));    
     points.add(new PathPoint(destination.getTranslation(), destination.getRotation()));
 
-    SmartDashboard.putNumber("Initial Pose X", initial.getX());
-    SmartDashboard.putNumber("Initial Pose Y", initial.getY());
-    SmartDashboard.putNumber("Destination Pose X", destination.getX());
-    SmartDashboard.putNumber("Destination Pose Y", destination.getY());
+    //SmartDashboard.putNumber("Initial Pose X", initial.getX());
+    //SmartDashboard.putNumber("Initial Pose Y", initial.getY());
+    //SmartDashboard.putNumber("Destination Pose X", destination.getX());
+    //SmartDashboard.putNumber("Destination Pose Y", destination.getY());
 
     return new PPSwerveControllerCommand(
       PathPlanner.generatePath(new PathConstraints(DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration), points),

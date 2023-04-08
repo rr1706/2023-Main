@@ -41,7 +41,7 @@ public class AutoAlign extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID = new PIDController(0.15, 0.00, 0.00);
+    private final PIDController m_rotPID = new PIDController(0.135, 0.00, 0.00);
 
     private final InterpolatingTreeMap<Double,Double> m_rpmHigh = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_distHigh = new InterpolatingTreeMap<>();
@@ -68,7 +68,7 @@ public class AutoAlign extends CommandBase {
 
       m_rpmHigh.put(52.0, 2500.0);
       m_rpmHigh.put(56.5, 2650.0);
-      m_rpmHigh.put(63.0, 3000.0);
+      m_rpmHigh.put(63.0, 3150.0);
 
       m_distHigh.put(2.0, 52.25);
       m_distHigh.put(0.0, 56.5);
@@ -78,8 +78,8 @@ public class AutoAlign extends CommandBase {
       m_distHigh.put(-8.00, 83.25);
       m_distHigh.put(-10.02, 96.25);
 
-      m_rpmMid.put(0.0, 1100.0);
-      m_rpmMid.put(1.0, 1100.0);
+      m_rpmMid.put(28.5, 1300.0);
+      m_rpmMid.put(36.0, 1600.0);
 
       m_distMid.put(-3.03, 30.75);
       m_distMid.put(0.05, 27.5);
@@ -245,7 +245,7 @@ public class AutoAlign extends CommandBase {
         speedX = (speedX+accelX*0.024)*39.37;
         speedY = (speedY+accelY*0.024)*39.37;
 
-        double virtualDist = -(speedX*0.500) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMid.get(m_visionTop.getTY()));
+        double virtualDist = -(speedX*(coneHigh ? 0.500: 0.500)) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMid.get(m_visionTop.getTY()));
 
         SmartDashboard.putNumber("Virtual Dist", virtualDist);
 
@@ -253,10 +253,30 @@ public class AutoAlign extends CommandBase {
           m_claw.setSpeed(coneHigh ? m_rpmHigh.get(virtualDist) : m_rpmMid.get(virtualDist));
         }
 
+        desiredRot += Math.signum(desiredRot)*Math.abs(m_drive.getChassisSpeed().vxMetersPerSecond)/40.0;
 
       }
-      else if(coneMid ? !m_visionTop.valid() : !m_visionBottom.valid()) {
-        m_claw.setSpeed(-50.0);
+      else if(gyroLock && gyroLock180){
+        SmartDashboard.putBoolean("rotatingViaVision", false);
+        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 0.0);
+      }
+      else{
+        SmartDashboard.putBoolean("rotatingViaVision", false);
+        desiredRot = m_rotPID.calculate(m_drive.getGyro().getDegrees(), 180.0);
+      }
+      if(m_controller.getRightTriggerAxis()>0.25 && !(coneHigh || coneMid)){
+        if(cubeHigh){
+          m_claw.setSpeed(2500);
+        }
+        else if(cubeMid){
+          m_claw.setSpeed(1750);
+        }
+        else if(low){
+          m_claw.setSpeed(1500);
+        }
+        else{
+          m_claw.setSpeed(4500);
+        }
       }
 
       if(desiredMag >= maxLinear){
@@ -266,8 +286,6 @@ public class AutoAlign extends CommandBase {
       if(Math.abs(desiredRot) > 2.0){
         desiredRot = Math.signum(desiredRot)*2.0;
       }
-
-      desiredRot += Math.signum(desiredRot)*Math.abs(m_drive.getChassisSpeed().vxMetersPerSecond)/40.0;
 
       //Translation2d rotAdj= desiredTranslation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(desiredRot*0.05);
   
