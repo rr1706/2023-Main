@@ -162,7 +162,7 @@ public class Drivetrain extends SubsystemBase {
 
     double speed = Math.sqrt(xSpeed*xSpeed+ySpeed*ySpeed);
 
-    SmartDashboard.putNumber("Speed", speed);
+    //SmartDashboard.putNumber("Speed", speed);
     SmartDashboard.putNumber("Tilt", getTilt());
 
     // SmartDashboard.putNumber("Accel X", m_fieldRelAccel.ax);
@@ -285,10 +285,10 @@ public class Drivetrain extends SubsystemBase {
     points.add(new PathPoint(initial.getTranslation(), initial.getRotation()));    
     points.add(new PathPoint(destination.getTranslation(), destination.getRotation()));
 
-    SmartDashboard.putNumber("Initial Pose X", initial.getX());
-    SmartDashboard.putNumber("Initial Pose Y", initial.getY());
-    SmartDashboard.putNumber("Destination Pose X", destination.getX());
-    SmartDashboard.putNumber("Destination Pose Y", destination.getY());
+    //SmartDashboard.putNumber("Initial Pose X", initial.getX());
+    //SmartDashboard.putNumber("Initial Pose Y", initial.getY());
+    //SmartDashboard.putNumber("Destination Pose X", destination.getX());
+    //SmartDashboard.putNumber("Destination Pose Y", destination.getY());
 
     return new PPSwerveControllerCommand(
       PathPlanner.generatePath(new PathConstraints(DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration), points),
