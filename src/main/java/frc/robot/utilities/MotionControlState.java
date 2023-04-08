@@ -1,25 +1,27 @@
 package frc.robot.utilities;
 
 import frc.robot.Constants.ArmsConstants;
+import frc.robot.Constants.DriveConstants;
 
 public class MotionControlState {
     public double m_arm;
-    public double m_cubeFront;
+    public double m_cube;
     public double m_elevator;
     public double m_wrist;
-    public double m_cubeBack;
+    public double m_cone;
     public double m_x;
     public double m_y;
-    public boolean m_elevatorHigh;
 
-    public MotionControlState(double arm, double cubeFront, double elevator, double wrist, double cubeBack) {
+    private boolean m_lowerElevator;
+
+    public MotionControlState(double arm, double cube, double elevator, double wrist, double cone){
         rawToRect(arm, elevator, wrist);
 
         m_arm = arm;
-        m_cubeFront = cubeFront;
+        m_cube = cube;
         m_elevator = elevator;
         m_wrist = wrist;
-        m_cubeBack = cubeBack;
+        m_cone = cone;
     }
     /**
      * @param x The x position of the center of the last wheels on the wrist when looking from the side
@@ -27,27 +29,33 @@ public class MotionControlState {
      * @param wristAngle The angle of the wrist in radians with 0 being parallel to the ground
      * @param lowerElevator Whether the elevator should be as low or high as possible
      */
-    public MotionControlState(double x, double y, double wristAngle, double cubeFront, double cubeBack, boolean elevatorHigh) {
-        rectToRaw(x, y, wristAngle, elevatorHigh);
+    public MotionControlState(double x, double y, double wristAngle, double cone, double cube, boolean lowerElevator) {
+        rectToRaw(x, y, wristAngle, lowerElevator);
 
         m_x = x;
         m_y = y;
-        m_cubeBack = cubeBack;
-        m_cubeFront = cubeFront;
+        m_cone = cone;
+        m_cube = cube;
     }
     public MotionControlState(MotionControlState state){
-        setState(state);
+        m_arm = state.m_arm;
+        m_cube = state.m_cube;
+        m_elevator = state.m_elevator;
+        m_wrist = state.m_wrist;
+        m_cone = state.m_cone;
+        m_x = state.m_x;
+        m_y = state.m_y;
+        m_lowerElevator = state.m_lowerElevator;
     }
 
     public void setState(MotionControlState state){
         m_arm = state.m_arm;
-        m_cubeFront = state.m_cubeFront;
+        m_cube = state.m_cube;
         m_elevator = state.m_elevator;
         m_wrist = state.m_wrist;
-        m_cubeBack = state.m_cubeBack;
+        m_cone = state.m_cone;
         m_x = state.m_x;
         m_y = state.m_y;
-        m_elevatorHigh = state.m_elevatorHigh;
     }
 
     public void setArm(double state) {
@@ -55,55 +63,55 @@ public class MotionControlState {
         rawToRect(m_arm, m_elevator, m_wrist);
     }
     public void setCube(double state) {
-        m_cubeFront = state;
+        m_cube = state;
     }
     public void setElevator(double state) {
         m_elevator = state;
         rawToRect(m_arm, m_elevator, m_wrist);
-    }
-    public void setElevatorHighLow(boolean high) {
-        m_elevatorHigh = high;
-        rectToRaw(m_x, m_y, m_wrist, m_elevatorHigh);
     }
     public void setWrist(double state) {
         m_wrist = state;
         rawToRect(m_arm, m_elevator, m_wrist);
     }
     public void setCone(double state) {
-        m_cubeBack = state;
+        m_cube = state;
     }
-    public void setX(double x, boolean elevatorHigh) {
+    public void setX(double x, boolean lowerElevator) {
         m_x = x;
-        rectToRaw(m_y, m_y, Math.PI - (m_arm * ArmsConstants.kArmToRadians) - (m_wrist * ArmsConstants.kWristToRadians), elevatorHigh);
+        rectToRaw(m_y, m_y, Math.PI - (m_arm * ArmsConstants.kArmToRadians) - (m_wrist * ArmsConstants.kWristToRadians), lowerElevator);
     }
-    public void setY(double y, boolean elevatorHigh) {
+    public void setY(double y, boolean lowerElevator) {
         m_y = y;
-        rectToRaw(m_y, m_y, Math.PI - (m_arm * ArmsConstants.kArmToRadians) - (m_wrist * ArmsConstants.kWristToRadians), elevatorHigh);
+        rectToRaw(m_y, m_y, Math.PI - (m_arm * ArmsConstants.kArmToRadians) - (m_wrist * ArmsConstants.kWristToRadians), lowerElevator);
     }
 
-    private void rectToRaw(double x, double y, double wrist, boolean elevatorHigh) {
-        double x0 = x - ArmsConstants.kWristLength * Math.cos(wrist);
-        double y0 = y - ArmsConstants.kWristLength * Math.sin(wrist);
-        double h = y0 + (elevatorHigh ? 1 : -1) * Math.sqrt(Math.pow(ArmsConstants.kArmLength, 2) - Math.pow(x0, 2));
-        double a = Math.asin(x0 / ArmsConstants.kArmLength);
-        double w = Math.PI / 2 - a - wrist;
-
-        m_x = x;
-        m_y = y;
-        m_arm = a / ArmsConstants.kArmToRadians;
-        m_elevator = h / ArmsConstants.kElevatorToCentimeters;
-        m_wrist = w / ArmsConstants.kWristToRadians;
-
-        if (m_elevator < ArmsConstants.kMinElevator || m_elevator > ArmsConstants.kMaxElevator) {
-            h = y0 + (!elevatorHigh ? 1 : -1) * Math.sqrt(Math.pow(ArmsConstants.kArmLength, 2) - Math.pow(x0, 2));
-            m_elevator = h / ArmsConstants.kElevatorToCentimeters;
+    private void rectToRaw(double x, double y, double wristAngle, boolean lowerElevator) {
+        double theta = ((Math.pow(x, 2) + Math.pow(y, 2)) + (Math.pow(ArmsConstants.kArmLength, 2) + Math.pow(ArmsConstants.kWristLength, 2))) / (2 * ArmsConstants.kArmLength * ArmsConstants.kWristLength);
+        double joint = y - ArmsConstants.kWristLength * Math.sin(wristAngle);
+        double elevator = joint;
+        double arm;
+        double wrist;
+        if (elevator / ArmsConstants.kElevatorToCentimeters >= ArmsConstants.kMinElevator || lowerElevator) {
+            elevator -= ArmsConstants.kArmLength * Math.sin(wristAngle - theta);
+            arm = wristAngle - theta;
+            wrist = -theta;
+        } else {
+            elevator -= ArmsConstants.kArmLength * Math.sin(wristAngle + theta);
+            arm = wristAngle + theta;
+            wrist = theta + (Math.PI / 2);
         }
+        elevator /= ArmsConstants.kElevatorToCentimeters;
+        arm /= ArmsConstants.kArmToRadians;
+        wrist /= ArmsConstants.kWristToRadians;
+
+        m_elevator = elevator;
+        m_arm = arm;
+        m_wrist = wrist;
+        m_lowerElevator = lowerElevator;
     }
 
     private void rawToRect(double arm, double elevator, double wrist) {
-        double w = Math.PI / 2 - (arm * ArmsConstants.kArmToRadians) - (wrist * ArmsConstants.kWristToRadians);
-        m_x = ArmsConstants.kArmLength * Math.cos(m_arm * ArmsConstants.kArmToRadians) + (ArmsConstants.kWristLength * Math.cos(w));
-        m_y = elevator * ArmsConstants.kElevatorToCentimeters + (ArmsConstants.kArmLength * Math.sin(arm * ArmsConstants.kArmToRadians)) + (ArmsConstants.kWristLength * Math.sin(w));
-        m_elevatorHigh = m_y >= ArmsConstants.kWristLength * Math.sin(w);
+        m_x = (ArmsConstants.kArmLength * Math.cos(m_arm * ArmsConstants.kArmToRadians)) + (ArmsConstants.kWristLength * Math.cos(Math.PI - (m_arm * ArmsConstants.kArmToRadians) - (m_wrist * ArmsConstants.kWristToRadians)));
+        m_y = (elevator * ArmsConstants.kElevatorToCentimeters) + (ArmsConstants.kArmLength * Math.sin(m_arm * ArmsConstants.kArmToRadians)) + (ArmsConstants.kWristLength * Math.sin(Math.PI - (m_arm * ArmsConstants.kArmToRadians) - (m_wrist * ArmsConstants.kWristToRadians)));
     }
 }
