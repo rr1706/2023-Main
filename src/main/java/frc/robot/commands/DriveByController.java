@@ -69,12 +69,12 @@ public class DriveByController extends CommandBase {
             * DriveConstants.kMaxAngularSpeed,
         fieldOrient); */
 
-        SmartDashboard.putBoolean("DrivingByController", true);
+        //SmartDashboard.putBoolean("DrivingByController", true);
   }
 
   @Override
   public void end(boolean interrupted){
-    SmartDashboard.putBoolean("DrivingByController", false);
+    //SmartDashboard.putBoolean("DrivingByController", false);
 
   }
 

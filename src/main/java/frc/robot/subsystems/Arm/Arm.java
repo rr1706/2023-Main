@@ -75,7 +75,7 @@ public class Arm extends SubsystemBase {
         double output = m_rioPID.calculate(getPose(), m_setpoint);
         TrapezoidProfile.State state = m_rioPID.getSetpoint();
         SmartDashboard.putNumber("Arm Desired Velocity", state.velocity);
-        SmartDashboard.putNumber("Arm ACtual Velocity", getVelocity()/60.0);
+        SmartDashboard.putNumber("Arm Actual Velocity", getVelocity()/60.0);
         double ff = m_ff.calculate((state.position*Math.PI/90.0)-Math.PI/2.0, state.velocity);
         m_motor1.set(output+ff);
 
