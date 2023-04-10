@@ -47,6 +47,7 @@ public class AutoAlign extends CommandBase {
     private final InterpolatingTreeMap<Double, Double> m_distHigh = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_rpmMid = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_distMid = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double, Double> m_distMidFromBottom = new InterpolatingTreeMap<>();
 
     private final double m_autoSpeed;
 
@@ -80,6 +81,14 @@ public class AutoAlign extends CommandBase {
 
       m_rpmMid.put(28.5, 1300.0);
       m_rpmMid.put(36.0, 1600.0);
+
+      m_distMidFromBottom.put(1.5, 35.1);
+      m_distMidFromBottom.put(0.0, 40.1);
+      m_distMidFromBottom.put(-1.5, 46.5);
+      m_distMidFromBottom.put(-3.0, 55.3);
+      m_distMidFromBottom.put(-4.5, 68.0);
+      m_distMidFromBottom.put(-6.0, 88.5);
+      m_distMidFromBottom.put(-7.5, 125.0);
 
       m_distMid.put(-3.03, 30.75);
       m_distMid.put(0.05, 27.5);
@@ -177,12 +186,15 @@ public class AutoAlign extends CommandBase {
         visionLock = true;
         gyroLock = false;
         m_visionTop.setPipeline(1);
+        m_visionBottom.setLights(3);
+        m_visionBottom.setPipeline(1);
       }
       else if(coneHigh){
         m_state = StateConstants.kConeHigh;
         visionLock = true;
         gyroLock = false;
         m_visionBottom.setLights(3);
+        m_visionBottom.setPipeline(0);
       }
       else if(cubeMid || (cubeHigh && gyroLock180)){
         visionLock = false;
@@ -227,8 +239,11 @@ public class AutoAlign extends CommandBase {
         m_controller.setRumble(RumbleType.kBothRumble, 0.0);
       }
 
-      if(m_controlSystem.atSetpoint() && visionLock && ((m_visionBottom.valid() && coneHigh) || (m_visionTop.valid() && coneMid))){
-        double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : m_visionTop.getTX();
+      if(m_controlSystem.atSetpoint() && visionLock && ((m_visionBottom.valid() && (coneHigh || coneMid)) || (m_visionTop.valid() && coneMid))){
+        double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : 
+                                   (m_visionTop.valid() ? m_visionTop.getTX() :
+                                     m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distMidFromBottom.get(m_visionBottom.getTY())))-11.535));
+        
         SmartDashboard.putNumber("Angle Error", angle);
         double atAngle = 0.25;
 
