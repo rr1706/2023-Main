@@ -1,8 +1,14 @@
 package frc.robot.utilities;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import frc.robot.Constants.DriveConstants;
 
 public class MathUtils {
+
+    private static final double kEps = 1E-9;
     
     public static double toUnitCircAngle(double angle) {
       double rotations = angle / (2 * Math.PI);
