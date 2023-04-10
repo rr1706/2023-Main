@@ -96,6 +96,8 @@ public class Drivetrain extends SubsystemBase {
   private ChassisSpeeds m_lastDriveSpeed = new ChassisSpeeds();
   private ChassisAccel m_driveAccel = new ChassisAccel();
 
+  private SwerveModuleState[] m_desStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, 0.0, 0.0));
+  
   /**
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
    */
@@ -131,23 +133,9 @@ public class Drivetrain extends SubsystemBase {
     if(keepAngle){
       rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
     }
-                                                 // depending on driver input
-
-
-    // SmartDashboard.putNumber("xSpeed Commanded", xSpeed);
-    // SmartDashboard.putNumber("ySpeed Commanded", ySpeed);
-
-    // creates an array of the desired swerve module states based on driver command
-    // and if the commands are field relative or not
-    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(
-        fieldRelative ? secondOrderKinematics(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, ahrs.getRotation2d()))
-            : secondOrderKinematics(new ChassisSpeeds(xSpeed, ySpeed, rot)));
-
-    // normalize wheel speeds so all individual states are scaled to achievable
-    // velocities
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
-
-    setModuleStates(swerveModuleStates);
+    
+    fieldRelative ? setModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, ahrs.getRotation2d()))
+            : setModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot)));
   }
 
   @Override
@@ -202,6 +190,7 @@ public class Drivetrain extends SubsystemBase {
   public void setModuleStates(ChassisSpeeds chassisSpeeds) {
     SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(correctForDynamics(chassisSpeeds));
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
+    m_desStates = desiredStates;
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
     m_backLeft.setDesiredState(desiredStates[2]);
@@ -357,6 +346,10 @@ public class Drivetrain extends SubsystemBase {
     return DriveConstants.kDriveKinematics.toChassisSpeeds(m_frontLeft.getState(), m_frontRight.getState(),
         m_backLeft.getState(),
         m_backRight.getState());
+  }
+  
+  public ChassisSpeeds getCorDesChassisSpeed() {
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(m_desStates[0],m_desStates[1],m_desStates[2],m_desStates[3]);
   }
 
   public ChassisAccel getChassisAccel(){
