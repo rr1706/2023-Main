@@ -200,7 +200,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setModuleStates(ChassisSpeeds chassisSpeeds) {
-    SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(secondOrderKinematics(chassisSpeeds));
+    SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(correctForDynamics(chassisSpeeds));
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(desiredStates[0]);
     m_frontRight.setDesiredState(desiredStates[1]);
