@@ -240,7 +240,7 @@ public class AutoAlign extends CommandBase {
 
       if(m_controlSystem.atSetpoint() && visionLock && ((m_visionBottom.valid() && (coneHigh || coneMid)))){
         double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : 
-                                  m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distMidFromBottom.get(m_visionBottom.getTY())))-11.535));
+                                  m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distMidFromBottom.get(m_visionBottom.getTY())))-11.535);
         
         SmartDashboard.putNumber("Angle Error", angle);
         double atAngle = 0.25;
