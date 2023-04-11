@@ -79,6 +79,9 @@ public class RobotContainer {
   //private final RunClaw m_runClaw = new RunClaw(m_operatorBoard,m_vision, m_claw);
   private final ConeIntake m_coneIntake = new ConeIntake(m_motionControl, m_claw);
   private final ConeTransfer m_coneTransfer = new ConeTransfer(m_motionControl, m_claw);
+  
+  private final Command m_increaseSlew = new InstantCommand(()->m_drive.changeSlewRate(5,5,8));
+  private final Command m_reduceSlew = new InstantCommand(()->m_drive.changeSlewRate(7.5,7.5,12));
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
@@ -106,24 +109,24 @@ public class RobotContainer {
   new POVButton(m_driverController, 90)
     .onTrue(new InstantCommand(() -> m_poseEstimator.resetOdometry(new Pose2d(new Translation2d(1.85,3.08),new Rotation2d(Math.PI)))));
 
-  new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCoolThing))).onFalse(new InstantCommand(()->m_motionControl.setState(StateConstants.kHome)));
+  new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCoolThing)).alongWith(m_increaseSlew)).onFalse(new InstantCommand(()->m_motionControl.setState(StateConstants.kHome)).alongWith(m_reduceSlew));
 
   new JoystickButton(m_driverController, Button.kStart.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kStart)));
 
-  new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align);
-  new JoystickButton(m_driverController, Button.kX.value).onTrue(new Grab(m_motionControl, true));
+  new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align).onTrue(m_increaseSlew).onFalse(m_reduceSlew);
+  new JoystickButton(m_driverController, Button.kX.value).onTrue(new Grab(m_motionControl, true).alongWith(m_increaseSlew));
 
   new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(()->m_motionControl.forceCubeIn()).andThen(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor))));
   
-  new JoystickButton(m_driverController, Button.kRightBumper.value).whileTrue(m_coneIntake).onFalse(m_coneTransfer);
-  new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-1250)))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.setSpeed(-250))).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn())));
+  new JoystickButton(m_driverController, Button.kRightBumper.value).whileTrue(m_coneIntake).onFalse(m_coneTransfer.alongWith(m_reduceSlew));
+  new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-1250)))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.setSpeed(-250))).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn())).alongWith(m_reduceSlew));
   //new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(()->m_motionControl.toggleCube()).alongWith(new InstantCommand(()->m_motionControl.runCube(-0.15)))).onFalse(new InstantCommand(()->m_motionControl.runCube(0.0)));
 
-  new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
+  //new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
 
   new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-2500))).onFalse(new InstantCommand(()->m_claw.setSpeed(-50.0)));
   
-  new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
+  //new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
   
   new JoystickRightTrigger(m_driverController).whileTrue(new ConditionalCommand(new WaitCommand(15.0),new InstantCommand(()->m_claw.setSpeed(2500)),()->m_align.isScheduled()));
   }
