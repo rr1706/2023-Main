@@ -211,7 +211,7 @@ public class Drivetrain extends SubsystemBase {
     return new ChassisSpeeds(translation.getX(),translation.getY(),chassisSpeeds.omegaRadiansPerSecond);
   }
   
-    private ChassisSpeeds correctForDynamics(ChassisSpeeds originalSpeeds) {
+  private ChassisSpeeds correctForDynamics(ChassisSpeeds originalSpeeds) {
     final double LOOP_TIME_S = 0.02;
     Pose2d futureRobotPose =
         new Pose2d(

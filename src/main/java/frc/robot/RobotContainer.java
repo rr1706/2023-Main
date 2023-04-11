@@ -139,8 +139,10 @@ public class RobotContainer {
     events.put("CubeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeHigh)));
     events.put("CubeMid", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeMid)));
     events.put("StopDrive", new InstantCommand(()->m_drive.stop()));
-    events.put("CubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))));
-    events.put("StopCubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.stop())).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn()))));
+    events.put("FrontCubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))));
+    events.put("StopFrontCubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.stop())).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn()))));
+    events.put("BackCubeIntake", m_coneIntake);
+    events.put("StopBackCubeIntake", m_ConeTransfer.andThen(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome))));
     events.put("ShootConeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)).alongWith(new WaitCommand(1.0))
       .andThen(new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 3,0.25)
         .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,3)))
@@ -160,11 +162,11 @@ public class RobotContainer {
     events.put("ShootCubeMid", new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 4,0.25)
     .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,4)))
     .withTimeout(2.0));
-    events.put("WaitForArmMove", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.05)));
-    events.put("RunClawConeHigh", new RunClaw(m_operatorBoard,m_vision, m_claw, 3));
-    events.put("RunClawConeMid", new RunClaw(m_operatorBoard,m_vision, m_claw, 2));
-    events.put("RunClawCubeMid", new RunClaw(m_operatorBoard,m_vision, m_claw, 4));
-    events.put("RunClawCubeHigh", new RunClaw(m_operatorBoard,m_vision, m_claw, 5));
+    events.put("WaitForArmMove", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.02)));
+    events.put("RunClawConeHigh", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 3)));
+    events.put("RunClawConeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 2)));
+    events.put("RunClawCubeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 4)));
+    events.put("RunClawCubeHigh", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 5)));
     events.put("RunClaw", new InstantCommand(() -> m_claw.setSpeed(2000)));
     events.put("StopClaw", new InstantCommand(() -> m_claw.setSpeed(0)));
     events.put("ConeIntake", m_coneIntake);
