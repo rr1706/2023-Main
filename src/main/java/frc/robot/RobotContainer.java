@@ -167,7 +167,7 @@ public class RobotContainer {
     .withTimeout(2.0));
     events.put("WaitForArmMove", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.02)));
     events.put("RunClawConeHigh", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 3)));
-    events.put("RunClawConeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 2).withTimeout(0.5)));
+    events.put("RunClawConeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.1)).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 2).withTimeout(0.5)));
     events.put("RunClawCubeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 4).withTimeout(0.5)));
     events.put("RunClawCubeHigh", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 5).withTimeout(0.5)));
     events.put("RunClaw", new InstantCommand(() -> m_claw.setSpeed(2000)));
