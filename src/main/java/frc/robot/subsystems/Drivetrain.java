@@ -56,9 +56,9 @@ public class Drivetrain extends SubsystemBase {
 
   private final Timer keepAngleTimer = new Timer(); // Creates timer used in the perform keep angle function
 
-  private final SlewRateLimiter m_slewX = new SlewRateLimiter(7.5);
-  private final SlewRateLimiter m_slewY = new SlewRateLimiter(7.5);
-  private final SlewRateLimiter m_slewRot = new SlewRateLimiter(12.0);
+  private SlewRateLimiter m_slewX = new SlewRateLimiter(7.5);
+  private SlewRateLimiter m_slewY = new SlewRateLimiter(7.5);
+  private SlewRateLimiter m_slewRot = new SlewRateLimiter(12.0);
 
   // Creates a swerveModule object for the front left swerve module feeding in
   // parameters from the constants file
@@ -96,6 +96,8 @@ public class Drivetrain extends SubsystemBase {
 
   private ChassisSpeeds m_lastDriveSpeed = new ChassisSpeeds();
   private ChassisAccel m_driveAccel = new ChassisAccel();
+  
+  prviate final double[] m_latestSlew = {0.0,0.0,0.0};
 
   private SwerveModuleState[] m_desStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, 0.0, 0.0));
   
@@ -130,7 +132,8 @@ public class Drivetrain extends SubsystemBase {
     
     rot = m_slewRot.calculate(rot);
 
-
+    m_latestSlew = {xSpeed,ySpeed,rot};
+    
     if(keepAngle){
       rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
     }
@@ -408,5 +411,10 @@ public class Drivetrain extends SubsystemBase {
   public void updateKeepAngle() {
     keepAngle = getGyro().getRadians();
   }
-
+  
+  public void changeSlewRate(double translation, double rotation){
+    m_slewX = new SlewRateLimiter(translation,m_latestSlew[0]);
+    m_slewY = new SlewRateLimiter(translation,m_latestSlew[1]);
+    m_slewRot = new SlewRateLimiter(rotation,m_latestSlew[2]);
+  }
 }
