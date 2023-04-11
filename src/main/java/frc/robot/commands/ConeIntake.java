@@ -15,6 +15,8 @@ public class ConeIntake extends CommandBase{
     public ConeIntake(MotionControlSystem motionSystem, Claw claw){
         m_motionSystem = motionSystem;
         m_claw = claw;
+
+        addRequirements(m_motionSystem);
     }
 
     @Override
