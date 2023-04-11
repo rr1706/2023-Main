@@ -16,11 +16,7 @@ public class ConeIntake extends CommandBase{
         m_motionSystem = motionSystem;
         m_claw = claw;
 
-<<<<<<< Updated upstream
-        addRequirements(m_motionSystem, m_claw);
-=======
         addRequirements(m_motionSystem);
->>>>>>> Stashed changes
     }
 
     @Override

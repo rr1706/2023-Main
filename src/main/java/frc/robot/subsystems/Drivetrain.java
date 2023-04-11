@@ -97,7 +97,7 @@ public class Drivetrain extends SubsystemBase {
   private ChassisSpeeds m_lastDriveSpeed = new ChassisSpeeds();
   private ChassisAccel m_driveAccel = new ChassisAccel();
   
-  prviate final double[] m_latestSlew = {0.0,0.0,0.0};
+  private final double[] m_latestSlew = {0.0,0.0,0.0};
 
   private SwerveModuleState[] m_desStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(new ChassisSpeeds(0.0, 0.0, 0.0));
   

@@ -17,12 +17,8 @@ public class ConeTransfer extends CommandBase{
     public ConeTransfer(MotionControlSystem motionSystem, Claw claw){
         m_motionSystem = motionSystem;
         m_claw = claw;
-<<<<<<< Updated upstream
-        
-        addRequirements(m_motionSystem, m_claw);
-=======
+
         addRequirements(m_motionSystem);
->>>>>>> Stashed changes
     }
 
     @Override
