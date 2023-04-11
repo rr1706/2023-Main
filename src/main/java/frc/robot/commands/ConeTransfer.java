@@ -18,7 +18,7 @@ public class ConeTransfer extends CommandBase{
         m_motionSystem = motionSystem;
         m_claw = claw;
         
-        addRequirements(m_motionSystem, m_claw);
+        addRequirements(m_motionSystem);
     }
 
     @Override
