@@ -27,6 +27,7 @@ public class ConeIntake extends CommandBase{
     @Override
     public void end(boolean interrupted){
         m_claw.setSpeed(-750);
+        m_motionSystem.runCone(0.0,false);
         m_motionSystem.setState(StateConstants.kConeIntakeIn);
     }
     

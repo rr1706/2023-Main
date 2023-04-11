@@ -76,7 +76,7 @@ public class RunClaw extends CommandBase{
             m_claw.setSpeed(2000);
         }
         else if(coneMid){
-            m_claw.setSpeed(1100);
+            m_claw.setSpeed(1300);
         }
         else if(coneHigh){
             m_claw.setSpeed(m_rpmHigh.get(m_distHigh.get(m_limelight.getTY())));

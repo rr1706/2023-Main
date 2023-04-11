@@ -105,7 +105,7 @@ public class Cone extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(m_setpoint.position-m_extEncoder.getPosition()) <= 5.0;
+        return Math.abs(m_setpoint.position-m_extEncoder.getPosition()) <= 1.0;
     }
 
     public void setForce(boolean force) {

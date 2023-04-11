@@ -16,10 +16,13 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "ConeMid",
+          "RunClawConeMid"
+        ],
         "executionBehavior": "sequential",
-        "waitBehavior": "deadline",
-        "waitTime": 0
+        "waitBehavior": "none",
+        "waitTime": 1.5
       }
     },
     {
@@ -252,5 +255,64 @@
   "maxVelocity": null,
   "maxAcceleration": 3.0,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 0.32727272727272727,
+      "names": [
+        "ConeIntake"
+      ]
+    },
+    {
+      "position": 2.01,
+      "names": [
+        "StopConeIntake",
+        "ConeTransfer"
+      ]
+    },
+    {
+      "position": 2.683636363636342,
+      "names": [
+        "CubeHigh"
+      ]
+    },
+    {
+      "position": 3.927272727272528,
+      "names": [
+        "RunClawCubeHigh"
+      ]
+    },
+    {
+      "position": 4.254545454545326,
+      "names": [
+        "ConeIntake"
+      ]
+    },
+    {
+      "position": 6.01,
+      "names": [
+        "event",
+        "StopConeIntake"
+      ]
+    },
+    {
+      "position": 6.7418181818181715,
+      "names": [
+        "event",
+        "CubeMid"
+      ]
+    },
+    {
+      "position": 7.854545454545419,
+      "names": [
+        "event",
+        "RunClawCubeMid"
+      ]
+    },
+    {
+      "position": 8.116363636363548,
+      "names": [
+        "Home"
+      ]
+    }
+  ]
 }

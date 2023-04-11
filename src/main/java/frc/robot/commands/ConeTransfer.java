@@ -12,7 +12,6 @@ public class ConeTransfer extends CommandBase{
     private final Timer m_timer = new Timer();
     private double m_time = 0.0;
     private boolean m_metSetpointOnce = false;
-    private boolean m_timeReached2 = false;
     private boolean m_finished = false;
 
     public ConeTransfer(MotionControlSystem motionSystem, Claw claw){
@@ -24,7 +23,6 @@ public class ConeTransfer extends CommandBase{
     public void initialize(){
         m_finished = false;
         m_metSetpointOnce = false;
-        m_timeReached2 = false;
         m_timer.reset();
         m_timer.start();
         m_claw.setSpeed(-2000);  
@@ -33,7 +31,7 @@ public class ConeTransfer extends CommandBase{
 
     @Override
     public void execute(){
-        if(!m_metSetpointOnce && m_motionSystem.atSetpoint()){            
+        if(!m_metSetpointOnce && m_motionSystem.atSetpoint() && m_timer.get() > 0.25){            
             m_time = m_timer.get();
             m_motionSystem.runCone(-0.4, true);
             m_metSetpointOnce = true;
