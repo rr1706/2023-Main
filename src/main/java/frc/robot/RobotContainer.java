@@ -80,8 +80,8 @@ public class RobotContainer {
   private final ConeIntake m_coneIntake = new ConeIntake(m_motionControl, m_claw);
   private final ConeTransfer m_coneTransfer = new ConeTransfer(m_motionControl, m_claw);
 
-  private final Command m_increaseSlew = new InstantCommand(()->m_drive.changeSlewRate(5,5,8));
-  private final Command m_reduceSlew = new InstantCommand(()->m_drive.changeSlewRate(7.5,7.5,12));
+  private final Command m_increaseSlew = new InstantCommand(()->m_drive.changeSlewRate(5.0,8.0));
+  private final Command m_reduceSlew = new InstantCommand(()->m_drive.changeSlewRate(7.5,12));
 
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
