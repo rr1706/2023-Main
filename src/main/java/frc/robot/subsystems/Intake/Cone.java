@@ -46,8 +46,8 @@ public class Cone extends SubsystemBase {
         m_motor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_motorExt.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         
-        m_PID.setSmartMotionMaxAccel(5000, 0);
-        m_PID.setSmartMotionMaxVelocity(2500, 0);
+        m_PID.setSmartMotionMaxAccel(25000, 0);
+        m_PID.setSmartMotionMaxVelocity(10000, 0);
 
         m_motor.setIdleMode(IdleMode.kCoast);
 
@@ -105,7 +105,7 @@ public class Cone extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(m_setpoint.position-m_extEncoder.getPosition()) <= 1.0;
+        return Math.abs(m_setpoint.position-m_extEncoder.getPosition()) <= 5.0;
     }
 
     public void setForce(boolean force) {

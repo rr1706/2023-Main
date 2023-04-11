@@ -28,19 +28,17 @@ public class ConeTransfer extends CommandBase{
         m_timer.reset();
         m_timer.start();
         m_claw.setSpeed(-2000);  
-        m_motionSystem.runCone(0.00,true); 
         m_time = 0;
     }
 
     @Override
     public void execute(){
-        if(m_motionSystem.atSetpoint() && !m_metSetpointOnce){
-            m_motionSystem.runCone(-0.40, true);
+        if(!m_metSetpointOnce && m_motionSystem.atSetpoint()){            
             m_time = m_timer.get();
+            m_motionSystem.runCone(-0.4, true);
             m_metSetpointOnce = true;
         }
-        if(m_timer.get()-m_time > 0.75 && m_metSetpointOnce){
-            m_motionSystem.runCone(0.0,false);
+        if(m_timer.get()-m_time > 0.4 && m_metSetpointOnce){
             m_claw.setSpeed(-250);
             m_finished = true;
         }
@@ -48,9 +46,8 @@ public class ConeTransfer extends CommandBase{
 
     @Override
     public void end(boolean interrupted){
-        m_motionSystem.coneIn();
         m_motionSystem.runCone(0.0,false);
-        //m_claw.stop();    
+        m_motionSystem.setState(StateConstants.kStart);
     }
 
     @Override

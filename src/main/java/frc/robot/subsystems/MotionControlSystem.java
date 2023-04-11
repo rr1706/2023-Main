@@ -116,6 +116,8 @@ public final class MotionControlSystem extends SubsystemBase {
         SmartDashboard.putNumber("Current Cone", m_cone.getPose());
         SmartDashboard.putNumber("Current Cube", m_cube.getPose());
 
+        SmartDashboard.putBoolean("MotionReady", atSetpoint());
+
     }
 
     public boolean atSetpoint(){

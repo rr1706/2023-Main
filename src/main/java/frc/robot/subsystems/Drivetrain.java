@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -134,8 +135,12 @@ public class Drivetrain extends SubsystemBase {
       rot = performKeepAngle(xSpeed, ySpeed, rot); // Calls the keep angle function to update the keep angle or rotate
     }
     
-    fieldRelative ? setModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, ahrs.getRotation2d()))
-            : setModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot)));
+    if(fieldRelative){
+      setModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, ahrs.getRotation2d()));
+    }
+    else{
+      setModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot));
+    }
   }
 
   @Override
@@ -150,7 +155,7 @@ public class Drivetrain extends SubsystemBase {
 
     double speed = Math.sqrt(xSpeed*xSpeed+ySpeed*ySpeed);
 
-    //SmartDashboard.putNumber("Speed", speed);
+    SmartDashboard.putNumber("Speed", speed);
     //SmartDashboard.putNumber("Tilt", getTilt());
 
     // SmartDashboard.putNumber("Accel X", m_fieldRelAccel.ax);
@@ -188,7 +193,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setModuleStates(ChassisSpeeds chassisSpeeds) {
-    SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(correctForDynamics(chassisSpeeds));
+    SwerveModuleState[] desiredStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(secondOrderKinematics(chassisSpeeds));
     SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_desStates = desiredStates;
     m_frontLeft.setDesiredState(desiredStates[0]);
@@ -199,7 +204,7 @@ public class Drivetrain extends SubsystemBase {
 
   public ChassisSpeeds secondOrderKinematics(ChassisSpeeds chassisSpeeds){
     Translation2d translation = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
-    Translation2d rotAdj= translation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(chassisSpeeds.omegaRadiansPerSecond*0.055);
+    Translation2d rotAdj= translation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(chassisSpeeds.omegaRadiansPerSecond*0.045);
 
     translation = translation.plus(rotAdj);
 

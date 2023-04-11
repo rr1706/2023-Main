@@ -67,9 +67,9 @@ public class AutoAlign extends CommandBase {
       m_rotPID.enableContinuousInput(-180, 180);
       m_rotPID.setIntegratorRange(-0.02, 0.02);
 
-      m_rpmHigh.put(52.0, 2500.0);
-      m_rpmHigh.put(56.5, 2650.0);
-      m_rpmHigh.put(63.0, 3150.0);
+      m_rpmHigh.put(52.0, 2450.0);
+      m_rpmHigh.put(56.5, 2575.0);
+      m_rpmHigh.put(63.0, 3175.0);
 
       m_distHigh.put(2.0, 52.25);
       m_distHigh.put(0.0, 56.5);
@@ -79,8 +79,10 @@ public class AutoAlign extends CommandBase {
       m_distHigh.put(-8.00, 83.25);
       m_distHigh.put(-10.02, 96.25);
 
-      m_rpmMid.put(28.5, 1300.0);
-      m_rpmMid.put(36.0, 1600.0);
+      m_rpmMid.put(34.0, 1050.0);
+      m_rpmMid.put(40.0, 1300.0);
+      m_rpmMid.put(52.0, 1800.0);
+      m_rpmMid.put(58.0, 2100.0);
 
       m_distMidFromBottom.put(1.5, 35.1);
       m_distMidFromBottom.put(0.0, 40.1);
@@ -119,7 +121,7 @@ public class AutoAlign extends CommandBase {
     public void initialize(){
       m_state = StateConstants.kHome;
       m_lastState = StateConstants.kHome;
-      m_visionBottom.setLights(1);
+      m_visionBottom.setLights(0);
       m_visionBottom.setPipeline(0);
       m_visionTop.setLights(0);
       m_visionTop.setPipeline(0);
@@ -240,7 +242,7 @@ public class AutoAlign extends CommandBase {
 
       if(m_controlSystem.atSetpoint() && visionLock && ((m_visionBottom.valid() && (coneHigh || coneMid)))){
         double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : 
-                                  m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distMidFromBottom.get(m_visionBottom.getTY())))-11.535));
+                                  m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distMidFromBottom.get(m_visionBottom.getTY())))-11.535);
         
         SmartDashboard.putNumber("Angle Error", angle);
         double atAngle = 0.25;
@@ -258,11 +260,11 @@ public class AutoAlign extends CommandBase {
         speedX = (speedX+accelX*0.024)*39.37;
         speedY = (speedY+accelY*0.024)*39.37;
 
-        double virtualDist = -(speedX*(coneHigh ? 0.500: 0.500)) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMid.get(m_visionTop.getTY()));
+        double virtualDist = -(speedX*(coneHigh ? 0.475: 0.300)) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMidFromBottom.get(m_visionBottom.getTY()));
 
         SmartDashboard.putNumber("Virtual Dist", virtualDist);
 
-        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= 63.0 && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
+        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= (coneHigh ? 63.0 : 52.0) && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
           m_claw.setSpeed(coneHigh ? m_rpmHigh.get(virtualDist) : m_rpmMid.get(virtualDist));
         }
 
@@ -323,7 +325,8 @@ public class AutoAlign extends CommandBase {
     public void end(boolean interrupted){
       SmartDashboard.putBoolean("DrivingByController", false);
       m_controlSystem.setState(StateConstants.kHome);
-      m_visionBottom.setLights(1);
+      m_visionTop.setLights(0);
+      m_visionBottom.setLights(0);
       m_visionTop.setPipeline(0);
       m_controller.setRumble(RumbleType.kBothRumble, 0.0);
       m_claw.stop();
