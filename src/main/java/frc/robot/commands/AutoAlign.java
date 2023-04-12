@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.InterpolatingTreeMap;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -30,6 +31,7 @@ public class AutoAlign extends CommandBase {
     private final Limelight m_visionTop;
     private final Limelight m_visionBottom;
 
+    private boolean debug = false;
     private boolean fieldOrient = true;
     private final boolean useLockedPosition;
     private final int lockedPosition;
@@ -265,6 +267,10 @@ public class AutoAlign extends CommandBase {
         SmartDashboard.putNumber("Virtual Dist", virtualDist);
 
         if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= (coneHigh ? 63.0 : 52.0) && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
+          if (debug) {
+            DriverStation.reportWarning("Accel X: " + accelX, false);
+            DriverStation.reportWarning("Accel Y: " + accelY, false);
+          }
           m_claw.setSpeed(coneHigh ? m_rpmHigh.get(virtualDist) : m_rpmMid.get(virtualDist));
         }
 
