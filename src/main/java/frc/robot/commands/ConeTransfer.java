@@ -38,7 +38,7 @@ public class ConeTransfer extends CommandBase{
             m_motionSystem.runCone(-0.4, true);
             m_metSetpointOnce = true;
         }
-        if(m_timer.get()-m_time > 0.4 && m_metSetpointOnce){
+        if(m_timer.get()-m_time > 0.20 && m_metSetpointOnce){
             m_claw.setSpeed(-250);
             m_finished = true;
         }

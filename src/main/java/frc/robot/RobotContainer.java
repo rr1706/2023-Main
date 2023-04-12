@@ -80,6 +80,9 @@ public class RobotContainer {
   private final ConeIntake m_coneIntake = new ConeIntake(m_motionControl, m_claw);
   private final ConeTransfer m_coneTransfer = new ConeTransfer(m_motionControl, m_claw);
 
+  private final ConeIntake m_autoConeIntake = new ConeIntake(m_motionControl, m_claw);
+  private final ConeTransfer m_autoConeTransfer = new ConeTransfer(m_motionControl, m_claw);
+
   private final Command m_increaseSlew = new InstantCommand(()->m_drive.changeSlewRate(5.0,8.0));
   private final Command m_reduceSlew = new InstantCommand(()->m_drive.changeSlewRate(7.5,12));
 
@@ -163,16 +166,16 @@ public class RobotContainer {
     events.put("ShootCubeMid", new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 4,0.25)
     .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,4)))
     .withTimeout(2.0));
-    events.put("WaitForArmMove", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.02)));
+    events.put("WaitForArmMove", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.05)));
     events.put("RunClawConeHigh", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 3)));
-    events.put("RunClawConeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.1)).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 2).withTimeout(0.5)));
-    events.put("RunClawCubeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 4).withTimeout(0.5)));
-    events.put("RunClawCubeHigh", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 5).withTimeout(0.5)));
+    events.put("RunClawConeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.2)).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 2).withTimeout(0.5)));
+    events.put("RunClawCubeMid", new RunClaw(m_operatorBoard,m_vision, m_claw, 4).withTimeout(0.75));
+    events.put("RunClawCubeHigh", new RunClaw(m_operatorBoard,m_vision, m_claw, 5).withTimeout(0.75));
     events.put("RunClaw", new InstantCommand(() -> m_claw.setSpeed(2000)));
     events.put("StopClaw", new InstantCommand(() -> m_claw.setSpeed(0)));
-    events.put("ConeIntake", new ConeIntake(m_motionControl, m_claw));
-    events.put("StopConeIntake", new InstantCommand(() -> CommandScheduler.getInstance().cancel(new ConeIntake(m_motionControl, m_claw))));
-    events.put("ConeTransfer", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new ConeTransfer(m_motionControl, m_claw)));
+    events.put("ConeIntake",m_autoConeIntake);
+    events.put("StopConeIntake", new InstantCommand(()-> m_autoConeIntake.forceCancel()));
+    events.put("ConeTransfer", m_autoConeTransfer);
     events.put("DockSimple", new RunCommand(() -> m_drive.drive(1.0, 0, 0, true, false),m_drive));
     events.put("DockNear", new Dock(m_drive, true));
     events.put("DockFar", new Dock(m_drive, false));
@@ -190,7 +193,7 @@ public class RobotContainer {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
           auto.getName(), 
-          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.0, 2.5))
+          autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.0, 2.75))
           );
       }
     }
