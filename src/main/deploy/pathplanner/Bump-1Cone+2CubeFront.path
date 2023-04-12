@@ -184,12 +184,15 @@
         "x": 2.1865929038562784,
         "y": 0.7776111415275606
       },
-      "nextControl": null,
+      "nextControl": {
+        "x": 2.1865929038562784,
+        "y": 0.7776111415275606
+      },
       "holonomicAngle": 180.0,
-      "isReversal": false,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
       "stopEvent": {
         "names": [
           "StopDrive",
@@ -198,6 +201,78 @@
         "executionBehavior": "sequential",
         "waitBehavior": "deadline",
         "waitTime": 2.0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.43,
+        "y": 0.76
+      },
+      "prevControl": {
+        "x": 2.3665024093814235,
+        "y": 0.7256936261090796
+      },
+      "nextControl": {
+        "x": 3.7932356001775123,
+        "y": 0.7717172774250807
+      },
+      "holonomicAngle": 145.0,
+      "isReversal": false,
+      "velOverride": 0.5,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 4.43,
+        "y": 0.76
+      },
+      "prevControl": {
+        "x": 4.2352611680658505,
+        "y": 0.76
+      },
+      "nextControl": {
+        "x": 6.463522717386179,
+        "y": 0.76
+      },
+      "holonomicAngle": 145.0,
+      "isReversal": false,
+      "velOverride": 0.5,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.069533454330818,
+        "y": 2.149866097164433
+      },
+      "prevControl": {
+        "x": 7.069533454330818,
+        "y": 0.9139898564226372
+      },
+      "nextControl": null,
+      "holonomicAngle": 90.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
       }
     }
   ],
@@ -221,7 +296,7 @@
       ]
     },
     {
-      "position": 5.9,
+      "position": 5.701818181817979,
       "names": [
         "CubeHigh"
       ]

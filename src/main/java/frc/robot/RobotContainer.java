@@ -142,10 +142,8 @@ public class RobotContainer {
     events.put("CubeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeHigh)));
     events.put("CubeMid", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeMid)));
     events.put("StopDrive", new InstantCommand(()->m_drive.stop()));
-    events.put("FrontCubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))));
-    events.put("StopFrontCubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.stop())).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn()))));
-    events.put("BackCubeIntake", new ConeIntake(m_motionControl, m_claw));
-    events.put("StopBackCubeIntake", new ConeTransfer(m_motionControl, m_claw).andThen(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome))));
+    events.put("CubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))));
+    events.put("StopCubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.stop())).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn()))));
     events.put("ShootConeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)).alongWith(new WaitCommand(1.0))
       .andThen(new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 3,0.25)
         .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,3)))
@@ -173,8 +171,8 @@ public class RobotContainer {
     events.put("RunClaw", new InstantCommand(() -> m_claw.setSpeed(2000)));
     events.put("StopClaw", new InstantCommand(() -> m_claw.setSpeed(0)));
     events.put("ConeIntake", new ConeIntake(m_motionControl, m_claw));
-    events.put("StopConeIntake",new InstantCommand(() -> m_coneIntake.forceCancel()));
-    events.put("ConeTransfer", new ConeTransfer(m_motionControl, m_claw));
+    events.put("StopConeIntake", new InstantCommand(() -> CommandScheduler.getInstance().cancel(new ConeIntake(m_motionControl, m_claw))));
+    events.put("ConeTransfer", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new ConeTransfer(m_motionControl, m_claw)));
     events.put("DockSimple", new RunCommand(() -> m_drive.drive(1.0, 0, 0, true, false),m_drive));
     events.put("DockNear", new Dock(m_drive, true));
     events.put("DockFar", new Dock(m_drive, false));
