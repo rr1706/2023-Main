@@ -100,7 +100,7 @@ public final class Constants {
     public static final int kBackRightTurningEncoderPort = 3; // Analog Port of the Module Absolute Encoder
 
     public static final double kFrontLeftOffset = -0.9832*2*Math.PI+12.335+0.01-2.445; // Encoder Offset in Radians
-    public static final double kFrontRightOffset = -0.6225*2*Math.PI+7.820+0.01; // Encoder Offset in Radians
+    public static final double kFrontRightOffset = -0.6225*2*Math.PI+7.820+0.01-1.756; // Encoder Offset in Radians
     public static final double kBackLeftOffset = -0.1119*2*Math.PI+1.419-0.03; // Encoder Offset in Radians
     public static final double kBackRightOffset = -0.5598*2*Math.PI+7.046+0.02-1.356; // Encoder Offset in Radians
 
