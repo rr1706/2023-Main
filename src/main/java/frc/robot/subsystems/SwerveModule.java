@@ -200,6 +200,15 @@ public class SwerveModule {
     }
   }
 
+  public void enableBrake(boolean brake){
+   if(brake){
+    m_driveMotor.setIdleMode(IdleMode.kBrake);
+   }
+   else{
+    m_driveMotor.setIdleMode(IdleMode.kCoast);
+   }
+  }
+
   public void stop() {
     m_driveMotor.set(0.0);
     m_turningMotor.set(0.0);

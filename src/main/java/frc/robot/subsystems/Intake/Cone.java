@@ -49,7 +49,7 @@ public class Cone extends SubsystemBase {
         m_PID.setSmartMotionMaxAccel(25000, 0);
         m_PID.setSmartMotionMaxVelocity(10000, 0);
 
-        m_motor.setIdleMode(IdleMode.kCoast);
+        m_motor.setIdleMode(IdleMode.kBrake);
 
         m_motor.burnFlash();
         m_motorExt.burnFlash();

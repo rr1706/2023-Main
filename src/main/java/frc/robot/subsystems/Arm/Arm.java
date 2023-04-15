@@ -53,8 +53,12 @@ public class Arm extends SubsystemBase {
 
         m_motor1.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
         m_motor1.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinArm);
-        m_motor2.enableSoftLimit(SoftLimitDirection.kForward, false);
-        m_motor2.enableSoftLimit(SoftLimitDirection.kReverse, false);
+        m_motor2.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxArm);
+        m_motor2.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinArm);
+        m_motor1.enableSoftLimit(SoftLimitDirection.kForward, true);
+        m_motor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        m_motor2.enableSoftLimit(SoftLimitDirection.kForward, true);
+        m_motor2.enableSoftLimit(SoftLimitDirection.kReverse, true);
         m_motor1.setSmartCurrentLimit(CurrentLimit.kArm);
 
         m_motor1.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
@@ -62,6 +66,8 @@ public class Arm extends SubsystemBase {
 
         m_motor1.burnFlash();
         m_motor2.burnFlash();
+
+        m_encoder.setPosition(m_absEncoder.get());
 
         SmartDashboard.putBoolean("USE ANALOG ENC", true);
 
@@ -72,10 +78,15 @@ public class Arm extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Arm Setpoint", m_setpoint.position);
         SmartDashboard.putNumber("Arm ABS ENC", m_absEncoder.get());
+        
         double output = m_rioPID.calculate(getPose(), m_setpoint);
+        
         TrapezoidProfile.State state = m_rioPID.getSetpoint();
         SmartDashboard.putNumber("Arm Desired Velocity", state.velocity);
-        SmartDashboard.putNumber("Arm ACtual Velocity", getVelocity()/60.0);
+        SmartDashboard.putNumber("Arm ACtual Velocity", getVelocity());
+
+        //m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion,0,0.0);
+
         double ff = m_ff.calculate((state.position*Math.PI/90.0)-Math.PI/2.0, state.velocity);
         m_motor1.set(output+ff);
 
@@ -94,17 +105,17 @@ public class Arm extends SubsystemBase {
         if(m_useABSEnc){
             return m_absEncoder.get();
         }else{
-            return m_encoder.getPosition()-2.0;
+            return m_encoder.getPosition();
         }
     }
 
     public void setPose(double pose) {
+        m_rioPID.reset(getPose(), getVelocity());
         m_setpoint = new TrapezoidProfile.State(pose, 0.0);
-        m_rioPID.reset(getPose());
     }
 
     public double getVelocity() {
-        return m_encoder.getVelocity();
+        return m_encoder.getVelocity()/60.0;
     }
 
     public boolean atSetpoint() {

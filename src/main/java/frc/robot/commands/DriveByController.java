@@ -39,25 +39,19 @@ public class DriveByController extends CommandBase {
    */
   @Override
   public void execute() {
-
+    double desiredTrans[] = MathUtils.inputTransform(-m_controller.getLeftY(), -m_controller.getLeftX());
     double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond;
-    double desiredX = -inputTransform(1.0*m_controller.getLeftY())*maxLinear;
-    double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
-    Translation2d desiredTranslation = new Translation2d(desiredX, desiredY);
-    double desiredMag = desiredTranslation.getDistance(new Translation2d());
 
-    double desiredRot = -inputTransform(m_controller.getRightX())* DriveConstants.kMaxAngularSpeed;
+    desiredTrans[0] *= maxLinear;
+    desiredTrans[1] *= maxLinear;
 
-
-    if(desiredMag >= maxLinear){
-      desiredTranslation = desiredTranslation.times(maxLinear/desiredMag);
-    }
+    double desiredRot = -MathUtils.inputTransform(m_controller.getRightX())* DriveConstants.kMaxAngularSpeed;
 
     //Translation2d rotAdj= desiredTranslation.rotateBy(new Rotation2d(-Math.PI/2.0)).times(desiredRot*0.05);
 
     //desiredTranslation = desiredTranslation.plus(rotAdj);
 
-    m_robotDrive.drive(desiredTranslation.getX(), desiredTranslation.getY(),desiredRot,true,true);
+    m_robotDrive.drive(desiredTrans[0], desiredTrans[1],desiredRot,true,true);
 
 /*     m_robotDrive.drive(m_slewX.calculate(
         -inputTransform(m_controller.getLeftY()))
@@ -91,11 +85,6 @@ public class DriveByController extends CommandBase {
     } else {
       fieldOrient = true;
     }
-  }
-
-  private double inputTransform(double input){
-    //return MathUtils.singedSquare(MathUtils.applyDeadband(input));
-    return MathUtils.cubicLinear(MathUtils.applyDeadband(input), 0.95, 0.05);
   }
 
 }

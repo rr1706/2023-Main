@@ -44,6 +44,8 @@ import frc.robot.utilities.MathUtils;
  */
 public class Drivetrain extends SubsystemBase {
 
+  private boolean fieldOriented = false;
+
   private double keepAngle = 0.0; // Double to store the current target keepAngle in radians
   private double timeSinceRot = 0.0; // Double to store the time since last rotation command
   private double lastRotTime = 0.0; // Double to store the time of the last rotation command
@@ -56,9 +58,9 @@ public class Drivetrain extends SubsystemBase {
 
   private final Timer keepAngleTimer = new Timer(); // Creates timer used in the perform keep angle function
 
-  private SlewRateLimiter m_slewX = new SlewRateLimiter(7.5);
-  private SlewRateLimiter m_slewY = new SlewRateLimiter(7.5);
-  private SlewRateLimiter m_slewRot = new SlewRateLimiter(12.0);
+  private SlewRateLimiter m_slewX = new SlewRateLimiter(8.0);
+  private SlewRateLimiter m_slewY = new SlewRateLimiter(8.0);
+  private SlewRateLimiter m_slewRot = new SlewRateLimiter(16.0);
 
   // Creates a swerveModule object for the front left swerve module feeding in
   // parameters from the constants file
@@ -125,11 +127,20 @@ public class Drivetrain extends SubsystemBase {
   @SuppressWarnings("ParameterName")
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean keepAngle) {
     
-    xSpeed = m_slewX.calculate(xSpeed);
-    ySpeed = m_slewY.calculate(ySpeed);
 
-    //SmartDashboard.putNumber("Desired Drivetrain Speed", MathUtils.pythagorean(xSpeed, ySpeed));
-    
+    if((!fieldRelative && fieldOriented)){
+      fieldOriented = false;
+        m_slewX = new SlewRateLimiter(8.0, xSpeed);
+        m_slewY = new SlewRateLimiter(8.0, ySpeed);
+     }
+     else if((fieldRelative && !fieldOriented)){
+      fieldOriented = true;
+        m_slewX = new SlewRateLimiter(8.0, xSpeed);
+        m_slewY = new SlewRateLimiter(8.0, ySpeed);
+     }
+
+    xSpeed = m_slewX.calculate(xSpeed);
+    ySpeed = m_slewY.calculate(ySpeed);    
     rot = m_slewRot.calculate(rot);
 
     m_latestSlew[0] = xSpeed;
@@ -237,6 +248,13 @@ public class Drivetrain extends SubsystemBase {
     m_frontRight.stop();
     m_backLeft.stop();
     m_backRight.stop();
+  }
+
+  public void enableBrakeMode(boolean enable){
+      m_frontLeft.enableBrake(enable);
+      m_frontRight.enableBrake(enable);
+      m_backLeft.enableBrake(enable);
+      m_backRight.enableBrake(enable);
   }
 
   public double getTilt() {
@@ -397,7 +415,7 @@ public class Drivetrain extends SubsystemBase {
     }
     timeSinceRot = keepAngleTimer.get() - lastRotTime; // update variable to the current time - the last rotate time
     timeSinceDrive = keepAngleTimer.get() - lastDriveTime; // update variable to the current time - the last drive time
-    if (timeSinceRot < 0.5) { // Update keepAngle up until 0.5s after rotate command stops to allow rotation
+    if (timeSinceRot < 0.25) { // Update keepAngle up until 0.5s after rotate command stops to allow rotation
                               // move to finish
       keepAngle = getGyro().getRadians();
     } else if (Math.abs(rot) < DriveConstants.kMinRotationCommand && timeSinceDrive < 0.25) { // Run Keep angle pid

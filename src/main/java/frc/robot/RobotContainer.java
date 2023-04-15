@@ -83,9 +83,6 @@ public class RobotContainer {
   private final ConeIntake m_autoConeIntake = new ConeIntake(m_motionControl, m_claw);
   private final ConeTransfer m_autoConeTransfer = new ConeTransfer(m_motionControl, m_claw);
 
-  private final Command m_increaseSlew = new InstantCommand(()->m_drive.changeSlewRate(5.0,8.0));
-  private final Command m_reduceSlew = new InstantCommand(()->m_drive.changeSlewRate(7.5,12));
-
   private final DriveByController m_driveByController = new DriveByController(m_drive, m_driverController);
 
   private SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -116,8 +113,8 @@ public class RobotContainer {
 
   new JoystickButton(m_driverController, Button.kStart.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kStart)));
 
-  new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align);
-  new JoystickButton(m_driverController, Button.kX.value).onTrue(new Grab(m_motionControl, true));
+  new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align).onFalse( new InstantCommand(()->m_drive.changeSlewRate(8.0,16.0)));
+  new JoystickButton(m_driverController, Button.kX.value).onTrue(new Grab(m_motionControl, true)).onTrue(new InstantCommand(()->m_drive.changeSlewRate(5.0,12.0)));
 
   new JoystickButton(m_driverController, Button.kB.value).onTrue(new InstantCommand(()->m_motionControl.forceCubeIn()).andThen(new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor))));
   
@@ -131,7 +128,7 @@ public class RobotContainer {
   
   new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
   
-  new JoystickRightTrigger(m_driverController).whileTrue(new ConditionalCommand(new WaitCommand(15.0),new InstantCommand(()->m_claw.setSpeed(2500)),()->m_align.isScheduled()));
+  new JoystickRightTrigger(m_driverController).onTrue(new ConditionalCommand(new WaitCommand(1.0),new InstantCommand(()->m_claw.setSpeed(1500)),()->m_align.isScheduled())).onFalse(new ConditionalCommand(new WaitCommand(1.0),new InstantCommand(()->m_claw.setSpeed(0.0)),()->m_align.isScheduled()));
   }
 
   private void configureAutoEvents() {
@@ -147,28 +144,9 @@ public class RobotContainer {
     events.put("StopDrive", new InstantCommand(()->m_drive.stop()));
     events.put("CubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-750)))));
     events.put("StopCubeIntake", (new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.stop())).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn()))));
-    events.put("ShootConeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)).alongWith(new WaitCommand(1.0))
-      .andThen(new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 3,0.25)
-        .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,3)))
-        .withTimeout(2.0)));
-    events.put("ShootConeHighStationary", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)).alongWith(new WaitCommand(1.5))
-        .andThen(new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 3,0.0)
-          .alongWith(new WaitCommand(0.75).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,3)))
-          .withTimeout(1.25)));
-    events.put("ShootConeMidStationary", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeMid)).alongWith(new WaitCommand(1.5))
-        .andThen(new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 2,0.0)
-          .alongWith(new WaitCommand(0.75).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,2)))
-          .withTimeout(1.25)));
-    events.put("GoToCubeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kCubeHigh)));
-    events.put("ShootCubeHigh", new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 5,0.25)
-    .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,4)))
-    .withTimeout(2.0));  
-    events.put("ShootCubeMid", new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 4,0.25)
-    .alongWith(new WaitCommand(1.5).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,4)))
-    .withTimeout(2.0));
     events.put("WaitForArmMove", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.05)));
     events.put("RunClawConeHigh", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 3)));
-    events.put("RunClawConeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.2)).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 2).withTimeout(0.5)));
+    events.put("RunClawConeMid", new WaitUntilCommand(m_motionControl::atSetpoint).andThen(new WaitCommand(0.2)).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw, 2).withTimeout(0.25)));
     events.put("RunClawCubeMid", new RunClaw(m_operatorBoard,m_vision, m_claw, 4).withTimeout(0.75));
     events.put("RunClawCubeHigh", new RunClaw(m_operatorBoard,m_vision, m_claw, 5).withTimeout(0.75));
     events.put("RunClaw", new InstantCommand(() -> m_claw.setSpeed(2000)));
@@ -180,6 +158,8 @@ public class RobotContainer {
     events.put("DockNear", new Dock(m_drive, true));
     events.put("DockFar", new Dock(m_drive, false));
     events.put("UpdateKeepAngle", new InstantCommand(()->m_drive.updateKeepAngle()));
+    events.put("SetBrakeMode", new InstantCommand(()->m_drive.enableBrakeMode(true)));
+    events.put("SetCoastMode", new InstantCommand(()->m_drive.enableBrakeMode(false)));
   }
 
   private void configureAutoChooser() {
@@ -198,14 +178,14 @@ public class RobotContainer {
       }
     }
 
-    for (File auto : m_autoPathFiles) {
+/*     for (File auto : m_autoPathFiles) {
       if (auto.getName().contains(".path")) {
         m_chooser.addOption(
           "Slow " + auto.getName(), 
           autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), DriveConstants.kTestMaxSpeedMetersPerSecond, DriveConstants.kTestMaxAcceleration))
         );
       }
-    }
+    } */
 
     SmartDashboard.putData(m_chooser);
   }

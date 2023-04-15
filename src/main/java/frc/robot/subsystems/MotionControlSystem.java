@@ -70,6 +70,7 @@ public final class MotionControlSystem extends SubsystemBase {
             clearHeight = -2.0;
         }
 
+        boolean armAlreadySafe = m_desiredState.m_arm > 20.0 && currentState.m_arm > 20.0; 
 
         if(!m_elevatorClear){
             if(m_desiredState.m_elevator < clearHeight){
@@ -80,7 +81,7 @@ public final class MotionControlSystem extends SubsystemBase {
             }
         }
 
-        if(currentState.m_elevator >= clearHeight-1.0 && !m_elevatorClear){
+        if((currentState.m_elevator >= clearHeight-1.0 && !m_elevatorClear) || (armAlreadySafe && !m_elevatorClear)){
             m_elevatorClear = true;
             m_arm.setPose(m_desiredState.m_arm+m_offset);
             m_wrist.setPose(m_desiredState.m_wrist);
@@ -90,12 +91,12 @@ public final class MotionControlSystem extends SubsystemBase {
 
         boolean atSetpoint = m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
 
-        if(m_elevatorClear && atSetpoint){
+        if((m_elevatorClear && atSetpoint) || armAlreadySafe){
             m_elevator.setPose(m_desiredState.m_elevator);
         }
 
         if((atSetpoint && m_runCube)){
-            m_cube.set(-0.4);
+            m_cube.set(-0.5);
         }
         else if(!m_forceCube){
             m_cube.set(0.0);
@@ -123,6 +124,15 @@ public final class MotionControlSystem extends SubsystemBase {
     public boolean atSetpoint(){
         return m_arm.atSetpoint() && m_cube.atSetpoint() && m_cone.atSetpoint() && m_elevator.atSetpoint() && m_wrist.atSetpoint();
     }
+
+    public boolean clearForHigh(){
+        return m_elevator.getPose() >= -5.0;
+    }
+
+    public boolean clearForMid(){
+        return m_arm.getPose() >= 35.0;
+    }
+
 
     public void coneIn(){
         m_cone.setPose(0.0);

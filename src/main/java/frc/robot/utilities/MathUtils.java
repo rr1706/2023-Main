@@ -33,6 +33,32 @@ public class MathUtils {
       }
     }
 
+    public static double inputTransform(double input){
+      //return MathUtils.singedSquare(MathUtils.applyDeadband(input));
+      return cubicLinear(applyDeadband(input), 0.95, 0.05);
+    }
+
+    public static double[] inputTransform(double x, double y){
+      x = applyDeadband(x);
+      y = applyDeadband(y);
+      double mag = pythagorean(x,y);
+
+      if(mag>1.00){
+        mag = 1.00;
+      }
+
+      if(mag != 0){
+        x = x/mag*cubicLinear(mag, 0.95, 0.05);
+        y = y/mag*cubicLinear(mag, 0.95, 0.05);  
+      }
+      else{
+        x = 0;
+        y = 0;
+      }
+
+      return new double[]{x,y};
+    }
+
     public static double pythagorean(double a, double b) {
       return Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
     }

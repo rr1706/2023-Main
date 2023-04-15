@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import com.revrobotics.ColorSensorV3;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -41,7 +43,7 @@ public class AutoAlign extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID = new PIDController(0.135, 0.00, 0.00);
+    private final PIDController m_rotPID = new PIDController(0.135, 0.00, 0.002);
 
     private final InterpolatingTreeMap<Double,Double> m_rpmHigh = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_distHigh = new InterpolatingTreeMap<>();
@@ -68,7 +70,7 @@ public class AutoAlign extends CommandBase {
       m_rotPID.setIntegratorRange(-0.02, 0.02);
 
       m_rpmHigh.put(52.0, 2450.0);
-      m_rpmHigh.put(56.5, 2575.0);
+      m_rpmHigh.put(56.5, 2550.0);
       m_rpmHigh.put(63.0, 3175.0);
 
       m_distHigh.put(2.0, 52.25);
@@ -80,7 +82,7 @@ public class AutoAlign extends CommandBase {
       m_distHigh.put(-10.02, 96.25);
 
       m_rpmMid.put(34.0, 1050.0);
-      m_rpmMid.put(40.0, 1300.0);
+      m_rpmMid.put(42.0, 1300.0);
       m_rpmMid.put(52.0, 1800.0);
       m_rpmMid.put(58.0, 2100.0);
 
@@ -141,7 +143,9 @@ public class AutoAlign extends CommandBase {
     @Override
     public void execute() {
   
-      double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond*0.5;
+      fieldOrient = true;
+
+      double maxLinear = DriveConstants.kMaxSpeedMetersPerSecond*0.2;
       double desiredX = -inputTransform(1.0*m_controller.getLeftY())*maxLinear;
       double desiredY = -inputTransform(m_controller.getLeftX())*maxLinear;
 
@@ -149,10 +153,6 @@ public class AutoAlign extends CommandBase {
         desiredX = -m_autoSpeed;
         desiredY = 0.0;
       }
-
-      Translation2d desiredTranslation = new Translation2d(desiredX, desiredY);
-      double desiredMag = desiredTranslation.getDistance(new Translation2d());
-
     
       boolean low = false;//m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
       boolean coneMid = false;//m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
@@ -240,7 +240,10 @@ public class AutoAlign extends CommandBase {
         m_controller.setRumble(RumbleType.kBothRumble, 0.0);
       }
 
-      if(m_controlSystem.atSetpoint() && visionLock && ((m_visionBottom.valid() && (coneHigh || coneMid)))){
+      boolean clearForHigh = m_controlSystem.clearForHigh() && coneHigh;
+      boolean clearForMid = m_controlSystem.clearForHigh() && coneMid;
+
+      if((m_controlSystem.atSetpoint() || clearForHigh || clearForMid) && visionLock && ((m_visionBottom.valid() && (coneHigh || coneMid)))){
         double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : 
                                   m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distMidFromBottom.get(m_visionBottom.getTY())))-11.535);
         
@@ -257,19 +260,26 @@ public class AutoAlign extends CommandBase {
         double speedY = m_drive.getChassisSpeed().vyMetersPerSecond;
         double accelY = m_drive.getChassisAccel().ay;
 
+        double speedRot = m_drive.getChassisSpeed().omegaRadiansPerSecond;
+        double accelRot = m_drive.getChassisAccel().alpha;
+
         speedX = (speedX+accelX*0.024)*39.37;
         speedY = (speedY+accelY*0.024)*39.37;
+        speedRot = (speedRot+accelRot*0.024);
 
-        double virtualDist = -(speedX*(coneHigh ? 0.475: 0.300)) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMidFromBottom.get(m_visionBottom.getTY()));
+        double virtualDist = -(speedX*(coneHigh ? 0.475: 0.250)) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMidFromBottom.get(m_visionBottom.getTY()));
 
         SmartDashboard.putNumber("Virtual Dist", virtualDist);
 
-        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= (coneHigh ? 63.0 : 52.0) && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0){
+        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= (coneHigh ? 60.0 : 52.0) && virtualDist >= (coneHigh ? 46.0 : 34.0) && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0 && Math.abs(speedRot) <= 0.05 && speedX < 22.0){
           m_claw.setSpeed(coneHigh ? m_rpmHigh.get(virtualDist) : m_rpmMid.get(virtualDist));
         }
 
         desiredRot += Math.signum(desiredRot)*Math.abs(m_drive.getChassisSpeed().vxMetersPerSecond)/40.0;
 
+        fieldOrient = false;
+        desiredX *= -1.0;
+        desiredY *= -0.5;
       }
       else if(gyroLock && gyroLock180){
         SmartDashboard.putBoolean("rotatingViaVision", false);
@@ -294,6 +304,9 @@ public class AutoAlign extends CommandBase {
         }
       }
 
+      Translation2d desiredTranslation = new Translation2d(desiredX, desiredY);
+      double desiredMag = desiredTranslation.getDistance(new Translation2d());
+
       if(desiredMag >= maxLinear){
         desiredTranslation = desiredTranslation.times(maxLinear/desiredMag);
       }
@@ -306,7 +319,7 @@ public class AutoAlign extends CommandBase {
   
       //desiredTranslation = desiredTranslation.plus(rotAdj);
       SmartDashboard.putNumber("AutoAlignROT", desiredRot);
-      m_drive.drive(desiredTranslation.getX(), desiredTranslation.getY(),desiredRot,true,false);
+      m_drive.drive(desiredTranslation.getX(), desiredTranslation.getY(),desiredRot,fieldOrient,false);
   
   /*     m_robotDrive.drive(m_slewX.calculate(
           -inputTransform(m_controller.getLeftY()))

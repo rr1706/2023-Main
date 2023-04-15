@@ -46,16 +46,16 @@ public final class Constants {
     public static final double armAdjRed = armAdj;
     public static final double armAdjBlue = armAdj;
     public static final MotionControlState kHome = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 5.0);
-    public static final MotionControlState kGrab = new MotionControlState(76.5, 0.0, -13.45, 64.5*1.40, 5.0);
-    public static final MotionControlState kGrabRed = new MotionControlState(76.5, 0.0, -13.45, 64.5*1.40, 5.0);
-    public static final MotionControlState kGrabBlue = new MotionControlState(76.5, 0.0, -13.45, 64.5*1.40, 5.0);
-    public static final MotionControlState kFloor = new MotionControlState(32.4, 0, -28.35, 40.0*1.40, 5.0);
-    public static final MotionControlState kCube = new MotionControlState(16.8, 18, -6.7, 59.0*1.40, 8.0);
-    public static final MotionControlState kConeIntake = new MotionControlState(-14.0, 0, -1.5, -24.0*1.40, 37.0);
-    public static final MotionControlState kConeIntakeIn = new MotionControlState(-14.0, 0, -2.0, -60.0, 2.0);
-    public static final MotionControlState kConeIntakeIn2 = new MotionControlState(-14.0, 0, -3.0, -60.0, 2.0);
+    public static final MotionControlState kGrab = new MotionControlState(76.3, 0.0, -13.45, 64.5*1.40, 5.0);
+    public static final MotionControlState kGrabRed = new MotionControlState(76.3, 0.0, -13.45, 64.5*1.40, 5.0);
+    public static final MotionControlState kGrabBlue = new MotionControlState(76.3, 0.0, -13.45, 64.5*1.40, 5.0);
+    public static final MotionControlState kFloor = new MotionControlState(28, 0, -28.35, 44.0*1.40, 5.0);
+    public static final MotionControlState kCube = new MotionControlState(16.5, 19, -6.7, 59.0*1.40, 8.0);
+    public static final MotionControlState kConeIntake = new MotionControlState(-14.0, 0, -1.5, -24.0*1.40, 34.0);
+    public static final MotionControlState kConeIntakeIn = new MotionControlState(-14.0, 0, -2.0, -56.0, 2.0);
+    public static final MotionControlState kConeIntakeIn2 = new MotionControlState(-14.0, 0, -3.0, -56.0, 2.0);
     public static final MotionControlState kLow = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 5.0);
-    public static final MotionControlState kConeMid = new MotionControlState(63.0, 0, -9.5, 48.0*1.40, 5.0);
+    public static final MotionControlState kConeMid = new MotionControlState(63.0, 0, -9.5, 46.0*1.40, 5.0);
     public static final MotionControlState kConeHigh =  new MotionControlState(73.6, 0, -1.5, 52.0*1.40, 5.0);
     public static final MotionControlState kCubeMid = new MotionControlState(9.04, 0, -6.7, 18.0*1.40, 5.0);
     public static final MotionControlState kCubeHigh =  new MotionControlState(46.0, 0, -4.2,40.0*1.40, 5.0);
@@ -63,20 +63,20 @@ public final class Constants {
     public static final MotionControlState kRevCubeMidMid = new MotionControlState(10.24, 0, -1.5, -22.0*1.40, 5.0);
     public static final MotionControlState kRevCubeMidFin = new MotionControlState(-14.0, 0, -1.5, -18.0*1.40, 5.0);
     public static final MotionControlState kStart = new MotionControlState(0, 0, -1.5, 0, 5.0);
-    public static final MotionControlState kCoolThing = new MotionControlState(73.28,18,-11.5,62.5*1.40,37);
+    public static final MotionControlState kCoolThing = new MotionControlState(73.28,19,-11.5,62.5*1.40,34);
   }
 
 
   public static final class ModuleConstants {
     private static final double kTranslationGearRatio = 5.6933; // Overall gear ratio of the swerve module
     public static final double kRotationGearRatio = 18.0;
-    private static final double kWheelDiameter = 0.09645; // Wheel Diameter in meters, may need to be
+    private static final double kWheelDiameter = 0.09645*1.02; // Wheel Diameter in meters, may need to be
                                                                          // experimentally determined due to compliance
                                                                          // of floor/tread material
 
     public static final double kVelocityFactor = (1.0 / kTranslationGearRatio / 60.0) * kWheelDiameter * Math.PI; 
     public static final double kNEOSteerP = 3.0;
-    public static final double[] kTurnPID = { 1.00, 0, 0 }; // Defines the PID values for rotation of the serve
+    public static final double[] kTurnPID = { 0.800, 0, 0 }; // Defines the PID values for rotation of the serve
                                                              // modules, should show some minor oscillation when no
                                                              // weight is loaded on the modules
   }
@@ -99,10 +99,10 @@ public final class Constants {
     public static final int kBackLeftTurningEncoderPort = 2; // Analog Port of the Module Absolute Encoder
     public static final int kBackRightTurningEncoderPort = 3; // Analog Port of the Module Absolute Encoder
 
-    public static final double kFrontLeftOffset = -0.9832*2*Math.PI+12.335+0.01-2.445; // Encoder Offset in Radians
-    public static final double kFrontRightOffset = -0.6225*2*Math.PI+7.820+0.01-1.756; // Encoder Offset in Radians
-    public static final double kBackLeftOffset = -0.1119*2*Math.PI+1.419-0.03; // Encoder Offset in Radians
-    public static final double kBackRightOffset = -0.5598*2*Math.PI+7.046+0.02-1.356; // Encoder Offset in Radians
+    public static final double kFrontLeftOffset = 3.717; // Encoder Offset in Radians
+    public static final double kFrontRightOffset = 1.377; // Encoder Offset in Radians
+    public static final double kBackLeftOffset = 6.018; // Encoder Offset in Radians
+    public static final double kBackRightOffset = 0.053; // Encoder Offset in Radians
 
     public static final double[] kFrontLeftTuningVals = { 0.015, 0.19, 0.15, 0 }; // {Static Gain, FeedForward,
                                                                                      // Proportional Gain, ModuleID for
@@ -139,14 +139,14 @@ public final class Constants {
     public static final double kTestMaxAcceleration = 1.0;
     public static final double kTestMaxSpeedMetersPerSecond = 1.0;
      
-    public static final double kMaxAngularSpeed = Math.PI*1.5; // Maximum Angular Speed desired. NOTE: Robot can exceed this
+    public static final double kMaxAngularSpeed = 2*Math.PI; // Maximum Angular Speed desired. NOTE: Robot can exceed this
                                                            // but spinning fast is not particularly useful or driver
                                                            // friendly
     public static final double kMaxAngularAccel = 1.5*Math.PI; // Maximum Angular Speed desired. NOTE: Robot can exceed this
                                                            // but spinning fast is not particularly useful or driver
                                                            // friendly
 
-    public static final double kInnerDeadband = 0.10; // This value should exceed the maximum value the analog stick may
+    public static final double kInnerDeadband = 0.08; // This value should exceed the maximum value the analog stick may
                                                       // read when not in use (Eliminates "Stick Drift")
     public static final double kOuterDeadband = 0.98; // This value should be lower than the analog stick X or Y reading
                                                       // when aimed at a 45deg angle (Such that X and Y are are
@@ -207,7 +207,7 @@ public final class Constants {
 
     public static final double kDefaultArm = 0.0;
     public static final TrapezoidProfile.Constraints kArmConstraints = new TrapezoidProfile.Constraints(250, 50);
-    public static final double kMinArm = -15.0;
+    public static final double kMinArm = -14.0;
     public static final double kMaxArm = 78.4;
     public static final double kArmToRadians = 0.0;
     public static final double kArmLength = 0.0;
@@ -232,7 +232,7 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final double kDefaultCone = 8.0;
     public static final TrapezoidProfile.Constraints kConeConstraints = new TrapezoidProfile.Constraints(0.0, 0.0);
-    public static final double kExtendedCone = 37.0;
+    public static final double kExtendedCone = 34.0;
     public static final double kRetractedCone = 2.0;
     
     public static final double kDefaultCube = 0.0;
