@@ -90,7 +90,7 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(5.0, 0, 0), new PIDConstants(2.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(5.0, 0, 0), new PIDConstants(5.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -128,7 +128,7 @@ public class RobotContainer {
   
   new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
   
-  new JoystickRightTrigger(m_driverController).onTrue(new ConditionalCommand(new WaitCommand(1.0),new InstantCommand(()->m_claw.setSpeed(1500)),()->m_align.isScheduled())).onFalse(new ConditionalCommand(new WaitCommand(1.0),new InstantCommand(()->m_claw.setSpeed(0.0)),()->m_align.isScheduled()));
+  new JoystickRightTrigger(m_driverController).onTrue(new ConditionalCommand(new WaitCommand(1.0),new ConditionalCommand(new InstantCommand(()->m_claw.setSpeed(4500)),new InstantCommand(()->m_claw.setSpeed(1500)),()->m_operatorBoard.getRawButton(2)),()->m_align.isScheduled())).onFalse(new ConditionalCommand(new WaitCommand(1.0),new InstantCommand(()->m_claw.setSpeed(0.0)),()->m_align.isScheduled()));
   }
 
   private void configureAutoEvents() {
@@ -150,13 +150,14 @@ public class RobotContainer {
     events.put("RunClawCubeMid", new RunClaw(m_operatorBoard,m_vision, m_claw, 4).withTimeout(0.75));
     events.put("RunClawCubeHigh", new RunClaw(m_operatorBoard,m_vision, m_claw, 5).withTimeout(0.75));
     events.put("RunClaw", new InstantCommand(() -> m_claw.setSpeed(2000)));
+    events.put("WaitUntilReady", new WaitUntilCommand(m_motionControl::atSetpoint));
     events.put("StopClaw", new InstantCommand(() -> m_claw.setSpeed(0)));
     events.put("ConeIntake",m_autoConeIntake);
     events.put("StopConeIntake", new InstantCommand(()-> m_autoConeIntake.forceCancel()));
     events.put("ConeTransfer", m_autoConeTransfer);
     events.put("DockSimple", new RunCommand(() -> m_drive.drive(1.0, 0, 0, true, false),m_drive));
     events.put("DockNear", new Dock(m_drive, true));
-    events.put("DockFar", new Dock(m_drive, false));
+    events.put("DockFar", new WaitCommand(1.0).andThen(new Dock(m_drive, false)));
     events.put("UpdateKeepAngle", new InstantCommand(()->m_drive.updateKeepAngle()));
     events.put("SetBrakeMode", new InstantCommand(()->m_drive.enableBrakeMode(true)));
     events.put("SetCoastMode", new InstantCommand(()->m_drive.enableBrakeMode(false)));

@@ -18,14 +18,15 @@ public class PoseEstimator extends SubsystemBase {
     private final Drivetrain m_drive;
     private final Limelight m_vision;
 
-    private boolean m_initializedPose = false;
+    private boolean m_initializedPose = true;
 
     public PoseEstimator(Drivetrain drive, Limelight limelight, Pose2d intialPose) {
         m_drive = drive;
         m_vision = limelight;
         //SmartDashboard.putData("Field", m_field);
+        SmartDashboard.putBoolean("Set Pose Est", false);
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(1.0, 1.0, 1.0), VecBuilder.fill(10, 10, 10));
+        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.0), VecBuilder.fill(5, 5, 5));
     }
 
     @Override
@@ -42,17 +43,23 @@ public class PoseEstimator extends SubsystemBase {
         Pose2d currentPose = getPose();
         Pose2d visionPose = new Pose2d(
             new Translation2d(visionMeasurement[0], visionMeasurement[1]),
-            new Rotation2d(visionMeasurement[5])
-        );
+            new Rotation2d(visionMeasurement[5]));
+
+        SmartDashboard.putNumber("VisionX", visionPose.getX());
+        SmartDashboard.putNumber("VisionY", visionPose.getY());
+
+        boolean m_overide = SmartDashboard.getBoolean("Set Pose Est", false);
+
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if ((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7] && visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.1 && velocity <= 3.0 && angularVelocity <= 0.5 * Math.PI) {
+        if (((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7] && visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.05 && velocity <= 3.0 && angularVelocity <= 0.5 * Math.PI && visionPose.getTranslation().getX() <= 5.0) || m_overide) {
+            SmartDashboard.putBoolean("Set Pose Est", false);
             if (m_initializedPose) {
                 if(m_vision.valid()){
-                    m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(10.0, 10.0, 10.0));
+                    m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(5.0, 5.0, 5.0));
                 }
             } else {
-                m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(0.0, 0.0, 999999));
-                m_initializedPose = true;
+               // m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(0.0, 0.0, 999999));
+                //m_initializedPose = true;
             }
         }
     }

@@ -45,17 +45,17 @@ public final class Constants {
     public static final double armAdj = 0.0;
     public static final double armAdjRed = armAdj;
     public static final double armAdjBlue = armAdj;
-    public static final MotionControlState kHome = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 5.0);
-    public static final MotionControlState kGrab = new MotionControlState(76.3, 0.0, -13.45, 64.5*1.40, 5.0);
-    public static final MotionControlState kGrabRed = new MotionControlState(76.3, 0.0, -13.45, 64.5*1.40, 5.0);
-    public static final MotionControlState kGrabBlue = new MotionControlState(76.3, 0.0, -13.45, 64.5*1.40, 5.0);
+    public static final MotionControlState kHome = new MotionControlState(-10.0, 0.0, -15.2, 12.0*1.40, 5.0);
+    public static final MotionControlState kGrab = new MotionControlState(76.2, 0.0, -12.95, 65.0*1.40, 5.0);
+    public static final MotionControlState kGrabRed = new MotionControlState(76.2, 0.0, -12.95, 65.0*1.40, 5.0);
+    public static final MotionControlState kGrabBlue = new MotionControlState(76.2, 0.0, -12.95, 65.0*1.40, 5.0);
     public static final MotionControlState kFloor = new MotionControlState(28, 0, -28.35, 44.0*1.40, 5.0);
     public static final MotionControlState kCube = new MotionControlState(16.5, 19, -6.7, 59.0*1.40, 8.0);
     public static final MotionControlState kConeIntake = new MotionControlState(-14.0, 0, -1.5, -24.0*1.40, 34.0);
     public static final MotionControlState kConeIntakeIn = new MotionControlState(-14.0, 0, -2.0, -56.0, 2.0);
     public static final MotionControlState kConeIntakeIn2 = new MotionControlState(-14.0, 0, -3.0, -56.0, 2.0);
     public static final MotionControlState kLow = new MotionControlState(-12.0, 0.0, -16.2, 12.0*1.40, 5.0);
-    public static final MotionControlState kConeMid = new MotionControlState(63.0, 0, -9.5, 46.0*1.40, 5.0);
+    public static final MotionControlState kConeMid = new MotionControlState(35.0, 0, -1.5, 30.0*1.40, 5.0);
     public static final MotionControlState kConeHigh =  new MotionControlState(73.6, 0, -1.5, 52.0*1.40, 5.0);
     public static final MotionControlState kCubeMid = new MotionControlState(9.04, 0, -6.7, 18.0*1.40, 5.0);
     public static final MotionControlState kCubeHigh =  new MotionControlState(46.0, 0, -4.2,40.0*1.40, 5.0);
@@ -100,8 +100,8 @@ public final class Constants {
     public static final int kBackRightTurningEncoderPort = 3; // Analog Port of the Module Absolute Encoder
 
     public static final double kFrontLeftOffset = 3.717; // Encoder Offset in Radians
-    public static final double kFrontRightOffset = 1.377; // Encoder Offset in Radians
-    public static final double kBackLeftOffset = 6.018; // Encoder Offset in Radians
+    public static final double kFrontRightOffset = 1.377-0.5195; // Encoder Offset in Radians
+    public static final double kBackLeftOffset = 6.018-3.737; // Encoder Offset in Radians
     public static final double kBackRightOffset = 0.053; // Encoder Offset in Radians
 
     public static final double[] kFrontLeftTuningVals = { 0.015, 0.19, 0.15, 0 }; // {Static Gain, FeedForward,
@@ -208,7 +208,7 @@ public final class Constants {
     public static final double kDefaultArm = 0.0;
     public static final TrapezoidProfile.Constraints kArmConstraints = new TrapezoidProfile.Constraints(250, 50);
     public static final double kMinArm = -14.0;
-    public static final double kMaxArm = 78.4;
+    public static final double kMaxArm = 81.0;
     public static final double kArmToRadians = 0.0;
     public static final double kArmLength = 0.0;
 

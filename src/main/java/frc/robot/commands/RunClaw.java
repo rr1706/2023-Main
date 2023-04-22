@@ -22,17 +22,6 @@ public class RunClaw extends CommandBase{
         m_limelight = limelight;
         lockedPosition = -1;
 
-        m_rpmHigh.put(52.0, 2750.0);
-        m_rpmHigh.put(56.5, 2950.0);
-        m_rpmHigh.put(63.0, 3500.0);
-
-        m_distHigh.put(2.0, 52.25);
-        m_distHigh.put(0.0, 56.5);
-        m_distHigh.put(-2.09, 62.5);
-        m_distHigh.put(-3.96, 68.0);
-        m_distHigh.put(-6.02, 74.75);
-        m_distHigh.put(-8.00, 83.25);
-        m_distHigh.put(-10.02, 96.25);
     }
     public RunClaw(GenericHID operatorBoard, Limelight limelight, Claw claw, int scorePosition){
         m_operatorBoard = operatorBoard;
@@ -79,7 +68,7 @@ public class RunClaw extends CommandBase{
             m_claw.setSpeed(1300);
         }
         else if(coneHigh){
-            m_claw.setSpeed(m_rpmHigh.get(m_distHigh.get(m_limelight.getTY())));
+            m_claw.setSpeed(2490);
         }
         else if(low){
             m_claw.setSpeed(1000);

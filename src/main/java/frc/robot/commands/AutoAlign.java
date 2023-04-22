@@ -6,6 +6,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.util.InterpolatingTreeMap;
+import edu.wpi.first.vision.VisionThread;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -43,13 +44,15 @@ public class AutoAlign extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID = new PIDController(0.135, 0.00, 0.002);
+    private final PIDController m_rotPID = new PIDController(0.145, 0.00, 0.0025);
 
     private final InterpolatingTreeMap<Double,Double> m_rpmHigh = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_distHigh = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_rpmMid = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_distMid = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_distMidFromBottom = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double, Double> m_timeTableMid = new InterpolatingTreeMap<>();
+    private final InterpolatingTreeMap<Double, Double> m_timeTableHigh = new InterpolatingTreeMap<>();
 
     private final double m_autoSpeed;
 
@@ -69,30 +72,32 @@ public class AutoAlign extends CommandBase {
       m_rotPID.enableContinuousInput(-180, 180);
       m_rotPID.setIntegratorRange(-0.02, 0.02);
 
-      m_rpmHigh.put(52.0, 2450.0);
+      m_rpmHigh.put(52.0, 2150.0);
+      m_rpmHigh.put(55.5, 2500.0);
       m_rpmHigh.put(56.5, 2550.0);
-      m_rpmHigh.put(63.0, 3175.0);
+      m_rpmHigh.put(63.0, 3200.0);
 
-      m_distHigh.put(2.0, 52.25);
-      m_distHigh.put(0.0, 56.5);
-      m_distHigh.put(-2.09, 62.5);
-      m_distHigh.put(-3.96, 68.0);
-      m_distHigh.put(-6.02, 74.75);
-      m_distHigh.put(-8.00, 83.25);
-      m_distHigh.put(-10.02, 96.25);
+      m_distHigh.put(2.0, 51.0);
+      m_distHigh.put(0.0, 58.0);
+      m_distHigh.put(-2.0, 63.5);
+      m_distHigh.put(-4.0, 69.5);
+      m_distHigh.put(-6.0, 77.5);
+      m_distHigh.put(-8.0, 86.5);
+      m_distHigh.put(-10.0, 100.0);
 
-      m_rpmMid.put(34.0, 1050.0);
-      m_rpmMid.put(42.0, 1300.0);
-      m_rpmMid.put(52.0, 1800.0);
-      m_rpmMid.put(58.0, 2100.0);
+      m_rpmMid.put(34.0, 1200.0);
+      m_rpmMid.put(40.0, 1375.0);
+      m_rpmMid.put(46.0, 1900.0);
+      m_rpmMid.put(52.0, 2465.0);
+      m_rpmMid.put(58.0, 3300.0);
 
-      m_distMidFromBottom.put(1.5, 35.1);
-      m_distMidFromBottom.put(0.0, 40.1);
-      m_distMidFromBottom.put(-1.5, 46.5);
-      m_distMidFromBottom.put(-3.0, 55.3);
-      m_distMidFromBottom.put(-4.5, 68.0);
-      m_distMidFromBottom.put(-6.0, 88.5);
-      m_distMidFromBottom.put(-7.5, 125.0);
+      m_distMidFromBottom.put(1.5, 37.0);
+      m_distMidFromBottom.put(0.0, 43.0);
+      m_distMidFromBottom.put(-1.5, 50.0);
+      m_distMidFromBottom.put(-3.0, 60.0);
+      m_distMidFromBottom.put(-4.5, 73.5);
+      m_distMidFromBottom.put(-6.0, 93.5);
+      m_distMidFromBottom.put(-7.5, 130.0);
 
       m_distMid.put(-3.03, 30.75);
       m_distMid.put(0.05, 27.5);
@@ -101,6 +106,16 @@ public class AutoAlign extends CommandBase {
       m_distMid.put(9.02, 44.0);
       m_distMid.put(12.02, 50.5);
       m_distMid.put(14.99, 58.5);
+
+      m_timeTableHigh.put(52.0, 0.440);
+      m_timeTableHigh.put(56.0, 0.465);
+      m_timeTableHigh.put(63.0, 0.500);
+
+      m_timeTableMid.put(34.0, 0.200);
+      m_timeTableMid.put(40.0, 0.220);
+      m_timeTableMid.put(46.0, 0.230);
+      m_timeTableMid.put(52.0, 0.240);
+      m_timeTableMid.put(58.0, 0.250);
 
       addRequirements(m_drive);
     }
@@ -159,6 +174,7 @@ public class AutoAlign extends CommandBase {
       boolean coneHigh = false;//m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
       boolean cubeMid = false;//m_operatorBoard.getRawButton(8);
       boolean cubeHigh = false;
+      boolean superCharge = false;
 
         if(useLockedPosition){
             switch(lockedPosition){
@@ -171,6 +187,7 @@ public class AutoAlign extends CommandBase {
             }
         }
         else{
+            superCharge = m_operatorBoard.getRawButton(3);
             low = m_operatorBoard.getRawButton(4) || m_operatorBoard.getRawButton(5) || m_operatorBoard.getRawButton(6);
             coneMid = m_operatorBoard.getRawButton(7) || m_operatorBoard.getRawButton(9);
             coneHigh = m_operatorBoard.getRawButton(10) || m_operatorBoard.getRawButton(12);
@@ -188,14 +205,24 @@ public class AutoAlign extends CommandBase {
         visionLock = true;
         gyroLock = false;
         m_visionBottom.setLights(3);
-        m_visionBottom.setPipeline(1);
+        if(superCharge){
+          m_visionBottom.setPipeline(3);
+        }
+        else{
+          m_visionBottom.setPipeline(1);
+        }
       }
       else if(coneHigh){
         m_state = StateConstants.kConeHigh;
         visionLock = true;
         gyroLock = false;
+        if(superCharge){
+          m_visionBottom.setPipeline(2);
+        }
+        else{
+          m_visionBottom.setPipeline(0);
+        }
         m_visionBottom.setLights(3);
-        m_visionBottom.setPipeline(0);
       }
       else if(cubeMid || (cubeHigh && gyroLock180)){
         visionLock = false;
@@ -241,7 +268,7 @@ public class AutoAlign extends CommandBase {
       }
 
       boolean clearForHigh = m_controlSystem.clearForHigh() && coneHigh;
-      boolean clearForMid = m_controlSystem.clearForHigh() && coneMid;
+      boolean clearForMid = m_controlSystem.clearForMid() && coneMid;
 
       if((m_controlSystem.atSetpoint() || clearForHigh || clearForMid) && visionLock && ((m_visionBottom.valid() && (coneHigh || coneMid)))){
         double angle = coneHigh ? m_visionBottom.getTX()-(Math.toDegrees(Math.asin(8.0/m_distHigh.get(m_visionBottom.getTY())))-8.102) : 
@@ -267,15 +294,40 @@ public class AutoAlign extends CommandBase {
         speedY = (speedY+accelY*0.024)*39.37;
         speedRot = (speedRot+accelRot*0.024);
 
-        double virtualDist = -(speedX*(coneHigh ? 0.475: 0.250)) + (coneHigh ? m_distHigh.get(m_visionBottom.getTY()) : m_distMidFromBottom.get(m_visionBottom.getTY()));
+        double dist = coneHigh ? m_distHigh.get(m_visionBottom.getTY()): m_distMidFromBottom.get(m_visionBottom.getTY());
+        double shotTime = coneHigh ? m_timeTableHigh.get(dist): m_timeTableMid.get(dist);
+        double virtualDist = -speedX*shotTime+dist;
 
+        for(int i=0;i<5;i++){
+
+          double testDist = -speedX*shotTime+dist;
+
+          double newShotTime = coneHigh ? m_timeTableHigh.get(testDist) : m_timeTableMid.get(testDist);
+
+          if(Math.abs(newShotTime-shotTime) <= 0.010){
+            i=4;
+        }
+        if(i == 4){
+          virtualDist = testDist;
+          SmartDashboard.putNumber("NewShotTime", newShotTime);
+      }
+        else{
+            shotTime = newShotTime;
+        }
+
+        }
         SmartDashboard.putNumber("Virtual Dist", virtualDist);
 
-        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= (coneHigh ? 60.0 : 52.0) && virtualDist >= (coneHigh ? 46.0 : 34.0) && speedX > 0.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0 && Math.abs(speedRot) <= 0.05 && speedX < 22.0){
+        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= (coneHigh ? 61.5 : 52.0) && virtualDist >= (coneHigh ? 52.0 : 40.0) && speedX > -6.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0 && Math.abs(speedRot) <= 0.05 && speedX < 18.0 && !superCharge){
           m_claw.setSpeed(coneHigh ? m_rpmHigh.get(virtualDist) : m_rpmMid.get(virtualDist));
+        }
+        else if(superCharge && m_controller.getRightTriggerAxis() > 0.25 && Math.abs(speedX) <= 2.0 && Math.abs(speedY) <= 2.0){
+          m_claw.setSpeed(coneHigh ? 2485.0 : 1350);
         }
 
         desiredRot += Math.signum(desiredRot)*Math.abs(m_drive.getChassisSpeed().vxMetersPerSecond)/40.0;
+
+        desiredRot *= coneHigh ? 1.0 : 0.8; 
 
         fieldOrient = false;
         desiredX *= -1.0;

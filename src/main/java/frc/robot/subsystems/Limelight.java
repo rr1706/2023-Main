@@ -83,9 +83,9 @@ public class Limelight extends SubsystemBase {
         double[] pose;
         double timestamp = Timer.getFPGATimestamp() - getTotalLatency() / 1000;
         double[] poseWithTimestamp = new double[7];
-        if (m_alliance == Alliance.Blue) {
+        if (DriverStation.getAlliance() == Alliance.Blue) {
             pose = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
-        } else if (m_alliance == Alliance.Red) {
+        } else if (DriverStation.getAlliance() == Alliance.Red) {
             pose = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[6]);
         } else {
             pose = m_lime.getEntry("botpose").getDoubleArray(new double[6]);
