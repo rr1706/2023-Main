@@ -9,6 +9,7 @@ import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.commands.AutoAlign;
+import frc.robot.commands.ConeGrab;
 import frc.robot.commands.ConeIntake;
 import frc.robot.commands.ConeTransfer;
 import frc.robot.commands.Dock;
@@ -52,6 +53,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -91,6 +93,7 @@ public class RobotContainer {
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
   private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_poseEstimator::getPose, m_poseEstimator::resetOdometry, new PIDConstants(5.0, 0, 0), new PIDConstants(5.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
+  private final SwerveAutoBuilder balanceBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, new PIDConstants(5.0, 0, 0), new PIDConstants(5.0,0.0,0), m_drive::setModuleStates, events, true, m_drive, m_vision, m_claw);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -109,9 +112,10 @@ public class RobotContainer {
   new POVButton(m_driverController, 90)
     .onTrue(new InstantCommand(() -> m_poseEstimator.resetOdometry(new Pose2d(new Translation2d(1.85,3.08),new Rotation2d(Math.PI)))));
 
-  new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCoolThing))).onFalse(new InstantCommand(()->m_motionControl.setState(StateConstants.kHome)));
+  //new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCoolThing))).onFalse(new InstantCommand(()->m_motionControl.setState(StateConstants.kHome)));
 
   new JoystickButton(m_driverController, Button.kStart.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kStart)));
+  new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kUnJam)));
 
   new JoystickButton(m_driverController, Button.kA.value).whileTrue(m_align).onFalse( new InstantCommand(()->m_drive.changeSlewRate(8.0,16.0)));
   new JoystickButton(m_driverController, Button.kX.value).onTrue(new Grab(m_motionControl, true)).onTrue(new InstantCommand(()->m_drive.changeSlewRate(5.0,12.0)));
@@ -122,12 +126,16 @@ public class RobotContainer {
   new JoystickButton(m_driverController, Button.kLeftBumper.value).onTrue(new InstantCommand(() -> m_motionControl.setState(StateConstants.kCube)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(true))).alongWith(new InstantCommand(()->m_claw.setSpeed(-1250)))).onFalse(new InstantCommand(() -> m_motionControl.setState(StateConstants.kHome)).alongWith(new InstantCommand(()->m_motionControl.runCubeWhenReady(false))).alongWith(new InstantCommand(()->m_claw.setSpeed(-250))).alongWith(new InstantCommand(()->m_motionControl.forceCubeIn())));
   //new JoystickButton(m_driverController, Button.kY.value).onTrue(new InstantCommand(()->m_motionControl.toggleCube()).alongWith(new InstantCommand(()->m_motionControl.runCube(-0.15)))).onFalse(new InstantCommand(()->m_motionControl.runCube(0.0)));
 
-  new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
+  //new JoystickLeftTrigger(m_operatorController).onTrue(new InstantCommand(()-> m_motionControl.setState(StateConstants.kConeIntake)).alongWith(new InstantCommand(()->m_motionControl.runCone(0.5,false)))).onFalse(new InstantCommand(()->m_motionControl.coneIn()));
 
-  new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-2500))).onFalse(new InstantCommand(()->m_claw.setSpeed(-50.0)));
+  //new JoystickLeftTrigger(m_driverController).onTrue(new InstantCommand(()->m_claw.setSpeed(-2500))).onFalse(new InstantCommand(()->m_claw.setSpeed(-50.0)));
   
+  new JoystickLeftTrigger(m_driverController).whileTrue(new ConeGrab(m_claw, m_drive));
+
   new JoystickButton(m_operatorController, Button.kA.value).whileTrue(m_align);
-  
+
+  //new Trigger(()->m_operatorBoard.getRawButton(2)).onTrue(new InstantCommand(()->m_motionControl.setState(StateConstants.kSuper))).onFalse(new InstantCommand(()->m_motionControl.setState(StateConstants.kHome)));
+
   new JoystickRightTrigger(m_driverController).onTrue(new ConditionalCommand(new WaitCommand(1.0),new ConditionalCommand(new InstantCommand(()->m_claw.setSpeed(4500)),new InstantCommand(()->m_claw.setSpeed(1500)),()->m_operatorBoard.getRawButton(2)),()->m_align.isScheduled())).onFalse(new ConditionalCommand(new WaitCommand(1.0),new InstantCommand(()->m_claw.setSpeed(0.0)),()->m_align.isScheduled()));
   }
 
@@ -169,9 +177,16 @@ public class RobotContainer {
     .andThen(new AutoAlign(m_drive, m_motionControl, m_claw, m_driverController, m_operatorBoard, m_vision, m_topVision, 2, 0.0)
       .alongWith(new WaitCommand(0.75).andThen(new RunClaw(m_operatorBoard,m_vision, m_claw,2)))
       .withTimeout(1.25)));
+    
+
 
     for (File auto : m_autoPathFiles) {
-      if (auto.getName().contains(".path")) {
+      
+      if(auto.getName().contains("Balance")){
+        m_chooser.addOption(auto.getName(), 
+          balanceBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.0, 2.0)));
+      }
+      else if (auto.getName().contains(".path")) {
         m_chooser.addOption(
           auto.getName(), 
           autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), 4.0, 2.75))

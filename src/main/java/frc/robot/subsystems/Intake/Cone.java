@@ -84,7 +84,7 @@ public class Cone extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Cone Setpoint", m_setpoint.position);
+        //SmartDashboard.putNumber("Cone Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion, 0, 0.0);
 
         

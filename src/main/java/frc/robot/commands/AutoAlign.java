@@ -44,7 +44,7 @@ public class AutoAlign extends CommandBase {
     private boolean timeForCube = false;
     private MotionControlState m_state = new MotionControlState(StateConstants.kHome);
     private MotionControlState m_lastState = new MotionControlState(StateConstants.kHome);
-    private final PIDController m_rotPID = new PIDController(0.145, 0.00, 0.0025);
+    private final PIDController m_rotPID = new PIDController(0.125, 0.00, 0.0025);
 
     private final InterpolatingTreeMap<Double,Double> m_rpmHigh = new InterpolatingTreeMap<>();
     private final InterpolatingTreeMap<Double, Double> m_distHigh = new InterpolatingTreeMap<>();
@@ -85,11 +85,11 @@ public class AutoAlign extends CommandBase {
       m_distHigh.put(-8.0, 86.5);
       m_distHigh.put(-10.0, 100.0);
 
-      m_rpmMid.put(34.0, 1200.0);
-      m_rpmMid.put(40.0, 1375.0);
-      m_rpmMid.put(46.0, 1900.0);
-      m_rpmMid.put(52.0, 2465.0);
-      m_rpmMid.put(58.0, 3300.0);
+      m_rpmMid.put(34.0, 1300.0-100.0);
+      m_rpmMid.put(40.0, 1450.0-50.0);
+      m_rpmMid.put(46.0, 1850.0-50.0);
+      m_rpmMid.put(52.0, 2400.0-50.0);
+      m_rpmMid.put(58.0, 3100.0-100.0);
 
       m_distMidFromBottom.put(1.5, 37.0);
       m_distMidFromBottom.put(0.0, 43.0);
@@ -111,11 +111,11 @@ public class AutoAlign extends CommandBase {
       m_timeTableHigh.put(56.0, 0.465);
       m_timeTableHigh.put(63.0, 0.500);
 
-      m_timeTableMid.put(34.0, 0.200);
-      m_timeTableMid.put(40.0, 0.220);
-      m_timeTableMid.put(46.0, 0.230);
-      m_timeTableMid.put(52.0, 0.240);
-      m_timeTableMid.put(58.0, 0.250);
+      m_timeTableMid.put(34.0, 0.250);
+      m_timeTableMid.put(40.0, 0.270);
+      m_timeTableMid.put(46.0, 0.290);
+      m_timeTableMid.put(52.0, 0.310);
+      m_timeTableMid.put(58.0, 0.340);
 
       addRequirements(m_drive);
     }
@@ -318,7 +318,7 @@ public class AutoAlign extends CommandBase {
         }
         SmartDashboard.putNumber("Virtual Dist", virtualDist);
 
-        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= (coneHigh ? 61.5 : 52.0) && virtualDist >= (coneHigh ? 52.0 : 40.0) && speedX > -6.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0 && Math.abs(speedRot) <= 0.05 && speedX < 18.0 && !superCharge){
+        if(m_controller.getRightTriggerAxis() > 0.25 && virtualDist <= (coneHigh ? 60.0 : 48.0) && virtualDist >= (coneHigh ? 54.0 : 38.0) && speedX > -6.0 && Math.abs(angle) <= atAngle && Math.abs(speedY) <= 2.0 && Math.abs(speedRot) <= 0.05 && speedX < 18.0 && !superCharge){
           m_claw.setSpeed(coneHigh ? m_rpmHigh.get(virtualDist) : m_rpmMid.get(virtualDist));
         }
         else if(superCharge && m_controller.getRightTriggerAxis() > 0.25 && Math.abs(speedX) <= 2.0 && Math.abs(speedY) <= 2.0){

@@ -223,7 +223,7 @@ public class SwerveModule {
    */
   public double getTurnEncoder() {
     double absEnc = -1.0*m_turningEncoder.getAbsolutePosition()*2*Math.PI+m_offset;
-    SmartDashboard.putNumber(moduleID+" enc", absEnc);
+    //SmartDashboard.putNumber(moduleID+" enc", absEnc);
     if(m_useNEO){
       return getStateAngle();
     }

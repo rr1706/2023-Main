@@ -82,7 +82,7 @@ public class Cube extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Cube Setpoint", m_setpoint.position);
+        //SmartDashboard.putNumber("Cube Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion, 0, 0.0);
 
         m_motor.set(m_speed);

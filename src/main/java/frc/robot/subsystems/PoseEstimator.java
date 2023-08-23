@@ -45,14 +45,14 @@ public class PoseEstimator extends SubsystemBase {
             new Translation2d(visionMeasurement[0], visionMeasurement[1]),
             new Rotation2d(visionMeasurement[5]));
 
-        SmartDashboard.putNumber("VisionX", visionPose.getX());
-        SmartDashboard.putNumber("VisionY", visionPose.getY());
+        //SmartDashboard.putNumber("VisionX", visionPose.getX());
+        //SmartDashboard.putNumber("VisionY", visionPose.getY());
 
-        boolean m_overide = SmartDashboard.getBoolean("Set Pose Est", false);
+        //boolean m_overide = SmartDashboard.getBoolean("Set Pose Est", false);
 
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if (((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7] && visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.05 && velocity <= 3.0 && angularVelocity <= 0.5 * Math.PI && visionPose.getTranslation().getX() <= 5.0) || m_overide) {
-            SmartDashboard.putBoolean("Set Pose Est", false);
+        if (((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7] && visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.05 && velocity <= 3.0 && angularVelocity <= 0.5 * Math.PI && visionPose.getTranslation().getX() <= 5.0)) {
+           // SmartDashboard.putBoolean("Set Pose Est", false);
             if (m_initializedPose) {
                 if(m_vision.valid()){
                     m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(5.0, 5.0, 5.0));
@@ -68,9 +68,9 @@ public class PoseEstimator extends SubsystemBase {
         Pose2d pose = getPose();
         double[] poseArray = {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
         //SmartDashboard.putNumberArray("Robot Pose", poseArray);
-        SmartDashboard.putNumber("PoseEst X", poseArray[0]);
-        SmartDashboard.putNumber("PoseEst Y",  poseArray[1]);
-        SmartDashboard.putNumber("PoseEst Gyro",  poseArray[2]);
+        //SmartDashboard.putNumber("PoseEst X", poseArray[0]);
+        //SmartDashboard.putNumber("PoseEst Y",  poseArray[1]);
+        //SmartDashboard.putNumber("PoseEst Gyro",  poseArray[2]);
         //m_field.setRobotPose(pose);
      }
 
