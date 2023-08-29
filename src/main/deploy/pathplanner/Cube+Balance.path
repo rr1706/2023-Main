@@ -17,8 +17,9 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "ConeMid",
-          "RunClawConeMid",
+          "CubeHigh",
+          "WaitUntilReady",
+          "RunClawCubeHigh",
           "Home"
         ],
         "executionBehavior": "sequential",
@@ -155,16 +156,16 @@
     },
     {
       "anchorPoint": {
-        "x": 5.708713956657585,
-        "y": 2.858864490910151
+        "x": 5.7201494146212255,
+        "y": 2.8702999488737913
       },
       "prevControl": {
-        "x": 5.450686588107281,
-        "y": 2.858864490910151
+        "x": 5.462122046070922,
+        "y": 2.8702999488737913
       },
       "nextControl": {
-        "x": 5.966741325207888,
-        "y": 2.858864490910151
+        "x": 5.978176783171529,
+        "y": 2.8702999488737913
       },
       "holonomicAngle": 90.0,
       "isReversal": false,
@@ -180,12 +181,12 @@
     },
     {
       "anchorPoint": {
-        "x": 6.17756773316685,
-        "y": 2.858864490910151
+        "x": 6.234745022985052,
+        "y": 2.8702999488737913
       },
       "prevControl": {
-        "x": 6.017216269082297,
-        "y": 2.858864490910151
+        "x": 6.0743935589005,
+        "y": 2.8702999488737913
       },
       "nextControl": null,
       "holonomicAngle": 90.0,
@@ -205,8 +206,5 @@
       }
     }
   ],
-  "maxVelocity": 3.0,
-  "maxAcceleration": 2.0,
-  "isReversed": null,
   "markers": []
 }

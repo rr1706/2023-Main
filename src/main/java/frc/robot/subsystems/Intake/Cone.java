@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -46,7 +47,9 @@ public class Cone extends SubsystemBase {
         m_motorExt.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         
         m_PID.setSmartMotionMaxAccel(25000, 0);
-        m_PID.setSmartMotionMaxVelocity(11000, 0);
+        m_PID.setSmartMotionMaxVelocity(10000, 0);
+
+        m_motor.setIdleMode(IdleMode.kBrake);
 
         m_motor.burnFlash();
         m_motorExt.burnFlash();
@@ -81,7 +84,7 @@ public class Cone extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Cone Setpoint", m_setpoint.position);
+        //SmartDashboard.putNumber("Cone Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion, 0, 0.0);
 
         

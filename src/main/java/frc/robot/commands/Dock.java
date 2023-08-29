@@ -48,9 +48,19 @@ public class Dock extends CommandBase {
         if (m_climbing) {
             m_drive.drive(directionFactor * climbSpeed, 0.0, 0.0, true, keepAngle);
         } else {
-            if (((Math.abs(m_drive.getTiltVel()) >= angularSensitivity)) && !m_finished) {
-                if (!m_initialHump) {
-                    m_levelEpoch = Timer.getFPGATimestamp();
+            m_climbPID.calculate(m_drive.getTilt());
+            if (((Math.abs(m_drive.getTiltVel()) >= 12.0)) && !m_finished) {
+                m_levelingPID.calculate(m_drive.getTilt());
+                if (!m_finished) {
+                    if (!m_initialHump) {
+                        m_levelEpoch = Timer.getFPGATimestamp();
+                    }
+                    m_drive.drive(directionFactor*  0.85, 0, 0, true, false);
+                    m_initialHump = true;
+                    if (Timer.getFPGATimestamp() - m_levelEpoch >= 1.7) {
+                        m_finished = true;
+                        m_drive.setModuleStates(DriveConstants.kLockedWheels);
+                    }
                 }
                 m_drive.drive(directionFactor * climbSpeed, 0.0, 0.0, true, keepAngle);
                 m_initialHump = true;
@@ -61,7 +71,11 @@ public class Dock extends CommandBase {
             } else if (m_finished) {
                 m_drive.setModuleStates(DriveConstants.kLockedWheels);
             } else {
-                m_drive.drive(directionFactor * levelSpeed, 0.0, 0.0, true, keepAngle);
+                if (!m_finished) {
+
+                    m_levelingPID.calculate(m_drive.getTilt());
+                    m_drive.drive(directionFactor * 0.35, 0.0, 0.0, true, false);
+                }
             }
         }
     }

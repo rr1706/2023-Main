@@ -3,9 +3,10 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveConstants;
@@ -16,13 +17,16 @@ public class PoseEstimator extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
     private final Drivetrain m_drive;
     private final Limelight m_vision;
-    //private final Field2d m_field = new Field2d();
+
+    private boolean m_initializedPose = true;
+
     public PoseEstimator(Drivetrain drive, Limelight limelight, Pose2d intialPose) {
         m_drive = drive;
         m_vision = limelight;
         //SmartDashboard.putData("Field", m_field);
+        SmartDashboard.putBoolean("Set Pose Est", false);
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(1.0)), VecBuilder.fill(0.8, 0.8, Units.degreesToRadians(10.0)));
+        m_poseEstimator = new SwerveDrivePoseEstimator(DriveConstants.kDriveKinematics, m_drive.getGyro(), m_drive.getModulePositions(), intialPose, VecBuilder.fill(0.229, 0.229, 0.0), VecBuilder.fill(5, 5, 5));
     }
 
     @Override
@@ -32,12 +36,31 @@ public class PoseEstimator extends SubsystemBase {
     }
 
     private void updatePoseEstimator() {
-        double timestamp = Timer.getFPGATimestamp() - (m_vision.getTotalLatency() / 1000.0);
-        Pose2d currentPose = m_poseEstimator.getEstimatedPosition();
-        Pose2d visionPose = getVisionPose();
+        double[] visionMeasurement = m_vision.getLatestPose3d();
+        double timestamp = visionMeasurement[6];
+        double velocity = MathUtils.pythagorean(m_drive.getChassisSpeed().vxMetersPerSecond, m_drive.getChassisSpeed().vyMetersPerSecond);
+        double angularVelocity = m_drive.getChassisSpeed().omegaRadiansPerSecond;
+        Pose2d currentPose = getPose();
+        Pose2d visionPose = new Pose2d(
+            new Translation2d(visionMeasurement[0], visionMeasurement[1]),
+            new Rotation2d(visionMeasurement[5]));
+
+        //SmartDashboard.putNumber("VisionX", visionPose.getX());
+        //SmartDashboard.putNumber("VisionY", visionPose.getY());
+
+        //boolean m_overide = SmartDashboard.getBoolean("Set Pose Est", false);
+
         m_poseEstimator.updateWithTime(Timer.getFPGATimestamp(), m_drive.getGyro(), m_drive.getModulePositions());
-        if (Math.abs(MathUtils.pythagorean(currentPose.getX(), currentPose.getY()) - MathUtils.pythagorean(visionPose.getX(), visionPose.getY())) <= VisionConstants.kPoseErrorAcceptance) {
-            m_poseEstimator.addVisionMeasurement(visionPose, timestamp);
+        if (((currentPose.getTranslation().getDistance(visionPose.getTranslation()) <= VisionConstants.kPoseErrorAcceptance || !m_initializedPose) && visionMeasurement != new double[7] && visionPose.getTranslation().getDistance(currentPose.getTranslation()) >= 0.05 && velocity <= 3.0 && angularVelocity <= 0.5 * Math.PI && visionPose.getTranslation().getX() <= 5.0)) {
+           // SmartDashboard.putBoolean("Set Pose Est", false);
+            if (m_initializedPose) {
+                if(m_vision.valid()){
+                    m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(5.0, 5.0, 5.0));
+                }
+            } else {
+               // m_poseEstimator.addVisionMeasurement(visionPose, timestamp, VecBuilder.fill(0.0, 0.0, 999999));
+                //m_initializedPose = true;
+            }
         }
     }
 
@@ -45,10 +68,10 @@ public class PoseEstimator extends SubsystemBase {
         Pose2d pose = getPose();
         double[] poseArray = {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
         //SmartDashboard.putNumberArray("Robot Pose", poseArray);
-        //SmartDashboard.putNumber("Robot X", poseArray[0]);
-        //SmartDashboard.putNumber("Robot Y",  poseArray[1]);
-        //SmartDashboard.putNumber("Robot Gyro",  poseArray[2]);
-        //m_field.setRobotPose(pose);   
+        //SmartDashboard.putNumber("PoseEst X", poseArray[0]);
+        //SmartDashboard.putNumber("PoseEst Y",  poseArray[1]);
+        //SmartDashboard.putNumber("PoseEst Gyro",  poseArray[2]);
+        //m_field.setRobotPose(pose);
      }
 
     public Pose2d getPose() {
@@ -72,12 +95,8 @@ public class PoseEstimator extends SubsystemBase {
         );
     }
 
-    private Pose2d getVisionPose() {
-        return m_vision.getPose3d().toPose2d();
-    }
-
     public void resetOdometry(Pose2d pose) {
-        m_drive.resetOdometry(pose);
+        m_drive.resetOdometry(new Pose2d(pose.getTranslation(), pose.getRotation()));
         m_poseEstimator.resetPosition(m_drive.getGyro().times(-1.0), m_drive.getModulePositions(), pose);
     }
 

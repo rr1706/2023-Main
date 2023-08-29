@@ -1,17 +1,20 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import java.util.ArrayList;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Limelight extends SubsystemBase {
     private final NetworkTable m_lime;
     private final String m_name;
+    private final ArrayList<double[]> m_poses = new ArrayList<>();
 
     private Alliance m_alliance = Alliance.Invalid;
 
@@ -26,6 +29,9 @@ public class Limelight extends SubsystemBase {
         if (m_alliance == Alliance.Invalid) {
             m_alliance = DriverStation.getAlliance();
         }
+        storePose(getPoseWithTimestamp());
+        //SmartDashboard.putNumber("Vision X", m_poses.get(m_poses.size() - 1)[0]);
+        //SmartDashboard.putNumber("Vision Y", m_poses.get(m_poses.size() - 1)[1]);
     }
 
     public String getName() {
@@ -42,6 +48,10 @@ public class Limelight extends SubsystemBase {
 
     public double getTY() {
         return m_lime.getEntry("ty").getDouble(999999);
+    }
+
+    public double getAltTY() {
+        return Math.min(m_lime.getEntry("cy0").getDouble(999999), m_lime.getEntry("cy1").getDouble(999999));
     }
 
     /**
@@ -69,26 +79,34 @@ public class Limelight extends SubsystemBase {
      * 
      * @return The robot's 3D pose according to the limelight
      */
-    public Pose3d getPose3d() {
-        if (m_alliance == Alliance.Blue) {
-            double[] poseArray = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
-            return new Pose3d(
-                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
-                new Rotation3d(poseArray[3], poseArray[4], poseArray[5]*Math.PI/180.0)
-            );
-        } else if (m_alliance == Alliance.Red) {
-            double[] poseArray = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[6]);
-            return new Pose3d(
-                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
-                new Rotation3d(poseArray[3], poseArray[4], poseArray[5]*Math.PI/180.0)
-            );
+    private double[] getPoseWithTimestamp() {
+        double[] pose;
+        double timestamp = Timer.getFPGATimestamp() - getTotalLatency() / 1000;
+        double[] poseWithTimestamp = new double[7];
+        if (DriverStation.getAlliance() == Alliance.Blue) {
+            pose = m_lime.getEntry("botpose_wpiblue").getDoubleArray(new double[6]);
+        } else if (DriverStation.getAlliance() == Alliance.Red) {
+            pose = m_lime.getEntry("botpose_wpired").getDoubleArray(new double[6]);
         } else {
-            double[] poseArray = m_lime.getEntry("botpose").getDoubleArray(new double[6]);
-            return new Pose3d(
-                new Translation3d(poseArray[0], poseArray[1], poseArray[2]),
-                new Rotation3d(poseArray[3], poseArray[4], poseArray[5]*Math.PI/180.0)
-            );
+            pose = m_lime.getEntry("botpose").getDoubleArray(new double[6]);
         }
+        for (int i = 0; i < 6; i++) {
+            poseWithTimestamp[i] = pose[i];
+        }
+        if (poseWithTimestamp != new double[7]) {
+            poseWithTimestamp[6] = timestamp;
+        }
+        return poseWithTimestamp;
+    }
+
+    private void storePose(double[] pose) {
+        if (pose != new double[7]) {
+            m_poses.add(pose);
+        }
+    }
+
+    public double[] getLatestPose3d() {
+        return m_poses.size() == 0 ? new double[7] : m_poses.remove(0);
     }
 
     /**
@@ -125,7 +143,7 @@ public class Limelight extends SubsystemBase {
 
     /**
      * 
-     * @param status 0 = Pipeline Controlled, 1 = Off, 2 = On, 3 = Blinking
+     * @param status 0 = Pipeline Controlled, 1 = Off, 2 = Blink, 3 = On
      */
     public void setLights(int status) {
         m_lime.getEntry("ledMode").setNumber(status);

@@ -46,8 +46,8 @@ public class Cube extends SubsystemBase {
         m_motor.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         m_motorExt.enableVoltageCompensation(GlobalConstants.kVoltCompensation);
         
-        m_PID.setSmartMotionMaxAccel(20000, 0);
-        m_PID.setSmartMotionMaxVelocity(11000, 0);
+        m_PID.setSmartMotionMaxAccel(25000, 0);
+        m_PID.setSmartMotionMaxVelocity(10000, 0);
         
         m_motor.burnFlash();
         m_motorExt.burnFlash();
@@ -82,7 +82,7 @@ public class Cube extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Cube Setpoint", m_setpoint.position);
+        //SmartDashboard.putNumber("Cube Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion, 0, 0.0);
 
         m_motor.set(m_speed);

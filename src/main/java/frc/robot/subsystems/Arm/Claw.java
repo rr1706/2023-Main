@@ -1,3 +1,4 @@
+
 package frc.robot.subsystems.Arm;
 
 import com.revrobotics.CANSparkMax;
@@ -36,7 +37,7 @@ public class Claw extends SubsystemBase{
         mPID.setP(0.0001);
         mPID.setFF(0.0000);
 
-        mPID.setSmartMotionMaxAccel(14000, 0);
+        mPID.setSmartMotionMaxAccel(27500, 0);
         mPID.setSmartMotionMaxVelocity(5000, 0);
 
         mMotor1.burnFlash();
@@ -56,7 +57,8 @@ public class Claw extends SubsystemBase{
 
     @Override
     public void periodic(){
-
+        double power = mMotor1.getOutputCurrent()*mMotor1.getAppliedOutput()*mMotor1.getBusVoltage()+mMotor2.getOutputCurrent()*mMotor2.getAppliedOutput()*mMotor2.getBusVoltage();
+        SmartDashboard.putNumber("Claw Power", power);
         SmartDashboard.putNumber("Claw Speed", mEncoder.getVelocity());
     }
 

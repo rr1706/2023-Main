@@ -26,11 +26,12 @@ public class Wrist extends SubsystemBase {
         m_PID = m_motor.getPIDController();
         m_encoder = m_motor.getEncoder();
 
-        m_PID.setP(0.00001);
+        m_PID.setP(0.0001);
         m_PID.setFF(0.00009);
 
-        m_PID.setSmartMotionMaxAccel(17500, 0);
-        m_PID.setSmartMotionMaxVelocity(5500, 0);
+        m_PID.setSmartMotionMaxAccel(25000, 0);
+        m_PID.setSmartMotionMaxVelocity(11000, 0);
+        m_PID.setSmartMotionAllowedClosedLoopError(0.0, 0);
 
         m_motor.setSoftLimit(SoftLimitDirection.kForward, (float) ArmsConstants.kMaxWrist);
         m_motor.setSoftLimit(SoftLimitDirection.kReverse, (float) ArmsConstants.kMinWrist);
@@ -43,7 +44,7 @@ public class Wrist extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Wrist Setpoint", m_setpoint.position);
+       // SmartDashboard.putNumber("Wrist Setpoint", m_setpoint.position);
         m_PID.setReference(m_setpoint.position, ControlType.kSmartMotion,0,0.0);
     }
 
@@ -69,7 +70,7 @@ public class Wrist extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 4.0;
+        return Math.abs(m_setpoint.position-m_encoder.getPosition()) <= 5.0;
     }
     
 }

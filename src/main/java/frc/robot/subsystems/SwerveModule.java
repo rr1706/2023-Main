@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.*;
 
@@ -39,7 +40,8 @@ public class SwerveModule {
 
   // Create a Potentiometer to store the output of the absolute encoder that
   // tracks the angular position of the swerve module
-  private final AnalogPotentiometer m_turningEncoder;
+  private final DutyCycleEncoder m_turningEncoder;
+  private final double m_offset;
 
   // Creates a variable to store the moduleID for various tuning and debugging
   // (Currently not being used)
@@ -128,7 +130,9 @@ public class SwerveModule {
     // Creates the analog potentiometer for the tracking of the swerve module
     // position converted to the range of 0-2*PI in radians offset by the tuned
     // module offset
-    m_turningEncoder = new AnalogPotentiometer(turningEncoderChannel, 2.0 * Math.PI, angularOffset);
+    m_turningEncoder = new DutyCycleEncoder(turningEncoderChannel);
+    m_turningEncoder.setDutyCycleRange(0, 1);
+    m_offset = angularOffset;
 
     // Limit the PID Controller's input range between -pi and pi and set the input
     // to be continuous so the PID will command the shortest path.
@@ -174,20 +178,13 @@ public class SwerveModule {
     // Optimize the reference state to avoid spinning further than 90 degrees
     SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getTurnEncoder()));
     // Calculate the drive output from the drive PID controller.
-    final double driveOutput = m_drivePIDController.calculate(m_driveEncoder.getVelocity(), state.speedMetersPerSecond);
+    //final double driveOutput = m_drivePIDController.calculate(m_driveEncoder.getVelocity(), state.speedMetersPerSecond);
     // Calculates the desired feedForward motor % from the current desired velocity
     // and the static and feedforward gains
     final double driveFF = driveFeedForward.calculate(state.speedMetersPerSecond);
    
-    if(m_useNEO){
-      SmartDashboard.putNumber("Speed"+moduleID, driveFF);
-      m_transPID.setReference(state.speedMetersPerSecond, ControlType.kVelocity,0,driveFF*GlobalConstants.kVoltCompensation);
-    } else{
-    // Set the drive motor to the sum of the feedforward calculation and PID
-    // calculation
-      final double finalDriveOutput = driveOutput + driveFF;
-      m_driveMotor.set(finalDriveOutput);
-   }
+    m_transPID.setReference(state.speedMetersPerSecond, ControlType.kVelocity,0,driveFF*GlobalConstants.kVoltCompensation);
+
    
    
    
@@ -203,6 +200,15 @@ public class SwerveModule {
     }
   }
 
+  public void enableBrake(boolean brake){
+   if(brake){
+    m_driveMotor.setIdleMode(IdleMode.kBrake);
+   }
+   else{
+    m_driveMotor.setIdleMode(IdleMode.kCoast);
+   }
+  }
+
   public void stop() {
     m_driveMotor.set(0.0);
     m_turningMotor.set(0.0);
@@ -216,11 +222,13 @@ public class SwerveModule {
    * @return the modified absolute encoder value.
    */
   public double getTurnEncoder() {
+    double absEnc = -1.0*m_turningEncoder.getAbsolutePosition()*2*Math.PI+m_offset;
+    //SmartDashboard.putNumber(moduleID+" enc", absEnc);
     if(m_useNEO){
       return getStateAngle();
     }
     else{
-      return -1.0 * m_turningEncoder.get();
+      return absEnc;
     }
   }
 
@@ -242,7 +250,7 @@ public class SwerveModule {
 
       this.referenceAngleRadians = referenceAngleRadians;
 
-      SmartDashboard.putNumber("ADJRot "+moduleID, adjustedReferenceAngleRadians);
+      //SmartDashboard.putNumber("ADJRot "+moduleID, adjustedReferenceAngleRadians);
 
       m_turnPID.setReference(adjustedReferenceAngleRadians, CANSparkMax.ControlType.kPosition);
   }

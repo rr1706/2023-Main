@@ -15,21 +15,22 @@ public class ConeIntake extends CommandBase{
     public ConeIntake(MotionControlSystem motionSystem, Claw claw){
         m_motionSystem = motionSystem;
         m_claw = claw;
+
+        addRequirements(m_motionSystem);
     }
 
     @Override
     public void initialize(){
         m_finished = false;
-        SmartDashboard.putBoolean("ConeIntake", true);
         m_motionSystem.setState(StateConstants.kConeIntake);
-        m_motionSystem.runCone(0.85,false);
+        m_motionSystem.runCone(0.40,false);
     }
 
     @Override
     public void end(boolean interrupted){
-        SmartDashboard.putBoolean("ConeIntake", false);
-        m_motionSystem.coneIn();
         m_claw.setSpeed(-750);
+        m_motionSystem.runCone(0.0,false);
+        m_motionSystem.setState(StateConstants.kConeIntakeIn);
     }
     
     public void forceCancel(){
