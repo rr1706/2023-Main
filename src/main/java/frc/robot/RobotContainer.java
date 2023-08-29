@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.StateConstants;
 import frc.robot.commands.AutoAlign;
@@ -22,11 +23,13 @@ import frc.robot.subsystems.PoseEstimator;
 import frc.robot.subsystems.Arm.Claw;
 import frc.robot.utilities.JoystickLeftTrigger;
 import frc.robot.utilities.JoystickRightTrigger;
+import frc.robot.utilities.OperatorBoard;
 
 import java.io.File;
 import java.util.HashMap;
 
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
@@ -35,6 +38,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -43,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -136,6 +141,7 @@ public class RobotContainer {
 
   private void configureAutoEvents() {
     events.put("Low", new InstantCommand(() -> m_motionControl.setState(StateConstants.kLow)));
+    events.put("ConeIntake", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeIntake)));
     events.put("Floor", new InstantCommand(() -> m_motionControl.setState(StateConstants.kFloor)));
     events.put("Grab", new InstantCommand(() -> m_motionControl.setState(StateConstants.kGrab)));
     events.put("ConeHigh", new InstantCommand(() -> m_motionControl.setState(StateConstants.kConeHigh)));
@@ -209,6 +215,7 @@ public class RobotContainer {
     return m_chooser.getSelected();
   }
 
-  public Command onEnable() {
+  public Command onEnable(){
     return new InstantCommand(()->m_motionControl.setState(StateConstants.kHome));
   }
+}
