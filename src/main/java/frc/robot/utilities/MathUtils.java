@@ -81,4 +81,18 @@ public class MathUtils {
       return new Twist2d(translation_part.getX(), translation_part.getY(), dtheta);
   }
 
+    /** Return an angle normalized within 0 to 2pi */
+    public static double normalizeAngle(double angle) {
+      return angle - (2 * Math.PI * Math.floor(angle / (2 * Math.PI)));
+    }
+
+    /** Return an angle normalized within the same range as the reference angle */
+    public static double normalizeAngle(double angle, double reference) {
+      return angle + (2 * Math.PI * Math.floor(reference / (2 * Math.PI)));
+    }
+
+    public static Translation2d getIntersection() {
+      return new Translation2d(); // not finished
+    }
+
 }

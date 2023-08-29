@@ -24,6 +24,7 @@ import frc.robot.utilities.MotionControlState;
 
 public class AutoAlign extends CommandBase {
     private final Drivetrain m_drive;
+    private final Limelight m_vision;
 
     private final XboxController m_controller;
     private final GenericHID m_operatorBoard;
