@@ -37,6 +37,8 @@ public class Cone extends SubsystemBase {
         m_encoder = m_motor.getEncoder();
         m_extEncoder = m_motorExt.getEncoder();
 
+        m_motor.setInverted(false);
+
         m_motorExt.setSoftLimit(SoftLimitDirection.kForward, (float) IntakeConstants.kExtendedCone);
         m_motorExt.setSoftLimit(SoftLimitDirection.kReverse, (float) IntakeConstants.kRetractedCone);
         m_PID.setP(IntakeConstants.kConeP);

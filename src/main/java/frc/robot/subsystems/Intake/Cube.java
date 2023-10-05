@@ -31,6 +31,8 @@ public class Cube extends SubsystemBase {
         m_motor = new CANSparkMax(IntakeConstants.kCubeMotors[1], MotorType.kBrushless);
         m_motorExt = new CANSparkMax(IntakeConstants.kCubeMotors[0], MotorType.kBrushless);
 
+        m_motorExt.setInverted(false);
+
         m_PID = m_motorExt.getPIDController();
         m_extEncoder = m_motorExt.getEncoder();
         m_encoder = m_motor.getEncoder();
